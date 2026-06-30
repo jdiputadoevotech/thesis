@@ -1,0 +1,16 @@
+# Independent code repos — tracked in their own git, ignored here
+data_creation/
+font-classify/
+
+# Python / tooling cruft (in case any spills into the root)
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+
+# Build outputs if a paper is compiled later
+*.pdf      # ponytail: drop this line later if you want to commit the final PDF
+*.aux
+*.log
+*.out
