@@ -40,7 +40,7 @@ Batch bodies ≈ 16–19 pp; + chapter intro (~0.5) + cross-batch synthesis/gap 
 - **Sub-clusters:** A.1 domain anchor — DeepFont (30) · A.2 classical OCR / geometric layout on clean text (22, 26) · A.3 attention-based localization bridge (21, 25) · A.4 taxonomy & augmentation rationale (27, 28)
 
 ```
-/academic-research-skills:ars-list-review Write Batch A of Chapter 2 (Review of Related Literature) — "Legacy Font
+/academic-research-skills:ars-lit-review Write Batch A of Chapter 2 (Review of Related Literature) — "Legacy Font
 Recognition, OCR/Layout & Closed-Set Vector Assumptions." Use ONLY references [30,22,26,21,25,27,28]
 from literature/references.md. Target 3.5–4 pages of dense, defense-grade synthesis in APA 7.0,
 following sub-clusters A.1–A.4 in chapters/02-review-of-related-literature/notes.md. Frame every
@@ -58,7 +58,7 @@ with Ch2. Write the prose into section 2.2 of chapters/02-review-of-related-lite
 - **Sub-clusters:** C.1 empirical scale (11, 10) · C.2 deformation mechanism (14, 12) · C.3 long-tail concentration + diffusion latent mutation (13, 29) · C.4 evaluation taxonomy (15)
 
 ```
-/academic-research-skills:ars-list-review Write Batch C of Chapter 2 (Review of Related Literature) — "Generative AI
+/academic-research-skills:ars-lit-review Write Batch C of Chapter 2 (Review of Related Literature) — "Generative AI
 Typographic Hallucinations & Diffusion Latent Mutations." Use ONLY references [11,10,14,12,13,29,15]
 from literature/references.md. Target 3.5–4 pages of dense, defense-grade synthesis in APA 7.0,
 following sub-clusters C.1–C.4 in chapters/02-review-of-related-literature/notes.md. Establish the
@@ -77,7 +77,7 @@ Write the prose into section 2.3 of chapters/02-review-of-related-literature/dra
 - **Sub-clusters:** B₁.1 energy / logit rescaling scores (1, 2) · B₁.2 rank-based rejection + survey scaffold (4, 5)
 
 ```
-/academic-research-skills:ars-list-review Write Batch B1 of Chapter 2 (Review of Related Literature) — "Logit-Space Thresholds
+/academic-research-skills:ars-lit-review Write Batch B1 of Chapter 2 (Review of Related Literature) — "Logit-Space Thresholds
 & Open-Set Rejection Scores." Use ONLY references [1,2,4,5] from literature/references.md. Target
 2.5–3 pages of dense, defense-grade synthesis in APA 7.0, following sub-clusters B1.1–B1.2 in
 chapters/02-review-of-related-literature/notes.md. Frame these as the score-and-threshold machinery
@@ -95,7 +95,7 @@ Write the prose into section 2.4 of chapters/02-review-of-related-literature/dra
 - **Sub-clusters:** B₂.1 disentangled features + frozen backbone (3, 6, 7) · B₂.2 trait localization, label-free distillation & metric topology (8, 9, 23)
 
 ```
-/academic-research-skills:ars-list-review Write Batch B2 of Chapter 2 (Review of Related Literature) — "Feature Disentanglement
+/academic-research-skills:ars-lit-review Write Batch B2 of Chapter 2 (Review of Related Literature) — "Feature Disentanglement
 & Frozen-ViT Metric Embedding." Use ONLY references [3,6,7,8,9,23] from literature/references.md.
 Target 3.5–4 pages of dense, defense-grade synthesis in APA 7.0, following sub-clusters B2.1–B2.2 in
 chapters/02-review-of-related-literature/notes.md. Frame these as the layout-independent embedding the
@@ -114,7 +114,7 @@ Write the prose into section 2.5 of chapters/02-review-of-related-literature/dra
 - **Sub-clusters:** D.1 deformation-robust structural distance (16, 17, 24) · D.2 calibrated Top-K + font-fidelity + human-proxy alignment (18, 19, 20)
 
 ```
-/academic-research-skills:ars-list-review Write Batch D of Chapter 2 (Review of Related Literature) — "Advanced Visual Distance
+/academic-research-skills:ars-lit-review Write Batch D of Chapter 2 (Review of Related Literature) — "Advanced Visual Distance
 Metrics (SSIM) & Human-Proxy Ground-Truth Alignment." Use ONLY references [16,17,24,18,19,20] from
 literature/references.md. Target 3.5–4 pages of dense, defense-grade synthesis in APA 7.0, following
 sub-clusters D.1–D.2 in chapters/02-review-of-related-literature/notes.md. Couple a deformation-robust
