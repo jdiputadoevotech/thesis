@@ -17,19 +17,20 @@ free template reconstruction.
 ## Layout
 | Path | What's here |
 |------|-------------|
-| `chapters/` | The thesis text, one folder per chapter (PH 5-chapter structure). See the notes/draft convention below. |
+| `chapters/` | The thesis text, one folder per chapter. See the notes/draft convention below. |
 | `literature/references.md` | Running source catalog — one row per source (~30 verified). `Cited in` column tracks usage. |
 | `literature/papers/` | Local PDFs of source papers. |
 | `ideas/ideas.md` | Idea inbox, newest on top. |
 | `plans/plans.md` | Task/experiment plans + status. |
 | `assets/` | Figures, diagrams, comparative charts. |
 
-### Chapters (PH 5-chapter)
+### Chapters
 1. Introduction — The Problem and Its Background
 2. Review of Related Literature (RRL) — *drafted (~15–20 pp)*
-3. Methodology
-4. Results and Discussion
-5. Summary, Conclusions, and Recommendations
+3. Technical Background
+4. Methodology
+5. Results and Discussion
+6. Summary, Conclusions, and Recommendations
 
 ### notes.md vs draft.md
 Each chapter folder holds up to two kinds of file:

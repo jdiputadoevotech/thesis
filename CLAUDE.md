@@ -18,9 +18,10 @@ When navigating, reading, or creating content, strictly adhere to the following 
 - **`chapters/`**: The core academic text composition root. Each chapter folder holds **two file kinds** (see the notes-vs-draft convention below):
   - `01-introduction/` — `notes.md`: Context, Problem Statement, Objectives.
   - `02-review-of-related-literature/` — `notes.md` (Master RRL Planner blueprint) + `draft.md` (the actual publication-grade chapter prose, ~15–20 pp, **written**).
-  - `03-methodology/` — `notes.md`: Synthetic pipeline design, training metrics, evaluation logic.
-  - `04-results-and-discussion/` — `notes.md`: Comparative charts vs. human proxy & baseline.
-  - `05-summary-conclusions-recommendations/` — `notes.md`: Final conclusions and future horizons.
+  - `03-technical-background/` — `notes.md`: Foundational concepts (typography, CNNs, metric learning, ViT/DINO, open-set recognition, SSIM) preceding the methodology.
+  - `04-methodology/` — `notes.md`: Synthetic pipeline design, training metrics, evaluation logic.
+  - `05-results-and-discussion/` — `notes.md`: Comparative charts vs. human proxy & baseline.
+  - `06-summary-conclusions-recommendations/` — `notes.md`: Final conclusions and future horizons.
 - **`data_creation/`** *(Gitignored Sandbox — NOT in a fresh clone)*: The old, standalone synthetic data generator repository. Reference its scripts for asset production logic.
 - **`font-classify/`** *(Gitignored Sandbox — NOT in a fresh clone)*: The cloned Storia-AI repository (Google Font Classifier, 3,474 fonts). Use this exclusively as our comparative testing baseline — it is also the field's reference embedding cited in the RRL (see references row 20). We acknowledge its pre-trained weights fail "in the wild" on actual GenAI text deformations due to pristine over-fitting.
 
