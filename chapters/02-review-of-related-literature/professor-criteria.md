@@ -105,19 +105,6 @@ Sentence 5 – Synthesize and identify the gap:
 Bring agreement and contrast together, then point out what is missing. 
 Example: This agreement on benefits, alongside contrasting concerns about drawbacks, reveals a gap in the literature: few studies have examined strategies to maximize the advantages of mobile learning while minimizing its negative effects.
 
-
-Reference Managers
-Popular Reference Managers
-Zotero
-Best For: Overall versatility, open-source flexibility, and cross-platform syncing.
-EndNote
-Best For: Advanced users, heavily institutional environments, and large-scale, complex literature reviews.
-Mendeley
-Best For: Collaborative research and users who prefer a visually integrated PDF reading and annotation interface.
-Paperpile
-Best For: Google Workspace (Google Docs and Google Drive) power users.
- 
-
 Key Considerations for Choosing
 Word Processor Integration
 Ensure the software offers plugins for your preferred writing environment (e.g., Microsoft Word, Google Docs, or LaTeX).
