@@ -1,0 +1,30 @@
+digraph system_pipeline {
+	dpi=300 rankdir=TB size="8.5,11"
+	node [color="#1E293B" fillcolor="#F1F5F9" fontcolor="#0F172A" fontname=Arial fontsize=10 shape=box style="filled,rounded"]
+	edge [color="#1E293B" fontcolor="#0F172A" fontname=Arial fontsize=8.5]
+	input [label="Input Generative AI Image
+(Containing deformed text crops)" fillcolor="#F1F5F9" shape=box]
+	crop_iso [label="Attention-Based Crop Isolation
+(Isolates text bounding box)" fillcolor="#E0F2FE"]
+	crop [label="Isolated Text Crop
+(Hallucinated glyph geometries)" fillcolor="#F1F5F9" shape=box]
+	vit [label="Frozen Vision Transformer Encoder
+(DINOv2 + Register Tokens)" fillcolor="#E0F7FA"]
+	embedding [label="Metric Embedding Projection Head
+(Triplet space mapping f_θ)" fillcolor="#E0F2FE"]
+	decision [label="Open-Set Decision Engine
+(Distance / Energy score)" fillcolor="#FEF3C7" shape=diamond style=filled]
+	reject [label="Rejected as Unknown
+(Out-of-Palette)" color="#E11D48" fillcolor="#FEE2E2" fontcolor="#E11D48"]
+	accept [label="Calibrated Top-K Shortlist
+(Ranked Google Fonts)" color="#0D9488" fillcolor="#ECFDF5" fontcolor="#0D9488"]
+	input -> crop_iso
+	crop_iso -> crop
+	crop -> vit
+	vit -> embedding
+	embedding -> decision
+	decision -> reject [label="d > θ
+(Out-of-Palette)"]
+	decision -> accept [label="d ≤ θ
+(In-Palette)"]
+}
