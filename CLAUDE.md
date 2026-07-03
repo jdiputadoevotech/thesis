@@ -18,7 +18,7 @@ When navigating, reading, or creating content, strictly adhere to the following 
 - **`chapters/`**: The core academic text composition root. Each chapter folder holds **two file kinds** (see the notes-vs-draft convention below):
   - `01-introduction/` — `notes.md`: Context, Problem Statement, Objectives.
   - `02-review-of-related-literature/` — `notes.md` (Master RRL Planner blueprint) + `draft.md` (the actual publication-grade chapter prose, ~15–20 pp, **written**).
-  - `03-technical-background/` — `notes.md`: Foundational concepts (typography, CNNs, metric learning, ViT/DINO, open-set recognition, SSIM) preceding the methodology.
+  - `03-technical-background/` — `notes.md` (Master Technical Background plan, 4-batch blueprint) + `draft.md` (the **written** chapter, ~15 pp, 5 sections 3.1–3.5, 11 LaTeX equations, 7 figures) + `professor-criteria.md`/`CLAUDE.md` (folder-local grading rubric). Covers typography/font anatomy, CNNs, typographic hallucination, embeddings, metric learning, open-set recognition, PyTorch/ViT/DINOv2, SSIM, and latent diffusion.
   - `04-methodology/` — `notes.md`: Synthetic pipeline design, training metrics, evaluation logic.
   - `05-results-and-discussion/` — `notes.md`: Comparative charts vs. human proxy & baseline.
   - `06-summary-conclusions-recommendations/` — `notes.md`: Final conclusions and future horizons.
@@ -26,6 +26,9 @@ When navigating, reading, or creating content, strictly adhere to the following 
 - **`font-classify/`** *(Gitignored Sandbox — NOT in a fresh clone)*: The cloned Storia-AI repository (Google Font Classifier, 3,474 fonts). Use this exclusively as our comparative testing baseline — it is also the field's reference embedding cited in the RRL (see references row 20). We acknowledge its pre-trained weights fail "in the wild" on actual GenAI text deformations due to pristine over-fitting.
 
 > ⚠️ **Public repo:** this is now a public repository. `data_creation/` and `font-classify/` are separate git repos gitignored here, so they are **absent from a fresh clone** (a collaborator won't see them). Never assume their files exist when running in a clean checkout; treat their contents as documented-but-external. Do not commit secrets, credentials, or private data into this workspace.
+- **`src/visualization/`**: Matplotlib figure-generation scripts — one per figure (`font_anatomy.py`, `cnn_block.py`, `degradation_pipeline.py`, `embedding_space.py`, `vit_attention.py`, `ssim_pipeline.py`, `system_pipeline.py`), a shared `_style.py` palette/helper module, and a `README.md`. Each script renders a PNG into `assets/figures/`. Regenerate a figure by running its script; do not hand-edit the PNGs.
+- **`assets/figures/`**: The 7 rendered PNGs consumed by `chapters/03-technical-background/draft.md` (Figures 1–7). Outputs of `src/visualization/`, not to be edited directly.
+- **`to_docx.py`**: One-shot Word exporter. `python to_docx.py chapters/<folder>` runs Pandoc on that chapter's `draft.md` → `draft.docx` with `--mathml` (LaTeX `$$…$$` become native editable Word equations; figures embed via their relative paths). Requires Pandoc installed. Figure captions export as bold/italic paragraphs, **not** Word auto-numbered caption fields.
 - **`ideas/ideas.md`**: Brain dumps, technical tangents, and rough architectural notes.
 - **`literature/references.md`**: Formal reference catalog — one row per source in a Markdown table (`# | Author(s) | Year | Title | Link | Key takeaways | Cited in`). Currently ~30 verified sources.
 - **`literature/papers/`**: Local PDF store for source papers.
@@ -50,7 +53,7 @@ When navigating, reading, or creating content, strictly adhere to the following 
 - **Pristine Controls:** Render clean monochrome words using the targeted 50–100 Google Fonts.
 - **Algorithmic Degradation:** Systematically apply elastic transformations (warping), Gaussian blur/noise, edge compression, and randomized character tracking to programmatically mimic probabilistic glyph hallucinations.
 
-### 2. Validation Metrics (To be built into `src/` and evaluated in `chapters/04-*`)
+### 2. Validation Metrics (To be built into `src/` — currently only holds `src/visualization/` — and evaluated in `chapters/04-*`)
 - **Top-K Accuracy:** Log Top-1 and Top-3 accuracy profiles.
 - **Typographic Distance (SSIM/MSE):** Re-render the predicted match and evaluate the Structural Similarity Index against the input crop to mathematically score visual proximity.
 - **Confusion Matrix:** Map errors by typographic structural traits (Serif, Sans-Serif, Display, Monospace) to prove errors linger within identical aesthetic families.
