@@ -134,3 +134,67 @@ Write the prose into section 2.6 of chapters/02-review-of-related-literature/dra
 
 ## Notes
 -
+
+---
+
+# ✂️ SHORTENING PASS (draft.md is written but 3× too long)
+
+> This section plans the **compression** of the already-written `draft.md`. The MASTER RRL PLANNER above is the *original composition* blueprint, kept for traceability. This blueprint is the *reduction* blueprint.
+
+**Problem:** `draft.md` = 18,279 words. At our format (12pt, **double-spaced, 1" margins all sides** ≈ 305 words/double-spaced page) that is **~60 pp** — the professor asked for **15–20 pp**.
+
+**Target:** **~20 pp (upper end) ≈ ~6,000 words** — a ~67% cut. Keep as much scholarship as possible while landing inside 15–20 pp.
+
+**Rules (locked with user):**
+1. **Keep all 30 sources cited.** Group agreeing sources into citation clusters; never drop a source. `Cited in: Ch2` tags in `references.md` stay valid.
+2. **Merge the 13 subsections** (2.2.1–2.6.2) into flowing per-section prose. Drop `### 2.x.y` sub-headings; keep `## 2.x` section headings + each section's bold **Research Gap** closer.
+3. No new sources, no fabricated metrics. Keep `[X.XX]` placeholders as-is.
+
+**What to cut (the fat, not the scholarship):**
+- The repeated "*the implications for this thesis are…*" restatements — state each source's relevance **once**, at the point it's introduced.
+- Worked micro-examples (Garamond/Old-Style runner-up walk-throughs, CIFAR FPR95 number dumps) → compress to a clause; keep the one load-bearing figure per source.
+- Decorative numbers; keep only metrics doing argumentative work.
+- Preserve the problem-first spine and each section's opening sentence linking back to the prior section.
+
+## Per-section word budget
+
+| § | Merge | Now | Target |
+|---|---|---|---|
+| 2.1 Introduction | — | ~600 | ~250 |
+| 2.2 Legacy / OCR / closed-set | 2.2.1–2.2.4 | ~3,000 | ~850 |
+| 2.3 Generative hallucination | 2.3.1–2.3.4 | ~2,800 | ~850 |
+| 2.4 Open-set rejection | 2.4.1–2.4.2 | ~2,900 | ~800 |
+| 2.5 Feature / frozen-ViT | 2.5.1–2.5.2 | ~2,900 | ~900 |
+| 2.6 Distance / measurement | 2.6.1–2.6.2 | ~3,000 | ~900 |
+| 2.7 Synthesis & gap | — | ~900 | ~450 |
+| 2.8 Conceptual framework | — | ~1,200 | ~500 |
+| **Total** | | **~18,300** | **~5,500** (buffer to ~6,000) |
+
+## CLAUDE.md checklist — run on EVERY batch (see `./CLAUDE.md`)
+- [ ] Synthesis, not study-by-study listing (merging *helps* — group sources per claim).
+- [ ] Both **agreement AND contrast** shown (keep the "however / by contrast" turn).
+- [ ] Section **ends with an explicit research gap**.
+- [ ] All in-text APA citations valid + still present in `literature/references.md`.
+- [ ] No source silently dropped (cross-check the batch's citation list below).
+
+## Batch execution prompts
+
+**Batch S1 — §2.2** (merge 2.2.1–2.2.4 → ~850w). Must retain: Wang et al. (2015) DeepFont; Ponnuru et al. (2024); Bhunia et al. (2018); Wang, Lv, et al. (2025) TransTab; Sheikh et al. (2024) UnSupDLA; Sarker (2021); Plastropoulos & Tegos (2024). Keep the closed-set/rigid-glyph → attention-migration arc; open on DeepFont, close on the gap.
+
+**Batch S2 — §2.3** (merge 2.3.1–2.3.4 → ~850w). Must retain: Liu et al. (2024) Glyph-ByT5 (<20% figure); Li, Song, et al. (2025) Stroop; Gillani et al. (2025) TextPixs (CER/WER); Du et al. (2025) TextCrafter + CVTG-2K; Zhuang et al. (2025) HDGlyph long-tail; Kondo et al. (2024) latent interpolation; Shu et al. (2025) VTPBench/VTPScore. Keep "studied only to SUPPRESS, never to read back" as the gap.
+
+**Batch S3 — §2.4** (merge 2.4.1–2.4.2 → ~800w). Must retain: Hofmann et al. (2024) EHB; Djurisic et al. (2024) LTS; Karunanayake et al. (2025) ExCeL (runner-up-ranking = Top-K anomaly precedent); Lu et al. (2025) survey. Gap: none tested on typographic OOD.
+
+**Batch S4 — §2.5** (merge 2.5.1–2.5.2 → ~900w). Must retain: Wang et al. (2024) NCL; Oquab et al. (2024) DINOv2; Darcet et al. (2024) registers; Chowdhury et al. (2025) Prompt-CAM; Li, Li, et al. (2024) PromptKD; Huang & Zhou (2022) metric topology. Gap: validated on clean/natural-image, never deformed glyphs.
+
+**Batch S5 — §2.6** (merge 2.6.1–2.6.2 → ~900w). Must retain: Wang et al. (2004) classical SSIM; Zhang et al. (2024) DeepSSIM; Li et al. (2025) SAMScore; Umer et al. (2022); Shi et al. (2024) RC3P; Ding et al. (2025) long-tail conformal; Jiang et al. (2025) ControlText L2@k/cos@k + Storia-AI. ⚠️ Human-proxy panel = THIS STUDY's own methodology, not a cited source (refs 18/19 only for calibration logic).
+
+**Batch S6 — §2.1 + §2.7 + §2.8** (connective tissue → ~250 / ~450 / ~500w). Keep the A→C→B₁→B₂→D framing (2.1), the "seams between mature clusters" gap (2.7), and the four-layer pipeline framework (2.8). These reference sources already cited elsewhere — no new citations.
+
+## Verification (after each batch + at end)
+```powershell
+$f="chapters/02-review-of-related-literature/draft.md"
+$wc=((Get-Content $f -Raw) -split '\s+' | ? {$_ -ne ''}).Count
+"words=$wc  ~pp=$([math]::Round($wc/305,1))"
+```
+Final gate: **≤ ~6,100 words (≤20pp)**, not below ~4,600 (≥15pp). Grep `^### ` = no orphan sub-headings; grep `^\*\*Research Gap` = one per theme section.
