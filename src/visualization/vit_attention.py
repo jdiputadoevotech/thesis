@@ -1,172 +1,132 @@
-import os
+"""Figure 5 — Vision Transformer: patch embedding and self-attention over glyph
+patches, shown with an explicit 9x9 attention-weight matrix."""
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+import matplotlib.patches as mpatches
 import numpy as np
-from _style import apply_style, save_figure, COLORS
+from _style import apply_style, save_figure, draw_arrow, pick_font, COLORS
 
-def draw_patch_grid(ax, x0, y0, size, n_patches=3):
-    """Draws a grid of patches representing the input glyph crop."""
-    # Draw main image box
-    ax.add_patch(patches.Rectangle((x0, y0), size, size, 
-                                   facecolor='#FFFFFF', edgecolor=COLORS['primary'], linewidth=1.5, zorder=2))
-    
-    # Draw a stylized letter "f" on the grid
-    # We will use simple bezier curves or polygons to make it look like a serif 'f'
-    ax.text(x0 + size/2.0, y0 + size/2.0, "f", fontname='Times New Roman', fontsize=120,
-            ha='center', va='center', color=COLORS['primary'], alpha=0.15, zorder=3)
-    
-    # Draw grid lines
-    step = size / n_patches
-    for i in range(1, n_patches):
-        ax.plot([x0 + i*step, x0 + i*step], [y0, y0 + size], color=COLORS['muted'], linestyle=':', linewidth=0.8, zorder=4)
-        ax.plot([x0, x0 + size], [y0 + i*step, y0 + i*step], color=COLORS['muted'], linestyle=':', linewidth=0.8, zorder=4)
-        
-    # Label patches 1 to 9
-    patch_id = 1
-    for row in reversed(range(n_patches)):
-        for col in range(n_patches):
-            px = x0 + col*step + step/2
-            py = y0 + row*step + step/2
-            ax.text(px, py, f"P{patch_id}", fontsize=8, color=COLORS['muted'], 
-                    ha='center', va='center', weight='bold', zorder=5)
-            patch_id += 1
+SERIF = pick_font("Georgia", "Times New Roman")
 
-def create_vit_attention_figure():
+
+def create_figure():
     apply_style()
-    
-    fig, ax = plt.subplots(figsize=(11, 6))
-    ax.set_xlim(-0.5, 11.5)
-    ax.set_ylim(-3.5, 3.5)
-    ax.axis('off')
-    
-    # 1. Input Image Panel (3x3 grid)
-    img_x, img_y = 0.2, -1.0
-    img_size = 2.0
-    draw_patch_grid(ax, img_x, img_y, img_size)
-    ax.text(img_x + img_size/2, img_y - 0.4, "Input Glyph Crop\nSplit into 3×3 Patches", 
-            ha='center', va='top', fontsize=9, weight='bold')
+    fig, ax = plt.subplots(figsize=(13, 6.9))
+    ax.set_xlim(0, 15.5)
+    ax.set_ylim(0.3, 8.3)
+    ax.set_aspect("equal")
+    ax.axis("off")
 
-    # 2. Linear Projection & Position Embedding
-    proj_x = 3.2
-    n_tokens = 9
-    token_ys = np.linspace(1.8, -1.8, n_tokens)
-    
-    # Draw connections from image patches to token embeddings
-    for i, y_pos in enumerate(token_ys):
-        # Center of each patch in 3x3 grid:
-        patch_col = i % 3
-        patch_row = 2 - (i // 3)
-        src_x = img_x + patch_col*(img_size/3.0) + (img_size/6.0)
-        src_y = img_y + patch_row*(img_size/3.0) + (img_size/6.0)
-        
-        # Connect to token vector
-        ax.plot([src_x, proj_x], [src_y, y_pos], color=COLORS['muted'], alpha=0.15, linewidth=0.8)
-        
-        # Draw the token vector (a small horizontal bar)
-        ax.add_patch(patches.Rectangle((proj_x, y_pos - 0.1), 0.6, 0.2, 
-                                       facecolor=COLORS['bg_box'], edgecolor=COLORS['primary'], linewidth=0.8, zorder=3))
-        
-        # Position embedding addition (+)
-        pos_emb_x = proj_x + 0.9
-        ax.scatter(pos_emb_x, y_pos, color=COLORS['accent_orange'], s=45, edgecolor=COLORS['primary'], zorder=4)
-        ax.text(pos_emb_x, y_pos, "+", fontsize=8, ha='center', va='center', color='white', weight='bold', zorder=5)
-        
-    ax.text(proj_x + 0.3, -2.4, "Linear Projection\n& Flattening", ha='center', va='top', fontsize=8)
-    ax.text(proj_x + 0.9, -2.4, "Position\nEmbeddings", ha='center', va='top', fontsize=8, color=COLORS['accent_orange'])
+    # ---------------- Input glyph crop split into 3x3 patches ----------------
+    gx, gy, gs = 0.5, 3.2, 2.4
+    step = gs / 3
+    ax.add_patch(mpatches.Rectangle((gx, gy), gs, gs, fc="white",
+                                    ec=COLORS["ink"], lw=1.5, zorder=2))
+    ax.text(gx + gs / 2, gy + gs / 2 - 0.05, "f", fontname=SERIF, fontsize=105,
+            ha="center", va="center", color=COLORS["ink"], alpha=0.16, zorder=3)
+    for i in (1, 2):
+        ax.plot([gx + i * step] * 2, [gy, gy + gs], color=COLORS["muted"],
+                ls=":", lw=0.8, zorder=4)
+        ax.plot([gx, gx + gs], [gy + i * step] * 2, color=COLORS["muted"],
+                ls=":", lw=0.8, zorder=4)
+    patch_centers = []
+    for i in range(9):                      # P1 top-left, row-major
+        r, c = divmod(i, 3)
+        px = gx + c * step + step / 2
+        py = gy + gs - (r * step + step / 2)
+        patch_centers.append((px, py))
+        ax.text(px, py, f"P{i + 1}", fontsize=8, weight="bold",
+                color=COLORS["muted"], ha="center", va="center", zorder=5)
+    ax.text(gx + gs / 2, gy - 0.35, "Input glyph crop\nsplit into 3 × 3 patches",
+            fontsize=9, weight="bold", ha="center", va="top")
 
-    # 3. Multi-Head Self-Attention Block (We pick Patch P5 to illustrate)
-    sa_x = 5.2
-    # Select P5 (index 4)
-    p5_y = token_ys[4]
-    
-    # Highlight P5 projection
-    ax.annotate("", xy=(sa_x, p5_y), xytext=(proj_x + 1.1, p5_y),
-                arrowprops=dict(arrowstyle="->", color=COLORS['primary'], lw=1.2))
-    
-    # Self-Attention Header/Box
-    ax.add_patch(patches.Rectangle((sa_x, -2.2), 3.4, 4.4, 
-                                   facecolor='#F8FAFC', edgecolor=COLORS['accent_teal'], linestyle='-', linewidth=1.5, zorder=1))
-    ax.text(sa_x + 1.7, 2.45, "Transformer Encoder Block\n(Multi-Head Self-Attention)", 
-            ha='center', va='center', fontsize=9, weight='bold', color=COLORS['accent_teal'])
-    
-    # Draw Q, K, V projections inside the box
-    qkv_x = sa_x + 0.3
-    # Q vector from P5
-    ax.add_patch(patches.Rectangle((qkv_x, p5_y + 0.3), 0.4, 0.15, facecolor='#FEE2E2', edgecolor='#EF4444', linewidth=0.8, zorder=3))
-    ax.text(qkv_x + 0.2, p5_y + 0.37, "Q5", fontsize=7, ha='center', va='center', weight='bold', color='#B91C1C')
-    
-    # K, V vectors (showing a stack representing all patches)
-    for j, y_pos in enumerate(token_ys):
-        if j % 2 == 0:  # Draw just a few to keep it clean
-            # K stack
-            ax.add_patch(patches.Rectangle((qkv_x + 0.6, y_pos - 0.15), 0.3, 0.1, facecolor='#E0F2FE', edgecolor='#0284C7', linewidth=0.6, zorder=3))
-            # V stack
-            ax.add_patch(patches.Rectangle((qkv_x + 1.1, y_pos - 0.15), 0.3, 0.1, facecolor='#ECFDF5', edgecolor='#059669', linewidth=0.6, zorder=3))
-            
-    ax.text(qkv_x + 0.2, -1.9, "Queries\n(Q)", fontsize=7, ha='center', va='top')
-    ax.text(qkv_x + 0.75, -1.9, "Keys\n(K)", fontsize=7, ha='center', va='top')
-    ax.text(qkv_x + 1.25, -1.9, "Values\n(V)", fontsize=7, ha='center', va='top')
+    # ---------------- Patch tokens + position embeddings ----------------------
+    tok_x, tok_w, tok_h = 4.35, 0.75, 0.30
+    ys = np.linspace(7.3, 1.5, 9)
+    for (px, py), y in zip(patch_centers, ys):
+        ax.plot([px + 0.25, tok_x], [py, y], color=COLORS["muted"],
+                lw=0.7, alpha=0.25, zorder=1)
+        ax.add_patch(mpatches.Rectangle((tok_x, y - tok_h / 2), tok_w, tok_h,
+                                        fc=COLORS["box"], ec=COLORS["ink"],
+                                        lw=0.9, zorder=3))
+        ax.add_patch(mpatches.Circle((tok_x + tok_w + 0.35, y), 0.13,
+                                     fc=COLORS["orange"], ec="none", zorder=3))
+        ax.text(tok_x + tok_w + 0.35, y, "+", fontsize=8, weight="bold",
+                color="white", ha="center", va="center", zorder=4)
+    ax.text(tok_x + 0.55, 0.95, "Linear projection", fontsize=8.5,
+            ha="center", va="top", weight="bold")
+    ax.text(tok_x + 0.55, 0.60, "+ position embedding", fontsize=8.5,
+            ha="center", va="top", weight="bold", color=COLORS["orange"])
 
-    # Draw Attention Weights Matrix (QK^T)
-    attn_matrix_x = sa_x + 1.9
-    attn_matrix_y = -0.6
-    attn_size = 1.1
-    ax.add_patch(patches.Rectangle((attn_matrix_x, attn_matrix_y), attn_size, attn_size, 
-                                   facecolor='#FFFFFF', edgecolor=COLORS['primary'], linewidth=0.8, zorder=3))
-    
-    # Add matrix cells (9x9 simplified to 3x3 visually)
-    n_cells = 3
-    c_size = attn_size / n_cells
-    # Draw some shaded cells indicating attention weights
-    np.random.seed(12)
-    weights = np.random.rand(n_cells, n_cells)
-    weights[1, 0] = 0.95  # Strong attention from P5 to P1 (stroke)
-    weights[1, 2] = 0.75  # Attention to P9 (bottom stroke)
-    
-    for r in range(n_cells):
-        for c in range(n_cells):
-            alpha = weights[r, c] * 0.8
-            ax.add_patch(patches.Rectangle((attn_matrix_x + c*c_size, attn_matrix_y + r*c_size), c_size, c_size, 
-                                           facecolor=COLORS['accent_rose'], alpha=alpha, edgecolor='none', zorder=4))
-    
-    # Label matrix
-    ax.text(attn_matrix_x + attn_size/2, attn_matrix_y - 0.25, "Attention Matrix\nsoftmax(QKᵀ / √d)", 
-            fontsize=7, ha='center', va='top', weight='bold')
-    
-    # Connect Q5 and Keys to Attention Matrix
-    ax.plot([qkv_x + 0.4, attn_matrix_x], [p5_y + 0.37, attn_matrix_y + attn_size/2], color='#B91C1C', linestyle='-', linewidth=0.8, alpha=0.5)
-    ax.plot([qkv_x + 0.9, attn_matrix_x], [0, attn_matrix_y + attn_size/2], color='#0284C7', linestyle='-', linewidth=0.8, alpha=0.5)
-    
-    # Connect Matrix + Values to Output updated P5
-    out_vector_x = sa_x + 3.0
-    ax.plot([attn_matrix_x + attn_size, out_vector_x], [attn_matrix_y + attn_size/2, p5_y], color='#059669', linestyle='-', linewidth=0.8, alpha=0.5)
+    cy = ys[4]
+    draw_arrow(ax, (tok_x + tok_w + 0.65, cy), (6.55, cy), lw=1.6)
 
-    # 4. Outputs Section
-    out_x = 9.8
-    for i, y_pos in enumerate(token_ys):
-        is_p5 = (i == 4)
-        box_color = COLORS['accent_teal'] if is_p5 else COLORS['bg_box']
-        edge_color = COLORS['primary']
-        line_w = 1.2 if is_p5 else 0.8
-        
-        # Updated output vector
-        ax.add_patch(patches.Rectangle((out_x, y_pos - 0.1), 0.6, 0.2, 
-                                       facecolor=box_color, edgecolor=edge_color, linewidth=line_w, zorder=3))
-        
-        # Connect encoder to outputs
-        ax.plot([sa_x + 3.4, out_x], [y_pos, y_pos], color=COLORS['muted'], alpha=0.2, linewidth=0.8)
-        
-    ax.text(out_x + 0.3, -2.4, "Contextualized\nOutput Embeddings", ha='center', va='top', fontsize=8, weight='bold', color=COLORS['accent_teal'])
-    
-    # Callout for updated P5
-    ax.annotate("P5 attends to strokes\nin P1 and P9", 
-                xy=(out_x + 0.6, p5_y), xytext=(out_x + 1.2, p5_y + 0.6),
-                arrowprops=dict(arrowstyle="->", color=COLORS['accent_teal'], lw=1.0),
-                fontsize=8, color=COLORS['accent_teal'], weight='bold')
+    # ---------------- Transformer encoder block -------------------------------
+    bx0, bx1, by0, by1 = 6.6, 11.6, 1.3, 7.75
+    ax.add_patch(mpatches.FancyBboxPatch(
+        (bx0, by0), bx1 - bx0, by1 - by0, boxstyle="round,pad=0.04",
+        fc="#FBFCFE", ec=COLORS["teal"], lw=1.6, zorder=2))
+    bcx = (bx0 + bx1) / 2
+    ax.text(bcx, by1 - 0.35, "Transformer encoder block", fontsize=10.5,
+            weight="bold", color=COLORS["teal"], ha="center", zorder=4)
+    ax.text(bcx, by1 - 0.72, "each token projects to queries Q, keys K, values V",
+            fontsize=8, color=COLORS["muted"], ha="center", zorder=4)
 
-    plt.tight_layout()
+    # 9x9 attention matrix
+    rng = np.random.RandomState(3)
+    A = rng.rand(9, 9) * 0.22
+    A[np.arange(9), np.arange(9)] += 0.42          # self-attention diagonal
+    A[4] = [0.85, 0.20, 0.15, 0.25, 0.60, 0.20, 0.15, 0.25, 0.90]  # P5 -> P1, P9
+    cell = 0.36
+    mx0 = bcx - 9 * cell / 2
+    my1 = 6.55
+    for r in range(9):
+        for c in range(9):
+            ax.add_patch(mpatches.Rectangle(
+                (mx0 + c * cell, my1 - (r + 1) * cell), cell, cell,
+                fc=COLORS["rose"], alpha=min(A[r, c], 1.0) * 0.85,
+                ec="white", lw=0.4, zorder=3))
+    ax.add_patch(mpatches.Rectangle((mx0, my1 - 9 * cell), 9 * cell, 9 * cell,
+                                    fc="none", ec=COLORS["ink"], lw=1.0, zorder=4))
+    ax.add_patch(mpatches.Rectangle((mx0, my1 - 5 * cell), 9 * cell, cell,
+                                    fc="none", ec=COLORS["teal"], lw=1.7, zorder=5))
+    for idx in (0, 4, 8):
+        ax.text(mx0 + idx * cell + cell / 2, my1 - 9 * cell - 0.12, f"P{idx + 1}",
+                fontsize=6.5, color=COLORS["muted"], ha="center", va="top", zorder=4)
+        ax.text(mx0 - 0.12, my1 - idx * cell - cell / 2, f"P{idx + 1}",
+                fontsize=6.5, color=COLORS["muted"], ha="right", va="center", zorder=4)
+    ax.text(bcx, my1 - 9 * cell - 0.42, "keys (patch index)", fontsize=7.5,
+            color=COLORS["muted"], ha="center", va="top", zorder=4)
+    ax.text(mx0 - 0.55, my1 - 4.5 * cell, "queries", fontsize=7.5,
+            color=COLORS["muted"], ha="center", va="center", rotation=90, zorder=4)
+    ax.text(bcx, by0 + 0.42, r"$A = \mathrm{softmax}(QK^{\top}/\sqrt{d_k})$",
+            fontsize=10, ha="center", va="center", zorder=4)
+
+    # ---------------- Contextualized output tokens ----------------------------
+    out_x = 12.5
+    for i, y in enumerate(ys):
+        is_p5 = i == 4
+        ax.plot([bx1 + 0.06, out_x], [y, y], color=COLORS["muted"],
+                lw=0.7, alpha=0.3, zorder=1)
+        ax.add_patch(mpatches.Rectangle(
+            (out_x, y - tok_h / 2), tok_w, tok_h,
+            fc=COLORS["teal"] if is_p5 else COLORS["box"],
+            ec=COLORS["teal"] if is_p5 else COLORS["ink"],
+            lw=1.4 if is_p5 else 0.9, zorder=3))
+    ax.text(out_x + tok_w / 2, 0.95, "Contextualized\noutput embeddings",
+            fontsize=8.5, weight="bold", color=COLORS["teal"],
+            ha="center", va="top")
+    ax.annotate("P5 aggregates stroke\nfeatures from P1 and P9",
+                xy=(out_x + tok_w + 0.10, ys[4]), xytext=(13.35, 6.55),
+                fontsize=8.5, weight="bold", color=COLORS["teal"],
+                ha="left", va="center", zorder=5,
+                arrowprops=dict(arrowstyle="->", color=COLORS["teal"], lw=1.2,
+                                connectionstyle="arc3,rad=-0.25"))
+
+    ax.set_title("Patch embedding and multi-head self-attention in a Vision Transformer",
+                 weight="bold", pad=10)
     save_figure(fig, "vit_attention")
-    plt.close()
+    plt.close(fig)
 
-if __name__ == '__main__':
-    create_vit_attention_figure()
+
+if __name__ == "__main__":
+    create_figure()

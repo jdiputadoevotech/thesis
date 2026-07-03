@@ -1,108 +1,74 @@
-import os
+"""Figure 4 — Open-set metric embedding space: known-font clusters with
+distance-threshold acceptance regions and open-space rejection."""
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+import matplotlib.patches as mpatches
 import numpy as np
-import seaborn as sns
 from _style import apply_style, save_figure, COLORS
 
-def create_embedding_space_figure():
+
+def create_figure():
     apply_style()
-    
-    # Set random seed for reproducibility
-    np.random.seed(42)
-    
-    fig, ax = plt.subplots(figsize=(7.5, 6))
-    
-    # 1. Define Known Centroids & Generate Points
-    centroids = {
-        'Roboto (Sans)': np.array([1.5, 2.2]),
-        'Garamond (Serif)': np.array([4.0, 1.2]),
-        'Consolas (Mono)': np.array([2.2, -1.2])
-    }
-    
-    cluster_colors = {
-        'Roboto (Sans)': COLORS['accent_teal'],
-        'Garamond (Serif)': COLORS['accent_blue'],
-        'Consolas (Mono)': COLORS['accent_orange']
-    }
-    
-    cluster_markers = {
-        'Roboto (Sans)': 'o',
-        'Garamond (Serif)': 's',
-        'Consolas (Mono)': '^'
-    }
-    
-    # Generate points around each centroid
-    n_points = 25
-    std_dev = 0.22
-    
-    for name, center in centroids.items():
-        x = np.random.normal(center[0], std_dev, n_points)
-        y = np.random.normal(center[1], std_dev, n_points)
-        
-        # Plot cluster points
-        ax.scatter(x, y, color=cluster_colors[name], marker=cluster_markers[name], 
-                   s=40, alpha=0.8, edgecolors='black', linewidth=0.5, label=name)
-        
-        # Draw the rejection boundary (threshold circle around centroid)
-        # Radius of the boundary represents the threshold d_thresh
-        threshold_radius = 0.65
-        circle = patches.Circle(center, threshold_radius, fill=True, 
-                               facecolor=cluster_colors[name], alpha=0.08,
-                               edgecolor=cluster_colors[name], linestyle='--', linewidth=1.2, zorder=1)
-        ax.add_patch(circle)
-        
-        # Add label next to boundary
-        ax.text(center[0], center[1] + threshold_radius + 0.08, f"d < θ", 
-                color=cluster_colors[name], fontsize=8, ha='center', weight='bold')
+    rng = np.random.RandomState(11)
 
-    # 2. Add Out-of-Palette (OOD) Hallucinated Crop
-    ood_point = np.array([4.2, -0.8])
-    ax.scatter(ood_point[0], ood_point[1], color=COLORS['accent_rose'], marker='X', 
-               s=100, edgecolors='black', linewidth=0.8, label='Out-of-Palette Crop', zorder=5)
-    
-    # Add In-Palette Query Point (Warped Roboto glyph)
-    in_palette_query = np.array([1.68, 1.95])
-    ax.scatter(in_palette_query[0], in_palette_query[1], color='#10B981', marker='*',
-               s=140, edgecolors='black', linewidth=0.8, label='In-Palette Warped Query', zorder=5)
+    clusters = [
+        ("Roboto (sans-serif)", (1.5, 2.2), COLORS["teal"], "o"),
+        ("Garamond (serif)", (4.2, 1.2), COLORS["blue"], "s"),
+        ("Consolas (monospace)", (2.3, -1.2), COLORS["orange"], "^"),
+    ]
+    R = 0.85  # acceptance radius (threshold theta)
 
-    # 3. Visual Annotations and Explanations
-    # Annotate OOD crop
-    ax.annotate("Hallucinated Crop\n(Rejected as Unknown)", 
-                xy=(ood_point[0] - 0.05, ood_point[1] + 0.05), 
-                xytext=(4.8, -0.2),
-                arrowprops=dict(arrowstyle="->", color=COLORS['accent_rose'], lw=1.2),
-                fontsize=9, color=COLORS['accent_rose'], weight='bold', ha='center')
-    
-    # Annotate In-Palette query
-    ax.annotate("Warped Input Crop\n(Classified as Roboto)", 
-                xy=(in_palette_query[0], in_palette_query[1] - 0.08), 
-                xytext=(0.5, 0.9),
-                arrowprops=dict(arrowstyle="->", color='#059669', lw=1.2),
-                fontsize=9, color='#059669', weight='bold', ha='center')
+    fig, ax = plt.subplots(figsize=(8.6, 7.2))
+    ax.set_aspect("equal")
 
-    # Highlight Open Space
-    ax.text(3.4, -1.8, "Open Space Risk\n(Rejected Region)", 
-            color=COLORS['muted'], fontsize=10, style='italic', ha='center', weight='semibold')
-    
-    # Draw open space background hatch
-    # Let's draw a few subtle hatching lines or just label it clearly
-    
-    # Axis configuration
-    ax.set_xlabel("Metric Embedding Dimension 1", fontsize=10, labelpad=8)
-    ax.set_ylabel("Metric Embedding Dimension 2", fontsize=10, labelpad=8)
-    ax.set_title("Open-Set Metric Space & Rejection Boundaries", fontsize=12, weight='bold', pad=15)
-    
-    ax.set_xlim(-0.2, 5.8)
-    ax.set_ylim(-2.2, 3.8)
-    ax.grid(True, linestyle=':', alpha=0.5)
-    
-    # Place legend
-    ax.legend(loc='upper right', frameon=True, facecolor='white', edgecolor=COLORS['muted'], framealpha=0.9)
-    
-    plt.tight_layout()
+    for name, (mx, my), c, marker in clusters:
+        pts = rng.normal([mx, my], 0.26, size=(24, 2))
+        ax.scatter(pts[:, 0], pts[:, 1], marker=marker, s=48, facecolor=c,
+                   edgecolor="white", linewidth=0.7, alpha=0.9, zorder=3, label=name)
+        ax.add_patch(mpatches.Circle((mx, my), R, fc=c, ec=c, alpha=0.07, zorder=1))
+        ax.add_patch(mpatches.Circle((mx, my), R, fc="none", ec=c, ls="--",
+                                     lw=1.2, alpha=0.8, zorder=2))
+        ax.text(mx, my - R - 0.13, r"$d \leq \theta$", fontsize=9, weight="bold",
+                color=c, ha="center", va="top")
+
+    # In-palette warped query: lands inside the Roboto acceptance region
+    qx, qy = 1.95, 1.75
+    ax.scatter([qx], [qy], marker="*", s=340, facecolor=COLORS["teal"],
+               edgecolor=COLORS["ink"], linewidth=1.1, zorder=5,
+               label="Warped in-palette query")
+    ax.annotate("Degraded in-palette query\naccepted → matched to Roboto",
+                xy=(qx + 0.10, qy - 0.02), xytext=(0.15, 3.45),
+                fontsize=9, weight="bold", color=COLORS["teal"], ha="left", va="top",
+                arrowprops=dict(arrowstyle="->", color=COLORS["teal"], lw=1.3,
+                                connectionstyle="arc3,rad=-0.2"))
+
+    # Out-of-palette hallucinated crop: far from every prototype
+    hx, hy = 4.55, -1.05
+    ax.scatter([hx], [hy], marker="X", s=240, facecolor=COLORS["rose"],
+               edgecolor=COLORS["ink"], linewidth=1.1, zorder=5,
+               label="Hallucinated crop (unknown)")
+    ax.annotate("Hallucinated crop\n" + r"$d > \theta$ everywhere → rejected",
+                xy=(hx + 0.02, hy - 0.22), xytext=(5.0, -2.15),
+                fontsize=9, weight="bold", color=COLORS["rose"], ha="center", va="top",
+                arrowprops=dict(arrowstyle="->", color=COLORS["rose"], lw=1.3,
+                                connectionstyle="arc3,rad=0.15"))
+
+    ax.text(2.65, 0.45, "open space\n(no acceptance region)", fontsize=9,
+            style="italic", color=COLORS["muted"], ha="center")
+
+    ax.set_xlim(-0.3, 6.0)
+    ax.set_ylim(-3.0, 3.8)
+    ax.set_xlabel("Embedding dimension 1")
+    ax.set_ylabel("Embedding dimension 2")
+    ax.set_title("Open-set recognition in the learned metric space",
+                 weight="bold", pad=12)
+    ax.grid(True, alpha=0.55)
+    ax.set_axisbelow(True)
+    ax.legend(loc="upper right", frameon=True, framealpha=0.95,
+              edgecolor=COLORS["grid"], fontsize=8.5)
+
     save_figure(fig, "embedding_space")
-    plt.close()
+    plt.close(fig)
 
-if __name__ == '__main__':
-    create_embedding_space_figure()
+
+if __name__ == "__main__":
+    create_figure()

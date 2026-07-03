@@ -1,149 +1,117 @@
-import os
+"""Figure 6 — Re-render-and-compare: SSIM between the degraded input crop and a
+pristine re-rendering of the predicted font."""
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+import matplotlib.patches as mpatches
 import numpy as np
 from scipy.ndimage import map_coordinates, gaussian_filter
-from _style import apply_style, save_figure, COLORS
+from _style import apply_style, save_figure, pick_font, COLORS
 
-def render_char(char, fontname='Georgia', fontsize=100, shape=(180, 180)):
-    """Renders a single character to a grayscale image array."""
-    fig = plt.figure(figsize=(2, 2), dpi=100, facecolor='white')
+SERIF = pick_font("Georgia", "Times New Roman")
+
+
+def render_char(ch, fontsize=100):
+    fig = plt.figure(figsize=(2, 2), dpi=100, facecolor="white")
     ax = fig.add_axes([0, 0, 1, 1])
-    ax.axis('off')
-    ax.text(0.5, 0.5, char, fontname=fontname, fontsize=fontsize,
-            ha='center', va='center', color='black')
+    ax.axis("off")
+    ax.text(0.5, 0.5, ch, fontname=SERIF, fontsize=fontsize,
+            ha="center", va="center", color="black")
     fig.canvas.draw()
-    rgba = fig.canvas.buffer_rgba()
-    img = np.asarray(rgba)[:, :, 0]
+    img = np.asarray(fig.canvas.buffer_rgba())[:, :, 0].astype(float)
     plt.close(fig)
-    return 1.0 - (img.astype(float) / 255.0)
+    return 1.0 - img / 255.0
 
-def warp_char(image, alpha=15, sigma=4, seed=42):
-    """Applies elastic warp to simulate hallucination."""
-    random_state = np.random.RandomState(seed)
-    shape = image.shape
-    dx = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
-    dy = gaussian_filter((random_state.rand(*shape) * 2 - 1), sigma, mode="constant", cval=0) * alpha
-    x, y = np.meshgrid(np.arange(shape[1]), np.arange(shape[0]))
-    indices = np.reshape(y + dy, (-1, 1)), np.reshape(x + dx, (-1, 1))
-    warped = map_coordinates(image, indices, order=1).reshape(shape)
-    return np.clip(warped, 0, 1)
 
-def create_ssim_pipeline_figure():
+def warp(img, alpha=15, sigma=4, seed=42):
+    rs = np.random.RandomState(seed)
+    dx = gaussian_filter(rs.rand(*img.shape) * 2 - 1, sigma, mode="constant") * alpha
+    dy = gaussian_filter(rs.rand(*img.shape) * 2 - 1, sigma, mode="constant") * alpha
+    x, y = np.meshgrid(np.arange(img.shape[1]), np.arange(img.shape[0]))
+    idx = (y + dy).reshape(-1, 1), (x + dx).reshape(-1, 1)
+    return np.clip(map_coordinates(img, idx, order=1).reshape(img.shape), 0, 1)
+
+
+def create_figure():
     apply_style()
-    
-    char = "a"
-    
-    # 1. Render pristine template
-    pristine = render_char(char)
-    
-    # 2. Render and warp input crop
-    deformed = warp_char(pristine)
-    # Add slight noise and blur
-    deformed = gaussian_filter(deformed, sigma=0.8)
-    np.random.seed(42)
-    deformed = np.clip(deformed + np.random.normal(0, 0.03, deformed.shape), 0, 1)
-    
-    # 3. Compute difference map (SSIM error map proxy)
-    # Highlight differences in a custom colorway (blue/red representing mismatch)
-    diff = np.abs(pristine - deformed)
-    
-    # Create 4 horizontal subplots with extra space for flowchart connections
-    fig = plt.figure(figsize=(11.5, 4.5))
-    
-    # Define axes positions manually to allow flow arrows
-    # Layout: [Left Margin, Bottom Margin, Width, Height]
-    ax1 = fig.add_axes([0.05, 0.2, 0.18, 0.5]) # Deformed Input
-    ax2 = fig.add_axes([0.31, 0.2, 0.18, 0.5]) # Pristine Template
-    ax3 = fig.add_axes([0.57, 0.2, 0.18, 0.5]) # Difference Map
-    ax4 = fig.add_axes([0.80, 0.2, 0.16, 0.5]) # Textual / Math block
-    
-    # Panel 1: Deformed Input Crop
-    ax1.imshow(1.0 - deformed, cmap='gray', vmin=0, vmax=1)
-    ax1.set_title("Input Crop ($\mathbf{\tilde{x}}$)\n(GenAI Hallucinated)", fontsize=9.5, weight='bold', pad=8)
-    ax1.set_xticks([])
-    ax1.set_yticks([])
-    for spine in ax1.spines.values():
-        spine.set_color(COLORS['accent_rose'])
-        spine.set_linewidth(1.5)
-        
-    # Panel 2: Pristine Template
-    ax2.imshow(1.0 - pristine, cmap='gray', vmin=0, vmax=1)
-    ax2.set_title("Template ($\mathbf{x}$)\n(Re-rendered Prediction)", fontsize=9.5, weight='bold', pad=8)
-    ax2.set_xticks([])
-    ax2.set_yticks([])
-    for spine in ax2.spines.values():
-        spine.set_color(COLORS['accent_teal'])
-        spine.set_linewidth(1.5)
-        
-    # Panel 3: Structural Difference Map
-    # Use a custom colormap where 0 (match) is white, and mismatch is teal/rose
-    # Standard hot or seismic can look nice, let's use red hot map
-    ax3.imshow(diff, cmap='Reds', vmin=0, vmax=1.0)
-    ax3.set_title("Structural Mismatch\nError Map", fontsize=9.5, weight='bold', pad=8)
-    ax3.set_xticks([])
-    ax3.set_yticks([])
-    for spine in ax3.spines.values():
-        spine.set_color(COLORS['muted'])
-        spine.set_linewidth(0.8)
-        
-    # Panel 4: Metric Summary
-    ax4.axis('off')
-    # Draw a backing box
-    box = patches.FancyBboxPatch((0.02, 0.05), 0.96, 0.9, boxstyle="round,pad=0.02",
-                                 edgecolor=COLORS['accent_teal'], facecolor=COLORS['bg_box'], linewidth=1.2)
-    ax4.add_patch(box)
-    
-    # Formula & Score Text
-    ax4.text(0.5, 0.78, "SSIM Score", fontsize=11, weight='bold', ha='center', color=COLORS['text'])
-    ax4.text(0.5, 0.50, "0.742", fontsize=28, weight='bold', ha='center', color=COLORS['accent_teal'])
-    
-    # Breakdown labels
-    ax4.text(0.5, 0.32, "Luminance: 0.981\nContrast: 0.912\nStructure: 0.828", 
-             fontsize=8.5, ha='center', va='top', color=COLORS['muted'], linespacing=1.5)
-    
-    # --- Draw Flowchart Arrows on the Figure Canvas ---
-    # We will use fig.text or annotate with fig.transFigure
-    
-    # Arrow 1: From Input Crop to Classifier (represented textually)
-    fig.text(0.245, 0.55, "Predict", fontsize=8.5, weight='bold', color=COLORS['primary'], ha='center')
-    ax_arr1 = fig.add_axes([0.23, 0.45, 0.08, 0.01])
-    ax_arr1.axis('off')
-    ax_arr1.annotate("", xy=(1, 0.5), xytext=(0, 0.5), arrowprops=dict(arrowstyle="->", color=COLORS['primary'], lw=1.2))
-    
-    # Label prediction above the arrow
-    fig.text(0.245, 0.38, "Roboto\n(Predicted)", fontsize=7.5, color=COLORS['accent_teal'], ha='center', weight='bold')
-    
-    # Arrow 2: Connect inputs to comparison
-    # Draw arrows from ax1 and ax2 pointing towards ax3
-    # Arrow from ax1 (Input) to difference calculation (ax3)
-    ax_arr2 = fig.add_axes([0.15, 0.05, 0.47, 0.15])
-    ax_arr2.axis('off')
-    # Draw path showing alignment comparison
-    ax_arr2.plot([0, 0], [0.8, 0], color=COLORS['muted'], linestyle='-', linewidth=1)
-    ax_arr2.plot([0, 0.95], [0, 0], color=COLORS['muted'], linestyle='-', linewidth=1)
-    ax_arr2.annotate("", xy=(0.95, 0.8), xytext=(0.95, 0), arrowprops=dict(arrowstyle="->", color=COLORS['muted'], lw=1.0))
-    
-    # Arrow from ax2 (Template) to difference calculation (ax3)
-    ax_arr3 = fig.add_axes([0.41, 0.05, 0.21, 0.15])
-    ax_arr3.axis('off')
-    ax_arr3.plot([0, 0], [0.8, 0], color=COLORS['muted'], linestyle='-', linewidth=1)
-    ax_arr3.plot([0, 0.95], [0, 0], color=COLORS['muted'], linestyle='-', linewidth=1)
-    ax_arr3.annotate("", xy=(0.95, 0.8), xytext=(0.95, 0), arrowprops=dict(arrowstyle="->", color=COLORS['muted'], lw=1.0))
-    
-    # Label comparison
-    fig.text(0.38, 0.07, "Compute Perceptual Structural Match", fontsize=8, color=COLORS['primary'], weight='bold', ha='center')
-    
-    # Arrow from Difference Map (ax3) to Score (ax4)
-    ax_arr4 = fig.add_axes([0.755, 0.45, 0.045, 0.01])
-    ax_arr4.axis('off')
-    ax_arr4.annotate("", xy=(1, 0.5), xytext=(0, 0.5), arrowprops=dict(arrowstyle="->", color=COLORS['primary'], lw=1.2))
-    
-    # General title
-    fig.suptitle("Perceptual Re-Render-and-Compare Evaluation Model", fontsize=12, weight='bold', y=0.92)
-    
-    save_figure(fig, "ssim_pipeline")
-    plt.close()
+    pristine = render_char("a")
+    degraded = gaussian_filter(warp(pristine), 0.8)
+    degraded = np.clip(degraded + np.random.RandomState(42).normal(0, 0.03, degraded.shape), 0, 1)
+    diff = np.abs(pristine - degraded)
 
-if __name__ == '__main__':
-    create_ssim_pipeline_figure()
+    fig = plt.figure(figsize=(12, 4.4))
+    ax1 = fig.add_axes([0.045, 0.16, 0.195, 0.60])
+    ax2 = fig.add_axes([0.325, 0.16, 0.195, 0.60])
+    ax3 = fig.add_axes([0.605, 0.16, 0.195, 0.60])
+    ax4 = fig.add_axes([0.845, 0.18, 0.135, 0.56])
+
+    panels = [
+        (ax1, 1.0 - degraded, "gray", r"Input crop  $\tilde{x}$", "GenAI-hallucinated glyph", COLORS["rose"]),
+        (ax2, 1.0 - pristine, "gray", r"Template  $x$", "re-rendered prediction", COLORS["teal"]),
+        (ax3, diff, "Reds", "Structural error map", r"$|x - \tilde{x}|$ per pixel", COLORS["muted"]),
+    ]
+    for axp, img, cmap, title, sub, edge in panels:
+        axp.imshow(img, cmap=cmap, vmin=0, vmax=1 if cmap == "gray" else 0.9)
+        axp.set_xticks([])
+        axp.set_yticks([])
+        for s in axp.spines.values():
+            s.set_color(edge)
+            s.set_linewidth(1.6)
+        axp.text(0.5, 1.155, title, transform=axp.transAxes, fontsize=10,
+                 weight="bold", ha="center", va="bottom")
+        axp.text(0.5, 1.05, sub, transform=axp.transAxes, fontsize=8.5,
+                 ha="center", va="bottom", color=COLORS["muted"])
+
+    # ---- SSIM score card -----------------------------------------------------
+    ax4.axis("off")
+    ax4.set_xlim(0, 1)
+    ax4.set_ylim(0, 1)
+    ax4.add_patch(mpatches.FancyBboxPatch((0.03, 0.02), 0.94, 0.96,
+                                          boxstyle="round,pad=0.03",
+                                          fc=COLORS["box"], ec=COLORS["teal"], lw=1.5))
+    ax4.text(0.5, 0.86, "SSIM score", fontsize=11, weight="bold", ha="center")
+    ax4.text(0.5, 0.60, "0.742", fontsize=27, weight="bold", ha="center",
+             color=COLORS["teal"])
+    ax4.plot([0.18, 0.82], [0.47, 0.47], color=COLORS["grid"], lw=1)
+    ax4.text(0.5, 0.40, "luminance   0.981\ncontrast      0.912\nstructure    0.828",
+             fontsize=8.5, ha="center", va="top", color=COLORS["muted"], linespacing=1.6)
+    ax4.text(0.5, 0.07, "(illustrative values)", fontsize=7, style="italic",
+             ha="center", color=COLORS["muted"])
+
+    # ---- Flow arrows (figure coordinates, from realized axes positions) ------
+    fig.canvas.draw()
+    p1, p2, p3, p4 = (a.get_position() for a in (ax1, ax2, ax3, ax4))
+    ymid = (p1.y0 + p1.y1) / 2
+
+    def harrow(x0, x1, y, color=COLORS["ink"]):
+        fig.add_artist(mpatches.FancyArrowPatch(
+            (x0, y), (x1, y), transform=fig.transFigure, arrowstyle="-|>",
+            mutation_scale=15, color=color, lw=1.5))
+
+    harrow(p1.x1 + 0.008, p2.x0 - 0.008, ymid)
+    fig.text((p1.x1 + p2.x0) / 2, ymid + 0.045, "predict font,\nre-render",
+             fontsize=8.5, weight="bold", ha="center", va="bottom")
+    fig.text((p1.x1 + p2.x0) / 2, ymid - 0.045, "“Georgia”", fontsize=8.5,
+             weight="bold", color=COLORS["teal"], ha="center", va="top")
+
+    harrow(p2.x1 + 0.008, p3.x0 - 0.008, ymid)
+    fig.text((p2.x1 + p3.x0) / 2, ymid + 0.045, "compare", fontsize=8.5,
+             weight="bold", ha="center", va="bottom")
+
+    harrow(p3.x1 + 0.008, p4.x0 - 0.008, ymid)
+
+    # curved arrow: input crop feeds the comparison directly
+    fig.add_artist(mpatches.FancyArrowPatch(
+        (p1.x0 + 0.55 * p1.width, p1.y0 - 0.02), ((p3.x0 + p3.x1) / 2, p3.y0 - 0.02),
+        transform=fig.transFigure, arrowstyle="-|>", mutation_scale=13,
+        color=COLORS["muted"], lw=1.2, connectionstyle="arc3,rad=-0.12"))
+    fig.text((p1.x1 + p3.x0) / 2 + 0.02, p1.y0 - 0.115,
+             r"SSIM$(\tilde{x},\, x)$ over local windows", fontsize=8.5,
+             color=COLORS["muted"], ha="center")
+
+    fig.suptitle("Re-render-and-compare evaluation via structural similarity (SSIM)",
+                 fontsize=12.5, weight="bold", y=0.97)
+    save_figure(fig, "ssim_pipeline")
+    plt.close(fig)
+
+
+if __name__ == "__main__":
+    create_figure()

@@ -1,140 +1,123 @@
-import os
+"""Figure 1 — Typographic anatomy: font metrics (measured, not eyeballed) and the
+four structural families (serif / sans-serif / display / monospace)."""
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-from _style import apply_style, save_figure, COLORS
+import matplotlib.patches as mpatches
+import matplotlib.transforms as mtransforms
+from matplotlib.textpath import TextPath
+from matplotlib.patches import PathPatch
+from matplotlib.font_manager import FontProperties
+from _style import apply_style, save_figure, pick_font, COLORS
 
-def create_font_anatomy_figure():
+SERIF = pick_font("Georgia", "Times New Roman")
+
+
+def glyph(ax, ch, x, size, fp, color):
+    """Draw glyph outline at baseline y=0 and return its extents (data units)."""
+    tp = TextPath((0, 0), ch, size=size, prop=fp)
+    tr = mtransforms.Affine2D().translate(x, 0) + ax.transData
+    ax.add_patch(PathPatch(tp, transform=tr, fc=color, ec="none", zorder=3))
+    return tp.get_extents()
+
+
+def create_figure():
     apply_style()
-    
-    # Create figure with 2 subplots (Top: x-Height & Metrics; Bottom: Four Font Families Panel)
-    fig = plt.figure(figsize=(10, 6.5))
-    
-    # ----------------------------------------------------
-    # Top Panel: Font Metrics and x-Height Demonstration
-    # ----------------------------------------------------
-    ax_top = plt.subplot2grid((3, 4), (0, 0), colspan=4, rowspan=1)
-    ax_top.set_xlim(-0.5, 4.5)
-    ax_top.set_ylim(-1.2, 1.8)
-    ax_top.axis('off')
-    
-    # Draw guides
-    ax_top.axhline(1.4, color=COLORS['muted'], linestyle='--', linewidth=0.8)  # Cap height
-    ax_top.axhline(0.8, color=COLORS['accent_teal'], linestyle='--', linewidth=1.0) # Mean line / x-height
-    ax_top.axhline(0.0, color=COLORS['primary'], linestyle='-', linewidth=1.2)   # Baseline
-    ax_top.axhline(-0.7, color=COLORS['muted'], linestyle='--', linewidth=0.8) # Descender line
-    
-    # Add text labels for guide lines
-    ax_top.text(-0.4, 1.45, "Cap Height", color=COLORS['muted'], fontsize=8, va='bottom', weight='bold')
-    ax_top.text(-0.4, 0.85, "Mean Line (x-Height)", color=COLORS['accent_teal'], fontsize=8, va='bottom', weight='bold')
-    ax_top.text(-0.4, 0.05, "Baseline", color=COLORS['primary'], fontsize=8, va='bottom', weight='bold')
-    ax_top.text(-0.4, -0.65, "Descender Line", color=COLORS['muted'], fontsize=8, va='top', weight='bold')
-    
-    # Render letters demonstrating metrics: "h", "x", "p"
-    # Using Georgia (Serif) for clear metrics
-    font_props = {'fontname': 'Georgia', 'fontsize': 70, 'color': COLORS['text']}
-    
-    # Render letters side-by-side
-    ax_top.text(1.0, 0, "h", ha='center', va='baseline', **font_props)
-    ax_top.text(2.0, 0, "x", ha='center', va='baseline', **font_props)
-    ax_top.text(3.0, 0, "p", ha='center', va='baseline', **font_props)
-    
-    # Draw dimension annotations
-    # x-height dimension arrow
-    ax_top.annotate('', xy=(2.0, 0.8), xytext=(2.0, 0),
-                    arrowprops=dict(arrowstyle='<->', color=COLORS['accent_teal'], linewidth=1.5))
-    ax_top.text(2.1, 0.4, "x-Height", color=COLORS['accent_teal'], fontsize=9, va='center', weight='bold')
-    
-    # Ascender height arrow
-    ax_top.annotate('', xy=(1.0, 1.4), xytext=(1.0, 0.8),
-                    arrowprops=dict(arrowstyle='<->', color=COLORS['accent_blue'], linewidth=1.2))
-    ax_top.text(1.1, 1.1, "Ascender", color=COLORS['accent_blue'], fontsize=8, va='center')
-    
-    # Descender depth arrow
-    ax_top.annotate('', xy=(3.0, -0.7), xytext=(3.0, 0),
-                    arrowprops=dict(arrowstyle='<->', color=COLORS['accent_rose'], linewidth=1.2))
-    ax_top.text(3.1, -0.35, "Descender", color=COLORS['accent_rose'], fontsize=8, va='center')
-    
-    ax_top.set_title("Standard Typographic Dimensions & Font Metrics", weight='bold', pad=15)
-    
-    # ----------------------------------------------------
-    # Bottom Panel: Four Font Families and Structural Traits
-    # ----------------------------------------------------
-    families = [
-        {'name': 'Serif', 'font': 'Times New Roman', 'letter': 'e', 'desc': 'Terminal serifs & high stroke contrast'},
-        {'name': 'Sans-Serif', 'font': 'Arial', 'letter': 'e', 'desc': 'Clean terminals & uniform stroke width'},
-        {'name': 'Display', 'font': 'Impact', 'letter': 'e', 'desc': 'Heavy weight & stylized counters'},
-        {'name': 'Monospace', 'font': 'Courier New', 'letter': 'e', 'desc': 'Fixed width & constant spacing'}
-    ]
-    
-    for idx, fam in enumerate(families):
-        ax = plt.subplot2grid((3, 4), (1, idx), colspan=1, rowspan=2)
-        ax.set_xlim(-1, 1)
-        ax.set_ylim(-1, 1)
-        ax.set_aspect('equal')
-        ax.axis('off')
-        
-        # Draw a bounding box for monospace or for clean framing
-        box_color = COLORS['bg_box'] if fam['name'] != 'Monospace' else '#E2E8F0'
-        rect = patches.FancyBboxPatch((-0.9, -0.9), 1.8, 1.8, boxstyle="round,pad=0.05",
-                                     edgecolor=COLORS['muted'], facecolor=box_color, 
-                                     linestyle='--' if fam['name'] == 'Monospace' else '-', linewidth=0.8)
-        ax.add_patch(rect)
-        
-        # Render glyph
-        ax.text(0, -0.3, fam['letter'], fontname=fam['font'], fontsize=90, 
-                ha='center', va='center', color=COLORS['primary'], weight='normal')
-        
-        # Label family name
-        ax.text(0, 0.7, fam['name'], fontsize=11, weight='bold', ha='center', color=COLORS['text'])
-        
-        # Short description below
-        ax.text(0, -0.7, fam['desc'], fontsize=7.5, ha='center', va='center', 
-                color=COLORS['muted'], wrap=True)
-        
-        # Add family-specific callouts
-        if fam['name'] == 'Serif':
-            # Terminal/Serif callout
-            ax.annotate('Serif\nTerminal', xy=(0.35, -0.22), xytext=(0.6, -0.5),
-                        arrowprops=dict(arrowstyle='->', color=COLORS['accent_rose'], linewidth=1),
-                        fontsize=7, color=COLORS['accent_rose'], weight='bold', ha='center')
-            # Stroke contrast callout
-            ax.annotate('Thin\nStroke', xy=(0.0, 0.1), xytext=(-0.5, 0.35),
-                        arrowprops=dict(arrowstyle='->', color=COLORS['accent_teal'], linewidth=1),
-                        fontsize=7, color=COLORS['accent_teal'], weight='bold', ha='center')
-            # Counter callout
-            ax.annotate('Enclosed\nCounter', xy=(-0.1, -0.1), xytext=(-0.6, -0.5),
-                        arrowprops=dict(arrowstyle='->', color=COLORS['accent_blue'], linewidth=1),
-                        fontsize=7, color=COLORS['accent_blue'], weight='bold', ha='center')
-            
-        elif fam['name'] == 'Sans-Serif':
-            # Clean terminal callout
-            ax.annotate('Clean\nTerminal', xy=(0.38, -0.18), xytext=(0.6, -0.5),
-                        arrowprops=dict(arrowstyle='->', color=COLORS['accent_teal'], linewidth=1),
-                        fontsize=7, color=COLORS['accent_teal'], weight='bold', ha='center')
-            # Uniform stroke width callout
-            ax.annotate('Uniform\nStroke', xy=(-0.4, -0.05), xytext=(-0.65, 0.3),
-                        arrowprops=dict(arrowstyle='->', color=COLORS['muted'], linewidth=1),
-                        fontsize=7, color=COLORS['muted'], weight='bold', ha='center')
-            
-        elif fam['name'] == 'Display':
-            # Extreme contrast callout
-            ax.annotate('Heavy\nWeight', xy=(-0.35, -0.1), xytext=(-0.6, 0.35),
-                        arrowprops=dict(arrowstyle='->', color=COLORS['accent_orange'], linewidth=1),
-                        fontsize=7, color=COLORS['accent_orange'], weight='bold', ha='center')
-            # Tiny/compressed counter callout
-            ax.annotate('Compressed\nCounter', xy=(-0.05, 0.22), xytext=(0.55, 0.4),
-                        arrowprops=dict(arrowstyle='->', color=COLORS['accent_rose'], linewidth=1),
-                        fontsize=7, color=COLORS['accent_rose'], weight='bold', ha='center')
-            
-        elif fam['name'] == 'Monospace':
-            # Show equal width boundaries
-            ax.axvline(-0.6, color=COLORS['accent_teal'], linestyle=':', linewidth=1.0)
-            ax.axvline(0.6, color=COLORS['accent_teal'], linestyle=':', linewidth=1.0)
-            ax.text(0, 0.5, "Fixed Width Box", color=COLORS['accent_teal'], fontsize=7, ha='center')
-            
-    plt.tight_layout()
-    save_figure(fig, "font_anatomy")
-    plt.close()
+    fig = plt.figure(figsize=(12, 5.9))
+    gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 1.5], hspace=0.12,
+                          wspace=0.16, left=0.03, right=0.985, top=0.90, bottom=0.05)
 
-if __name__ == '__main__':
-    create_font_anatomy_figure()
+    # ---------------- Top: font metrics measured from real glyph outlines ----
+    ax = fig.add_subplot(gs[0, :])
+    ax.set_xlim(0, 11.5)
+    ax.set_aspect("equal")
+    ax.set_anchor("S")          # hug the bottom row — no dead band between panels
+    ax.axis("off")
+    fp = FontProperties(family=SERIF)
+    S = 1.5  # em size in data units
+
+    e_H = glyph(ax, "H", 2.9, S, fp, COLORS["ink"])
+    e_h = glyph(ax, "h", 4.8, S, fp, COLORS["ink"])
+    e_x = glyph(ax, "x", 6.5, S, fp, COLORS["ink"])
+    e_p = glyph(ax, "p", 8.1, S, fp, COLORS["ink"])
+    cap, asc, xh, desc = e_H.ymax, e_h.ymax, e_x.ymax, e_p.ymin
+    ax.set_ylim(desc - 0.28, asc + 0.30)
+
+    # Guide lines at the exact measured heights
+    for y, c, ls, lw in [(cap, COLORS["muted"], "--", 0.9),
+                         (xh, COLORS["teal"], "--", 1.1),
+                         (0.0, COLORS["ink"], "-", 1.3),
+                         (desc, COLORS["muted"], "--", 0.9)]:
+        ax.axhline(y, color=c, linestyle=ls, linewidth=lw, zorder=1)
+    for y, label, c in [(cap, "Cap height", COLORS["muted"]),
+                        (xh, "Mean line (x-height)", COLORS["teal"]),
+                        (0.0, "Baseline", COLORS["ink"]),
+                        (desc, "Descender line", COLORS["muted"])]:
+        ax.text(0.12, y + 0.05, label, fontsize=8.5, weight="bold", color=c, va="bottom")
+
+    def dim(x, y0, y1, label, color, label_dy=0.0):
+        ax.annotate("", xy=(x, y1), xytext=(x, y0),
+                    arrowprops=dict(arrowstyle="<->", color=color, lw=1.3))
+        ax.text(x + 0.14, (y0 + y1) / 2 + label_dy, label, fontsize=8.5,
+                weight="bold", color=color, va="center")
+
+    dim(4.8 + e_h.xmax + 0.28, xh, asc, "Ascender", COLORS["blue"])
+    dim(6.5 + e_x.xmax + 0.28, 0, xh, "x-height", COLORS["teal"])
+    dim(8.1 + e_p.xmax + 0.28, 0, desc, "Descender", COLORS["rose"])
+    ax.set_title("Typographic reference lines and vertical font metrics",
+                 weight="bold", pad=12)
+
+    # ---------------- Bottom: the four structural families --------------------
+    families = [
+        ("Serif", pick_font("Times New Roman"), COLORS["teal"],
+         "Bracketed terminals,\nhigh stroke contrast",
+         [("Serif\nterminal", (0.30, -0.40), (0.66, -0.72), COLORS["rose"]),
+          ("Enclosed\ncounter", (-0.03, -0.04), (-0.62, 0.52), COLORS["blue"])]),
+        ("Sans-serif", pick_font("Arial"), COLORS["blue"],
+         "Clean terminals,\nuniform stroke width",
+         [("Clean\nterminal", (0.33, -0.36), (0.66, -0.70), COLORS["teal"]),
+          ("Uniform\nstroke", (-0.29, 0.02), (-0.64, 0.52), COLORS["muted"])]),
+        ("Display", pick_font("Impact"), COLORS["orange"],
+         "Heavy weight,\ncompressed counters",
+         [("Heavy\nstem", (-0.19, -0.08), (-0.64, 0.52), COLORS["orange"]),
+          ("Compressed\ncounter", (-0.02, 0.16), (0.56, 0.58), COLORS["rose"])]),
+        ("Monospace", pick_font("Courier New"), COLORS["muted"],
+         "Fixed advance width,\nconstant spacing", []),
+    ]
+
+    for i, (name, font, _accent, desc_txt, callouts) in enumerate(families):
+        axf = fig.add_subplot(gs[1, i])
+        axf.set_xlim(-1, 1)
+        axf.set_ylim(-1.35, 1.15)
+        axf.set_aspect("equal")
+        axf.set_anchor("N")
+        axf.axis("off")
+
+        axf.add_patch(mpatches.FancyBboxPatch(
+            (-0.92, -0.92), 1.84, 1.84, boxstyle="round,pad=0.03",
+            fc=COLORS["box"], ec=COLORS["muted"], lw=0.9, zorder=1))
+        axf.text(0, 0.73, name, fontsize=11.5, weight="bold",
+                 ha="center", color=COLORS["ink"], zorder=4)
+        axf.text(0, -1.06, desc_txt, fontsize=8, ha="center", va="top",
+                 color=COLORS["muted"], linespacing=1.35)
+        axf.text(0, -0.18, "e", fontname=font, fontsize=95, ha="center",
+                 va="center", color=COLORS["ink"], zorder=2)
+
+        for label, tip, txt, c in callouts:
+            axf.annotate(label, xy=tip, xytext=txt, fontsize=7.2, weight="bold",
+                         color=c, ha="center", va="center", zorder=5,
+                         arrowprops=dict(arrowstyle="->", color=c, lw=1.0,
+                                         shrinkA=8, shrinkB=2))
+        if name == "Monospace":
+            for xv in (-0.58, 0.58):
+                axf.plot([xv, xv], [-0.88, 0.55], color=COLORS["teal"],
+                         linestyle=":", lw=1.1, zorder=2)
+            axf.annotate("", xy=(0.58, 0.44), xytext=(-0.58, 0.44),
+                         arrowprops=dict(arrowstyle="<->", color=COLORS["teal"], lw=1.0))
+            axf.text(0, 0.34, "fixed advance", fontsize=7.2, weight="bold",
+                     ha="center", va="top", color=COLORS["teal"])
+
+    save_figure(fig, "font_anatomy")
+    plt.close(fig)
+
+
+if __name__ == "__main__":
+    create_figure()
