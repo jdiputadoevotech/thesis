@@ -35,6 +35,7 @@ When navigating, reading, or creating content, strictly adhere to the following 
 - **`notes.md`** = planning artifact only: outlines, batch blueprints, evidence maps, execution prompts. **Never the essay.**
 - **`draft.md`** = the actual chapter prose, written section by section into numbered sections (e.g. `2.2`, `2.5`).
 - Keep planning and prose strictly separated. Do not write essay prose into `notes.md`, and do not leave planning scaffolding (batch labels, write-order comments, internal tracking) inside `draft.md`.
+- **Page format when a page target is given:** the paper uses **A4 paper size, 1-inch margins on all sides, double spacing** (12pt body). Size prose to that layout — budget ~250 words per page (e.g. a 15-page target ≈ 3,750 words). Convert any page count to a word budget on this basis before drafting.
 
 ### 🔖 Citation workflow
 - `literature/references.md` is the single source of truth for sources. Add/verify the row there **first**, then cite in the chapter draft.
