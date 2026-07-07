@@ -1,11 +1,87 @@
-# Chapter 3 — Methodology
+# Chapter 4 — Methodology
 
-- Research design
-- Dataset generation (link: `data_creation/` repo) — fonts, augmentations, labels
-- Model architecture & training (link: `font-classify/` repo)
-- Evaluation metrics (accuracy, top-k, confusion analysis)
-- Tools, hardware, and software environment
-- Procedure / workflow
+- 4.1 Research Environment and Respondents
+	- Digital source: identify the platform or repository where the dataset is hosted. State the url, the org, and why it is a trusted environment
+	- Examples: KAggle, UCI ML Repo, GitHub, etc.
+	- Explain who or what the dataset represents and treat the entries in the dataset as your respondents
+	- If the data is about humans, explain who these people are, how many profiles in the dataset, and the demographics represented
+	- If the data is about objects/non-humans, explain that there are no human respondents, and instead define the entities being studied.
+- 4.2 Research Instrument or Sources of Data
+	- Describe the tools for gathering data and identify whether they are standardized or researcher made.
+	- The description of the instrument(s) should describe the purpose of the instrument and available validity and reliability coefficients
+	- Describes the content and preparation of each instrument
+- 4.3 Research Procedure
+	- 4.3.1 Gathering of Data
+		- Data Schema
+		- List and define the key variables (features)
+			- Identify independent variables (inputs/features)
+			- Identify the dependent variable (output/target label)
+		- Unstructured data (images, audio, text)
+			- Describe the properties
+				- Images: resolution (e.g 224x224), color channels (RGB or grayscale)
+				- Text: Language (e.g., English), average word count per document
+	- 4.3.2 Treatment of Data
+	- Conclude this section by defining your validation strategy, specifify exactly how you will split your treated data to prevent overfitting.
+		- Train/validation/split ratio: (e.g., 80% for training, 10% for tuning hyperparameters during validation, and 10% for final testing)
+		- Cross-validation: If your dataset is small, mention if you plan to use something like K-fold cross-validation to ensure table results
+- 4.4 Concept
+	- The concept section should paint a clear picture of the system's identity and its fundamental approach. It typically includes:
+		- Core concept/vision: A concise statement of what the system is and its ultimate purpose.
+		- Conceptual Framework: A visul diagram (and explanation) showing how inputs, processes, and outputs interact within your system (often utilizing an IPO model)
+		- Value proposition: What makes this design concept unique or uniquely suited to solve the problem at hand?
+		- High-level operational logic: A brief, non-technical explanation of how a user interacts with the system to achieve a goal.
+- 4.5 Analysis and Design
+	- 4.5.1 Requirements Analysis
+		- Functional Requirements
+		- Non-Functional Requirements
+	- 4.5.2 System Architecture
+		- Architecture Diagram
+			- Architecture diagram contains like the diagram of interactions between the frontend, backend, database, hardware, and related components. Has a user/operator, the data scientist (researchers, us), external systems or APIs, MLs, etc..
+- 4.6 Development Model
+	- Explain the appropriate software engineering methodology or life cycle framework you chose to build, iterate and deliver your project (e.g., Scrum, Agile, Waterfall, V-model or rapid application development).
+		- Identification of the Model
+		- Justification
+		- Phases of the Model (The core content)
+		- SDLC Diagram
+		- 
+- 4.7 Development Approach
+	- It may include either top down or bottom up approach (common) of development
+	- It must focus on the specific architectural patterns, coding philsoophies, and engineering paradigms you used to actually write and organize the software.
+- 4.8 Software Development and Tools
+	- It should contain the discussion about the programming language tools to be used specifically on: 
+		- Frontend and backend, reuse or not
+		- Open vs licensed software
+		- Criteria of selecting it such as
+			- maintainability
+			- support
+			- HCI capability
+			- database connectivity
+			- simplicity
+			- learning
+		- usually in tabular format with software/tool name, version, use, link to access tool, and grouped by function (development tools, project management tools, documentation tools, etc)
+- 4.9 Project Management
+	- 4.9.1 Schedule and Timeline
+		- It may contain gantt chart, activity graph, critical path analysis and other scheduling techniques
+		- Usually it includes the phases and its sub-phases of the systems development life cycle
+	- 4.9.2 Responsibilities
+		- Usually in tabular format, two people (in this thesis) and their tasks
+	- 4.9.3 Budget and Cost Management
+		- Budget and cost management
+			- It should contain a detailed budget proposal and how each cost is to be managed effectively in the conduct of research or study. 
+				- Should highlight all the things necessary in order for the thesis to be replicated by another. Incl. subscriptions to any tools (if there's any), hardware needed (not general laptop models or whatsoever), cloud costs, documentation costs (hard bound printing, etc), misc. fees for overhead
+- 4.10 Verification, Validation and Testing
+	- verify if you are developing the system right
+	- validate if you are developing the right system, and
+	- test the system if it works correctly without any bugs or errors
+	- Most importantly, use of any quantitative and qualitative measures should be planned in order to achieve the research projects specific objectives
+		- Build method
+			- It consists of building an artifact either a physical artifact or a software system to demonstrate that it is possible
+			- Design the software system, reuse components, choose an adequate programming language
+			- Consider testing all the time
+		- Model method
+			- It is centred on defining an abstract model for a real system
+			- This model will be much less complex than the system that it models, and therefore will allow the researcher to better understand the system and to use the model to perform experiemtns that could not be performed in the system itself because of cost or accessibility
+			- The model methodology is often used in combination with the other four methodologies
+	- 
 
 ## Notes
--
