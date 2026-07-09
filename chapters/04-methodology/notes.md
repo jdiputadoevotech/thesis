@@ -20,7 +20,17 @@
 			- Describe the properties
 				- Images: resolution (e.g 224x224), color channels (RGB or grayscale)
 				- Text: Language (e.g., English), average word count per document
+			- **Adopted synthetic-render params (precedent: Chen et al., 2026)** — cite as prior-validated defaults, then extend:
+				- Render at 1024px, downsample to 224×224 for the ViT (square-pad → resize → ImageNet normalize)
+				- RGB color randomization with min luminance-contrast 80 (keeps text legible against background)
+				- Text alignment jitter (left/center/right); line-wrap ~20% probability
+				- ~575 images per font variant as the per-class volume baseline
+				- **Our extension beyond Chen:** their augmentation is pristine-noise only (Gaussian σ=25.5). Add the hallucination-specific degradation operator D from Ch3 §3.2.3 — elastic warp, kerning jitter, cross-character smear — which Chen's closed-set pipeline lacks and which is the thesis's data contribution.
 	- 4.3.2 Treatment of Data
+		- **Preprocessing-in-forward (adopt from Chen et al., 2026):** embed square-pad → 224 resize → ImageNet norm inside the model's forward pass to eliminate train-serve skew (same transforms at train and inference).
+		- **Adaptation strategy — options to weigh:**
+			- Frozen encoder + lightweight metric head (thesis default; label-free, open-set — see Ch2 §2.5)
+			- LoRA/PEFT fine-tune (Chen et al., 2026: r=8, α=16, ~150K params = 0.2% of ViT-B/14) — cheaper than full fine-tune, but supervised + closed-set; consider only for the *supervised teacher* half of the PromptKD distillation, NOT the open-set inference path.
 	- Conclude this section by defining your validation strategy, specifify exactly how you will split your treated data to prevent overfitting.
 		- Train/validation/split ratio: (e.g., 80% for training, 10% for tuning hyperparameters during validation, and 10% for final testing)
 		- Cross-validation: If your dataset is small, mention if you plan to use something like K-fold cross-validation to ensure table results
@@ -84,4 +94,11 @@
 			- The model methodology is often used in combination with the other four methodologies
 	- 
 
+	- **Comparative baselines (two, both fail in the wild — this is the proof):**
+		- Storia-AI Google Font Classifier (`font-classify/`, 3,474 fonts) — field reference embedding (Ch2 ref 20)
+		- Chen et al. (2026) DINOv2+LoRA (394 variants, ~86% Top-1 on pristine) — released on HuggingFace, run its merged weights on our hallucinated test set
+		- Expected result: both collapse on GenAI-deformed crops (Chen self-reports failure on non-synthetic input), quantifying the closed-set/pristine-overfit gap our open-set framework fills
+	- **Severity-weighted error metric (adopt from Chen et al., 2026):** weight confusion-matrix errors by cosine distance between class-embedding centroids (their relative-severity index Π); pair with Serif/Sans/Display/Mono family grouping to show our errors stay within-family (low severity) vs. baselines' cross-family collapse.
+
 ## Notes
+- Chen, D., Lowe, M., & Zinn, Z. (2026), *Parameter-Efficient Fine-Tuning of DINOv2 for Large-Scale Font Classification* (arXiv:2602.13889) — closest methodological antecedent. Same backbone family (DINOv2 ViT-B/14), same Google Fonts + synthetic pipeline, but closed-set/pristine-only. Serves as: (a) adopted render params above, (b) second comparative baseline in 4.10, (c) severity-metric precedent, (d) LoRA exposition in Ch3 §3.4.3. Their stated limitation (fails on photos/styled graphics) is our thesis wedge.
