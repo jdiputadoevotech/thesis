@@ -1,12 +1,9 @@
 # src/visualization/
 
-Executable diagram scripts for **Chapter 3 (Technical Background)** §6 Illustrations. Each script
-programmatically renders one figure to `assets/figures/` as **PNG @ 300 dpi**. One script per figure;
-figure numbers follow in-text appearance order (Figures 1–7).
-
-> ⚠️ **Architecture scaffold only — scripts are not written yet.** The blueprint lives in
-> [`../../chapters/03-technical-background/notes.md`](../../chapters/03-technical-background/notes.md).
-> Code is authored in a later execution pass.
+Executable diagram scripts for the thesis figures. Each script programmatically renders one figure to
+`assets/figures/` as **PNG @ 300 dpi**. One script per figure; figure numbers follow in-text appearance
+order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figure 8 serves **Chapter 4 (Methodology)
+§4.4**.
 
 ## Planned scripts
 
@@ -19,7 +16,8 @@ figure numbers follow in-text appearance order (Figures 1–7).
 | `embedding_space.py` | Figure 4 | T2 | 2D scatter — known-font clusters + open-set rejection boundary | Seaborn |
 | `vit_attention.py` | Figure 5 | T3 | patch embedding + self-attention heads schematic | Matplotlib |
 | `ssim_pipeline.py` | Figure 6 | T3 | re-render predicted font → structural compare vs. crop | Matplotlib |
-| `system_pipeline.py` | Figure 7 | T4 | end-to-end framework flowchart | Graphviz |
+| `system_pipeline.py` | Figure 7 | T4 | end-to-end framework flowchart | Matplotlib |
+| `conceptual_framework.py` | Figure 8 | Ch4 | IPO framework — user/frontend/backend/ML engine + offline training subsystem | Matplotlib |
 
 ## Conventions
 - Every script imports `_style.py` and writes `assets/figures/<name>.png` at 300 dpi with consistent styling.
