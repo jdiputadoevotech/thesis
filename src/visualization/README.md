@@ -2,8 +2,8 @@
 
 Executable diagram scripts for the thesis figures. Each script programmatically renders one figure to
 `assets/figures/` as **PNG @ 300 dpi**. One script per figure; figure numbers follow in-text appearance
-order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figure 8 serves **Chapter 4 (Methodology)
-§4.4**.
+order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figures 8–10 serve **Chapter 4 (Methodology)**
+(§4.4 conceptual framework, §4.5.2 system architecture, §4.6 development model).
 
 ## Planned scripts
 
@@ -18,6 +18,8 @@ order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figure 8 serves
 | `ssim_pipeline.py` | Figure 6 | T3 | re-render predicted font → structural compare vs. crop | Matplotlib |
 | `system_pipeline.py` | Figure 7 | T4 | end-to-end framework flowchart | Matplotlib |
 | `conceptual_framework.py` | Figure 8 | Ch4 | IPO framework — user/frontend/backend/ML engine + offline training subsystem | Matplotlib |
+| `system_architecture.py` | Figure 9 | Ch4 | Layered architecture — user/React client/FastAPI/PyTorch inference/resources | Matplotlib |
+| `sdlc_model.py` | Figure 10 | Ch4 | Iterative-incremental model — four increments × Analyze/Design/Build/Evaluate | Matplotlib |
 
 ## Conventions
 - Every script imports `_style.py` and writes `assets/figures/<name>.png` at 300 dpi with consistent styling.
