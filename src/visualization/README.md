@@ -2,8 +2,8 @@
 
 Executable diagram scripts for the thesis figures. Each script programmatically renders one figure to
 `assets/figures/` as **PNG @ 300 dpi**. One script per figure; figure numbers follow in-text appearance
-order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figures 8–10 serve **Chapter 4 (Methodology)**
-(§4.4 conceptual framework, §4.5.2 system architecture, §4.6 development model).
+order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figures 8–11 serve **Chapter 4 (Methodology)**
+(§4.4 conceptual framework, §4.5.2 system architecture, §4.6 development model, §4.9.1 Gantt timeline).
 
 ## Planned scripts
 
@@ -20,6 +20,7 @@ order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figures 8–10 
 | `conceptual_framework.py` | Figure 8 | Ch4 | IPO framework — user/frontend/backend/ML engine + offline training subsystem | Matplotlib |
 | `system_architecture.py` | Figure 9 | Ch4 | Layered architecture — user/React client/FastAPI/PyTorch inference/resources | Matplotlib |
 | `sdlc_model.py` | Figure 10 | Ch4 | Iterative-incremental model — four increments × Analyze/Design/Build/Evaluate | Matplotlib |
+| `gantt_timeline.py` | Figure 11 | Ch4 | Project schedule Gantt — Jun–Dec 2026, done/active/planned | Matplotlib |
 
 ## Conventions
 - Every script imports `_style.py` and writes `assets/figures/<name>.png` at 300 dpi with consistent styling.
