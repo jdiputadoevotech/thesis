@@ -33,6 +33,7 @@ When navigating, reading, or creating content, strictly adhere to the following 
 - **`literature/references.md`**: Formal reference catalog — one row per source in a Markdown table (`# | Author(s) | Year | Title | Link | Key takeaways | Cited in`). Currently ~30 verified sources.
 - **`literature/papers/`**: Local PDF store for source papers.
 - **`plans/plans.md`**: Active project timeline milestones, tasks, and task delegation.
+- **`proposal-presentation/`**: Oral proposal-defense deliverables (not a chapter). Holds `requirements.md` (authoritative defense spec — slide structure, 30/40/20 time budget, rubric weights, presentation flow), `script.md` (speaker notes + Q&A prep), `slides/` (the deck), and a folder-local `CLAUDE.md`. **Always reference `proposal-presentation/requirements.md` first** before drafting or editing any slide/script/deliverable in that folder; pull content from `chapters/` and `assets/figures/` rather than duplicating.
 
 ### 📝 Notes-vs-Draft convention (IMPORTANT)
 - **`notes.md`** = planning artifact only: outlines, batch blueprints, evidence maps, execution prompts. **Never the essay.**
