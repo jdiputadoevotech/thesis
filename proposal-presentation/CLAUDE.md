@@ -26,7 +26,21 @@ Metric Learning Approach to Font Style Recognition"**
 - Methodology (pipeline, metrics, Gantt) → `chapters/04-methodology/`
 - Timeline → `plans/plans.md`
 
+## 📏 Slide word budget (speaker-driven deck)
+Slides are cue cards, not the script — the talk track lives in the Marp `<!-- notes -->`.
+Keep every slide inside these caps or it overflows the frame (spills into the footer/logo):
+
+- **Title (`##`):** ≤ 8 words.
+- **Body total:** **≤ 45 words** per slide (hard cap ~55). Aim for 30–40.
+- **Bullets:** ≤ 5 top-level; **≤ 2 lines each** on screen. Avoid sub-bullets — collapse
+  related points into one line with commas (e.g. the three "tools fail" stats on one bullet).
+- **One idea per slide.** If it needs > 45 words, split it or push detail to the speaker notes.
+- Citations are `*(Author, Year)*` inline — they count toward the word budget, so keep them short.
+
+Rule of thumb: if a slide can't be read aloud in ~40 seconds, it's too full.
+
 ## ⚠️ Rules
 1. Reuse existing figures from `assets/figures/` — don't regenerate for slides.
-2. No fabricated results. Chapters 4–6 empirical values stay `[X.XX%]` until real runs.
+2. No fabricated results. Bracketed `[X.XX%]`/`[N]` only for values no run/decision has produced
+   yet (see main `CLAUDE.md` rule 3); use real values where the drafts already have them.
 3. Keep deck content in sync with chapter drafts — chapters are source of truth.
