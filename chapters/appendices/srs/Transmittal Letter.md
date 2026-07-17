@@ -15,7 +15,7 @@ Given your expertise in \<field — e.g., typography / graphic design\>, we spec
 - **Serving on our expert-evaluation panel** — visually identifying and ranking the closest matching Google Font for a curated set of approximately 100 AI-generated text samples. This expert consensus establishes the human ground-truth benchmark against which we measure our system's accuracy.
 - **Validating our research instrument** — reviewing our curated palette of the top 50–100 Google Fonts and the realism of our synthetic text-degradation samples.
 
-Your involvement would take approximately \<estimated time / number of sessions\>, scheduled at your convenience, and may be conducted \<in person / online\>. All responses will be used solely for academic purposes and reported in aggregate.
+Your involvement would take approximately \<estimated time\> and would be conducted **entirely online and asynchronously** — you would complete a self-paced web-based rating form at your own convenience, with no scheduled session required. All responses will be used solely for academic purposes and reported in aggregate.
 
 This research study is being conducted as part of the requirements for the completion of the Bachelor of Science in Computer Science program under the Department of Computer and Information Sciences and Mathematics, University of San Carlos. We believe that the findings of this study will contribute meaningfully to the advancement of knowledge and provide benefits to the community.
 
