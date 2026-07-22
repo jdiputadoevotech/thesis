@@ -1,131 +1,160 @@
 """Figure 8 (Ch4) — Conceptual framework: IPO view of the font-identification
-system and the web app built on top of it. Shows how user, frontend, backend,
-off-the-shelf text localization, the ML inference engine (the thesis focus),
-and the offline synthetic-training subsystem interact.
+system. Input column holds the designer, the GenAI image, and the web-app UI
+(the system boundary); the Process column is the backend recognition pipeline,
+the off-the-shelf localizer followed by the per-crop model stages; the Output
+column holds the verified shortlist / unknown verdict. An enclosed training band
+(render -> degrade -> triplet + LoRA-teacher distillation) ends in the trained
+model (weights f_theta + threshold tau) the engine loads at startup.
+Contrast: faint bands < dimmed support boxes < full-colour element boxes.
+Line convention (drawn as an in-figure legend):
+  solid arrow  = runtime flow, runs for every uploaded image
+  dashed arrow = offline flow, run before deployment (incl. the startup load)
 Pure matplotlib: no Graphviz binary required."""
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from _style import apply_style, save_figure, draw_box, draw_arrow, COLORS
 
 
-def _dashed_arrow(ax, p_from, p_to, color):
+def _dashed_arrow(ax, p_from, p_to, color, lw=1.3):
     ax.annotate("", xy=p_to, xytext=p_from, zorder=2,
-                arrowprops=dict(arrowstyle="-|>", color=color, lw=1.3,
-                                mutation_scale=14, shrinkA=0, shrinkB=0,
+                arrowprops=dict(arrowstyle="-|>", color=color, lw=lw,
+                                mutation_scale=13, shrinkA=0, shrinkB=0,
                                 linestyle=(0, (4, 3))))
+
+
+# Three contrast tiers: faint bands < dimmed support boxes < full element boxes.
+DIM = dict(fc="#F2F4F7", ec="#C3CDD9", tc=COLORS["muted"], lw=1.0)  # support
+BAND_FC = "#FCFDFE"        # lowest opacity, like the system-architecture bands
+CONTAINER_FC = "#FBFCFD"
+
+
+def _band(ax, x0, y0, x1, y1, label, dashed=False, fc=BAND_FC, label_x=None):
+    ls = (0, (5, 3)) if dashed else "solid"
+    ax.add_patch(mpatches.Rectangle((x0, y0), x1 - x0, y1 - y0, fc=fc,
+                                    ec="#CBD5E1", lw=1.1, linestyle=ls,
+                                    zorder=0))
+    ax.text(label_x if label_x else x0 + 0.3, y1 - 0.4, label, ha="left",
+            va="center", fontsize=10.5, weight="bold", color=COLORS["muted"],
+            zorder=4)
 
 
 def create_figure():
     apply_style()
-    fig, ax = plt.subplots(figsize=(10.6, 8.0))
+    fig, ax = plt.subplots(figsize=(11.4, 10.4))
     ax.set_xlim(0, 16)
-    ax.set_ylim(0, 12.0)
+    ax.set_ylim(0, 14.8)
     ax.axis("off")
 
-    # ---- Band headers (INPUT / PROCESS / OUTPUT) ----
-    for x, label in [(2.5, "INPUT"), (8.0, "PROCESS"), (13.6, "OUTPUT")]:
-        ax.text(x, 10.75, label, ha="center", va="center", fontsize=11,
-                weight="bold", color=COLORS["muted"], zorder=4)
-    for x in (5.15, 10.9):
-        ax.plot([x, x], [1.9, 10.55], color=COLORS["grid"], lw=1.0,
-                linestyle=(0, (2, 3)), zorder=0)
+    # ---- Enclosed bands ----
+    _band(ax, 0.35, 4.2, 4.55, 13.35, "INPUT", label_x=0.75)
+    _band(ax, 4.85, 3.0, 11.15, 13.35, "PROCESS")
+    _band(ax, 11.45, 4.2, 15.65, 13.35, "OUTPUT")
+    _band(ax, 0.35, 0.4, 15.65, 2.7,
+          "OFFLINE TRAINING  ·  researchers, before deployment",
+          dashed=True, fc="#FBFBF7")
 
-    # ---- INPUT column ----
-    draw_box(ax, 2.5, 9.35, 3.4, 0.95, "Graphic designer",
-             "needs a font from an image", fc=COLORS["box"], ec=COLORS["ink"])
-    draw_box(ax, 2.5, 7.35, 3.4, 0.95, "GenAI image",
-             "hallucinated text, may hold other fonts", fc=COLORS["orange_bg"],
-             ec=COLORS["orange"], tc=COLORS["orange"], sub_fs=8)
-    draw_arrow(ax, (2.5, 8.875), (2.5, 7.825), lw=1.4)
-
-    # ---- PROCESS column: web + backend + localization + ML engine ----
-    draw_box(ax, 8.0, 9.85, 4.6, 0.85, "Web app (frontend)",
-             "upload image · view ranked results", fc=COLORS["blue_bg"],
-             ec=COLORS["blue"], tc=COLORS["blue"])
-    draw_box(ax, 8.0, 8.65, 4.6, 0.85, "Backend API",
-             "request routing · inference server", fc=COLORS["blue_bg"],
-             ec=COLORS["blue"], tc=COLORS["blue"])
-    # Localization: off-the-shelf, NOT the thesis focus (muted, dashed edge)
-    ax.add_patch(mpatches.FancyBboxPatch(
-        (5.7, 7.05), 4.6, 0.85, boxstyle="round,pad=0.02",
-        fc="#F4F5F7", ec=COLORS["muted"], lw=1.2, linestyle=(0, (4, 2)), zorder=3))
-    ax.text(8.0, 7.55, "Text localization", ha="center", va="bottom",
-            fontsize=10, weight="bold", color=COLORS["muted"], zorder=4)
-    ax.text(8.0, 7.43, "off-the-shelf · crop each text region", ha="center",
-            va="top", fontsize=8, color=COLORS["muted"], zorder=4)
-
-    # ML inference engine container (the thesis focus)
-    ax.add_patch(mpatches.FancyBboxPatch(
-        (5.4, 2.35), 5.2, 4.35, boxstyle="round,pad=0.02",
-        fc="#F8FAFC", ec=COLORS["teal"], lw=1.5, zorder=1))
-    ax.text(8.0, 6.42, "ML inference engine", ha="center", va="center",
-            fontsize=9.5, weight="bold", color=COLORS["teal"], zorder=4)
-    ax.text(8.0, 6.06, "runs per cropped region · focus of this thesis",
-            ha="center", va="center", fontsize=7.5, color=COLORS["teal"],
-            style="italic", zorder=4)
-    ml_steps = [
-        (5.35, "Preprocessing", "224² · normalize", COLORS["box"], COLORS["ink"]),
-        (4.45, "Frozen ViT — DINOv2", "self-supervised patch features", COLORS["teal_bg"], COLORS["teal"]),
-        (3.55, "Metric head  $f_\\theta$", "font-style embedding", COLORS["blue_bg"], COLORS["blue"]),
-        (2.75, "Open-set decision + Top-K", "reject unknown · rank palette", COLORS["orange_bg"], COLORS["orange"]),
-    ]
-    for cy, t, s, fc, ec in ml_steps:
-        draw_box(ax, 8.0, cy, 4.2, 0.72, t, s, fc=fc, ec=ec, tc=ec, fs=9.5, sub_fs=8)
-
-    # vertical process arrows
-    draw_arrow(ax, (8.0, 9.425), (8.0, 9.075), lw=1.5)   # frontend -> backend
-    draw_arrow(ax, (8.0, 8.225), (8.0, 7.90), lw=1.5)    # backend -> localization
-    draw_arrow(ax, (8.0, 7.05), (8.0, 5.71), lw=1.5)     # localization -> engine
-    ax.text(8.28, 6.75, "per crop", ha="left", va="center", fontsize=7.5,
+    # ---- INPUT: designer -> image -> web-app UI (system boundary) ----
+    draw_box(ax, 2.45, 11.95, 3.4, 0.95, "Graphic designer",
+             "needs the font used in an image", sub_fs=8, **DIM)
+    draw_box(ax, 2.45, 10.2, 3.4, 0.95, "GenAI image",
+             "deformed text · multiple regions", sub_fs=8, **DIM)
+    draw_box(ax, 2.45, 8.45, 3.4, 1.0, "Web app UI (frontend)",
+             "upload image · display results", fs=9.5, sub_fs=8, **DIM)
+    draw_arrow(ax, (2.45, 11.475), (2.45, 10.675), lw=1.5)
+    draw_arrow(ax, (2.45, 9.725), (2.45, 8.95), lw=1.5)
+    ax.text(2.62, 9.34, "upload", ha="left", va="center", fontsize=7.5,
             color=COLORS["muted"], style="italic", zorder=4)
-    for cy_from, cy_to in [(4.99, 4.81), (4.09, 3.91), (3.19, 3.11)]:
-        draw_arrow(ax, (8.0, cy_from), (8.0, cy_to), lw=1.4)
+    draw_arrow(ax, (4.15, 8.7), (5.66, 11.0), lw=1.5)    # UI -> localizer
 
-    # input image -> frontend
-    draw_arrow(ax, (4.2, 7.35), (5.7, 9.6), lw=1.4)
-
-    # ---- OUTPUT column ----
-    draw_box(ax, 13.6, 5.3, 3.8, 0.95, "Top-K Google Fonts",
-             "ranked matches, per crop", fc=COLORS["teal_bg"],
-             ec=COLORS["teal"], tc=COLORS["teal"])
-    draw_box(ax, 13.6, 3.6, 3.8, 0.95, "Unknown verdict",
-             "out-of-palette / hallucinated", fc=COLORS["rose_bg"],
-             ec=COLORS["rose"], tc=COLORS["rose"])
-    draw_box(ax, 13.6, 8.6, 3.8, 0.95, "Free template reuse",
-             "reconstruct with open font", fc=COLORS["box"], ec=COLORS["ink"])
-
-    # decision -> outputs
-    draw_arrow(ax, (10.1, 2.95), (11.7, 5.05), lw=1.4, color=COLORS["teal"])
-    draw_arrow(ax, (10.1, 2.65), (11.7, 3.6), lw=1.4, color=COLORS["rose"])
-    # shortlist -> template reuse -> back to designer (feedback)
-    draw_arrow(ax, (13.6, 5.775), (13.6, 8.125), lw=1.4)
-    _dashed_arrow(ax, (13.6, 9.075), (4.0, 9.68), COLORS["muted"])
-    ax.text(11.35, 9.02, "results returned to user", ha="center", va="center",
-            fontsize=8, color=COLORS["muted"], style="italic")
-
-    # ---- Offline training subsystem (bottom band) ----
+    # ---- Legend (two line kinds only) ----
     ax.add_patch(mpatches.FancyBboxPatch(
-        (0.4, 0.35), 15.2, 1.35, boxstyle="round,pad=0.02",
-        fc="#FBFBF7", ec=COLORS["muted"], lw=1.0, linestyle=(0, (3, 2)), zorder=0))
-    ax.text(0.75, 1.5, "Offline training (researchers)", ha="left", va="center",
-            fontsize=8.5, weight="bold", color=COLORS["muted"], zorder=4)
-    train = [
-        (2.9, "Google Fonts", "50–100 palette"),
-        (6.2, "Synthetic render", "pristine word crops"),
-        (9.5, "Degradation  $D$", "warp · blur · kern jitter"),
-        (12.8, "Triplet training", "learn $f_\\theta$"),
-    ]
-    for cx, t, s in train:
-        draw_box(ax, cx, 0.92, 2.9, 0.72, t, s, fc=COLORS["box"],
-                 ec=COLORS["ink"], fs=9, sub_fs=7.5)
-    for cx in (4.35, 7.65, 10.95):
-        draw_arrow(ax, (cx, 0.92), (cx + 0.9, 0.92), lw=1.3)
-    # trained weights feed the frozen encoder + head (dashed up)
-    _dashed_arrow(ax, (12.8, 1.28), (9.3, 3.35), COLORS["teal"])
-    ax.text(13.35, 2.05, "trained weights", ha="left", va="center",
-            fontsize=7.5, color=COLORS["teal"], style="italic")
+        (0.7, 4.55), 3.55, 2.05, boxstyle="round,pad=0.02", fc="white",
+        ec=COLORS["muted"], lw=0.9, zorder=3))
+    ax.text(0.95, 6.28, "Legend", ha="left", va="center", fontsize=8.5,
+            weight="bold", color=COLORS["ink"], zorder=4)
+    ax.annotate("", xy=(1.62, 5.7), xytext=(1.0, 5.7), zorder=5,
+                arrowprops=dict(arrowstyle="-|>", color=COLORS["ink"], lw=1.4,
+                                mutation_scale=14, shrinkA=0, shrinkB=0))
+    ax.text(1.78, 5.7, "solid: runtime flow,\nruns per uploaded image",
+            ha="left", va="center", fontsize=7.2, color=COLORS["ink"], zorder=4)
+    ax.annotate("", xy=(1.62, 4.95), xytext=(1.0, 4.95), zorder=5,
+                arrowprops=dict(arrowstyle="-|>", color=COLORS["muted"], lw=1.3,
+                                mutation_scale=14, shrinkA=0, shrinkB=0,
+                                linestyle=(0, (4, 3))))
+    ax.text(1.78, 4.95, "dashed: offline flow, before\ndeployment (incl. startup load)",
+            ha="left", va="center", fontsize=7.2, color=COLORS["ink"], zorder=4)
 
-    ax.text(8.0, 11.55, "Conceptual framework of the proposed font-identification system",
+    # ---- PROCESS: localizer, then the model stages (no nested containers) ----
+    draw_box(ax, 8.0, 11.5, 4.6, 0.95, "Text localization",
+             "off-the-shelf · crops each text region", sub_fs=8, **DIM)
+    draw_arrow(ax, (8.0, 11.025), (8.0, 10.03), lw=1.5)
+    ax.text(8.25, 10.55, "per crop", ha="left", va="center", fontsize=7.5,
+            color=COLORS["muted"], style="italic", zorder=4)
+
+    # Preprocessing = support (dim); the three model stages = element (full).
+    draw_box(ax, 8.0, 9.6, 4.2, 0.82, "Preprocessing", "224² · normalize",
+             fs=9.5, sub_fs=7.5, **DIM)
+    for cy, t, s, fc, ec in [
+        (8.2, "Frozen ViT (DINOv2)", "self-supervised patch features",
+         COLORS["teal_bg"], COLORS["teal"]),
+        (6.8, "Metric head  $f_\\theta$  (student)", "font-style embedding",
+         COLORS["blue_bg"], COLORS["blue"]),
+        (5.4, "Open-set decision + Top-K", "reject unknown · calibrated rank",
+         COLORS["orange_bg"], COLORS["orange"]),
+    ]:
+        draw_box(ax, 8.0, cy, 4.2, 0.82, t, s, fc=fc, ec=ec, tc=ec,
+                 fs=9.5, sub_fs=7.5, lw=1.8)
+    for y_from, y_to in [(9.19, 8.61), (7.79, 7.21), (6.39, 5.81)]:
+        draw_arrow(ax, (8.0, y_from), (8.0, y_to), lw=1.4)
+
+    # ---- OUTPUT: shortlist -> re-render check -> reuse, or unknown ----
+    draw_box(ax, 13.55, 11.9, 3.7, 1.0, "Top-K Google Fonts",
+             "conformal shortlist per crop", fc=COLORS["teal_bg"],
+             ec=COLORS["teal"], tc=COLORS["teal"], lw=1.8)
+    draw_box(ax, 13.55, 10.0, 3.7, 1.0, "Re-render check",
+             "structural distance vs the crop", fc=COLORS["blue_bg"],
+             ec=COLORS["blue"], tc=COLORS["blue"], sub_fs=7.8, lw=1.8)
+    draw_box(ax, 13.55, 8.1, 3.7, 1.0, "Free template reuse",
+             "rebuild with the matched open font", sub_fs=7.8, **DIM)
+    draw_box(ax, 13.55, 5.9, 3.7, 1.0, "Unknown verdict",
+             "out-of-palette · rejected", fc=COLORS["rose_bg"],
+             ec=COLORS["rose"], tc=COLORS["rose"], lw=1.8)
+
+    # decision -> Top-K (accepted, orthogonal riser) and -> Unknown (rejected)
+    ax.plot([10.1, 11.3, 11.3], [5.4, 5.4, 11.9], color=COLORS["teal"],
+            lw=1.4, zorder=2)
+    draw_arrow(ax, (11.3, 11.9), (11.68, 11.9), lw=1.4, color=COLORS["teal"])
+    ax.text(11.15, 8.6, "accepted", ha="right", va="center", fontsize=7.5,
+            color=COLORS["teal"], style="italic", rotation=90, zorder=4)
+    draw_arrow(ax, (10.1, 5.5), (11.68, 5.95), lw=1.4, color=COLORS["rose"])
+    ax.text(10.95, 5.95, "rejected", ha="right", va="center", fontsize=7.5,
+            color=COLORS["rose"], style="italic", zorder=4)
+    draw_arrow(ax, (13.55, 11.4), (13.55, 10.5), lw=1.4)
+    draw_arrow(ax, (13.55, 9.5), (13.55, 8.6), lw=1.4)
+
+    # ---- OFFLINE TRAINING band ----
+    # Pipeline steps = support (dim); the trained-model artifact = element (full).
+    for cx, t, s in [
+        (2.0, "Google Fonts", "50–100 font palette"),
+        (4.9, "Synthetic render", "pristine word crops"),
+        (7.8, "Degradation  $D$", "warp · blur · kern jitter"),
+        (10.7, "Metric-head training", "triplet + LoRA-teacher distill"),
+    ]:
+        draw_box(ax, cx, 1.35, 2.6, 0.92, t, s, fs=8.6, sub_fs=7.0, **DIM)
+    draw_box(ax, 13.6, 1.35, 2.6, 0.92, "Trained model",
+             "weights $f_\\theta$ · threshold $\\tau$", fc=COLORS["teal_bg"],
+             ec=COLORS["teal"], tc=COLORS["teal"], fs=8.6, sub_fs=7.0, lw=1.8)
+    for cx in (3.3, 6.2, 9.1, 12.0):
+        _dashed_arrow(ax, (cx, 1.35), (cx + 0.3, 1.35), COLORS["ink"], lw=1.3)
+
+    # trained model -> model stages (startup load)
+    _dashed_arrow(ax, (13.6, 1.81), (9.85, 5.0), COLORS["teal"], lw=1.5)
+    ax.text(12.1, 3.25, "loads weights $f_\\theta$, $\\tau$ at startup",
+            ha="left", va="center", fontsize=7.5, color=COLORS["teal"],
+            style="italic", zorder=4)
+
+    ax.text(8.0, 14.35,
+            "Conceptual framework of the proposed font-identification system",
             fontsize=12.5, weight="bold", ha="center", color=COLORS["ink"])
 
     save_figure(fig, "conceptual_framework")
