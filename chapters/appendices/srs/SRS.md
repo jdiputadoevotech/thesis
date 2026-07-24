@@ -39,7 +39,7 @@ FontID is a **local demonstration harness**, not a production service. It wraps 
 FontID is a **new, self-contained** front end over an existing trained model; it adds no new learning logic. The runtime path is layered — React client → FastAPI backend → PyTorch inference service → model weights and font assets — as detailed in the system-architecture diagram (Ch4 §4.5.2, Fig 9). The trained metric head is produced offline; the app only *loads and serves* it.
 
 ### 2.2 Product Functions
-- Accept a GenAI image by drag-drop, file browse, or bundled sample.
+- Accept a GenAI image by drag-drop, file browse, or a bundled sample — drawn from a pool of at least 10 real AI-generated demo images, never part of any training data, with 3 offered at random each start-up.
 - Localize the text region(s) in the image and crop each one.
 - Embed each crop and rank it against the font palette.
 - Return a Top-K shortlist per crop with a similarity score, or reject it as out-of-palette.
@@ -75,13 +75,13 @@ Single page, three vertically stacked zones (wireframe below):
 
 1. **Input** — a drag-drop/browse dropzone, sample thumbnails, and an **Identify Fonts** action.
 2. **Processing** — the uploaded image with detected text regions boxed, plus a pipeline status/progress indicator.
-3. **Results** — one card per detected crop: the crop thumbnail, its Top-K font shortlist (name · preview · similarity bar), and a **KNOWN / UNKNOWN** badge for the open-set decision.
+3. **Results** — a carousel showing one card at a time per detected crop, navigated with previous/next arrows, a region indicator ("Region 1 of 2"), and pagination dots. Each card holds the crop thumbnail, its Top-K font shortlist (name · preview · similarity bar), and a **KNOWN / UNKNOWN** badge for the open-set decision.
 
 The interface **shall** work at desktop widths and keep all three zones reachable on one page. Standard affordances: every result font preview offers a copy-name / preview action.
 
 ![Figure — FontID single-page wireframe (Input → Processing → Results).](../../../assets/figures/app_wireframe.png)
 
-*Figure. FontID wireframe: three-zone single page. Region 1 accepts (Top-3 in palette); Region 2 is rejected as out-of-palette (max similarity < τ), demonstrating open-set behavior.*
+*Figure. FontID wireframe: three-zone single page. Results are a carousel, one card per detected region: Region 1 accepts (Top-3 in palette); Region 2, reached with the next arrow, is rejected as out-of-palette (max similarity < τ), demonstrating open-set behavior.*
 
 ### 3.2 Software Interfaces
 | Interface | Purpose | Data exchanged |
@@ -102,8 +102,9 @@ User supplies a GenAI image. **Stimulus/response:** user drops/selects an image 
 | ID | Requirement | Priority |
 | :--- | :--- | :--- |
 | REQ-4.1-1 | The system shall accept an image via drag-drop, file picker, or a bundled sample. | High |
-| REQ-4.1-2 | The system shall accept PNG, JPG, and WEBP up to 10 MB and reject other types with a clear message. | High |
+| REQ-4.1-2 | The system shall accept raster images in PNG (`.png`), JPEG (`.jpg`, `.jpeg`), and WebP (`.webp`) up to 10 MB, and reject any other type (e.g., SVG, GIF, HEIC, TIFF) with a clear message. | High |
 | REQ-4.1-3 | The system shall display a preview of the uploaded image before processing. | Med |
+| REQ-4.1-4 | The app shall bundle a pool of at least 10 real AI-generated sample images (e.g., DALL·E, Midjourney, Stable Diffusion output), none part of any training data; the samples offered shall be randomly selected from this pool at each start-up, and the interface shall label their origin. | Med |
 
 ### 4.2 Text Localization and Processing — Priority: High
 The backend finds text regions and prepares each crop. **Stimulus/response:** `/predict` receives the image → localizer returns boxes → each crop is preprocessed and embedded → status advances in the Processing zone.
@@ -122,8 +123,9 @@ For each crop, rank the palette and decide known vs. unknown. **Stimulus/respons
 | :--- | :--- | :--- |
 | REQ-4.3-1 | The system shall return a Top-K (K = 3) ranked shortlist of Google Fonts per crop, each with a similarity score. | High |
 | REQ-4.3-2 | The system shall reject a crop as "unknown / out-of-palette" when its best similarity falls below threshold τ (open-set). | High |
-| REQ-4.3-3 | The system shall present each crop's result as its own card, labeled KNOWN or UNKNOWN. | High |
+| REQ-4.3-3 | The system shall present each crop's result as its own card in a carousel with previous/next navigation and a region indicator (e.g., "Region 1 of 2"), each card labeled KNOWN or UNKNOWN. | High |
 | REQ-4.3-4 | The system should report a typographic-distance (SSIM) score between the crop and the top match. | Low |
+| REQ-4.3-5 | The backend should log each crop's similarity scores and its threshold (τ) decision for researcher analysis; these diagnostics are not shown in the user interface. | Low |
 
 ### 4.4 Font Preview — Priority: Med
 Let the user visually confirm a match. **Stimulus/response:** for each candidate the app renders the detected text string in that font.

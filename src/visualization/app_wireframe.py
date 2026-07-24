@@ -70,9 +70,10 @@ def create_figure():
     ax.text(8.2, 19.32, "PNG · JPG · WEBP   ·   up to 10 MB",
             ha="center", va="center", fontsize=7.8, color=muted, zorder=4)
     # sample row + primary button
-    ax.text(1.7, 18.35, "Try a sample:", ha="left", va="center", fontsize=8, color=muted, zorder=4)
+    ax.text(1.7, 18.62, "Try a sample — bundled AI-generated demo images:",
+            ha="left", va="center", fontsize=8, color=muted, zorder=4)
     for i in range(3):
-        rect(ax, 3.9 + i * 1.0, 17.95, 0.8, 0.72, "#E9EEF4", muted, lw=0.8, z=3)
+        rect(ax, 1.7 + i * 1.0, 17.62, 0.8, 0.72, "#E9EEF4", muted, lw=0.8, z=3)
     rrect(ax, 11.3, 17.85, 3.4, 0.9, teal, teal, lw=1.2, z=3)
     ax.text(13.0, 18.3, "Identify Fonts  →", ha="center", va="center",
             fontsize=10, weight="bold", color="white", zorder=4)
@@ -106,57 +107,58 @@ def create_figure():
     ax.text(8.95, 12.45, "processing… 62%", ha="left", va="center", fontsize=7.5,
             color=muted, zorder=4)
 
-    # ============ ZONE 3 — RESULTS ============
-    ax.text(1.7, 11.05, "3  Results — Top-K font shortlist per detected text",
+    # ==== ZONE 3 — RESULTS (carousel: one card per detected region) ====
+    ax.text(1.7, 11.05, "3  Results — one card per detected text region",
             ha="left", va="center", fontsize=10.5, weight="bold", color=teal, zorder=4)
 
-    def result_card(y0, crop_label, accept, rows):
-        h = 4.15
-        rrect(ax, 1.7, y0, 13.0, h, "white", COLORS["grid"], lw=1.1, z=2)
-        # crop thumbnail
-        rect(ax, 2.1, y0 + h - 1.9, 2.7, 1.4, "#EEF2F6", muted, lw=1.0, z=3)
-        ax.text(3.45, y0 + h - 1.2, "text crop", ha="center", va="center",
-                fontsize=7, color=muted, style="italic", zorder=4)
-        ax.text(2.1, y0 + h - 2.25, crop_label, ha="left", va="center",
-                fontsize=8.5, weight="bold", color=ink, zorder=4)
-        # accept / reject badge
-        bc = teal if accept else rose
-        btxt = "KNOWN — in palette" if accept else "UNKNOWN — out of palette"
-        rrect(ax, 2.1, y0 + 0.35, 2.9, 0.55, COLORS["teal_bg"] if accept else COLORS["rose_bg"],
-              bc, lw=1.0, z=3)
-        ax.text(3.55, y0 + 0.625, btxt, ha="center", va="center", fontsize=6.8,
-                weight="bold", color=bc, zorder=4)
-        # Top-K rows
-        rx, ry = 5.4, y0 + h - 0.75
-        ax.text(rx, ry + 0.35, "Top-3 candidates", ha="left", va="center",
-                fontsize=7.5, weight="bold", color=muted, zorder=4)
-        for rank, (name, prev, frac) in enumerate(rows, 1):
-            col = ink if accept else muted
-            ax.text(rx, ry, f"#{rank}", ha="left", va="center", fontsize=8.5,
-                    weight="bold", color=col, zorder=4)
-            ax.text(rx + 0.55, ry, name, ha="left", va="center", fontsize=8.5,
-                    weight="bold", color=col, zorder=4)
-            ax.text(rx + 0.55, ry - 0.3, prev, ha="left", va="center", fontsize=7.5,
-                    color=muted, style="italic", zorder=4)
-            score_bar(ax, rx + 6.7, ry - 0.05, 2.0, frac, teal if accept else muted)
-            ax.text(rx + 8.85, ry - 0.02, f"{frac:.2f}", ha="left", va="center",
-                    fontsize=7.5, color=col, zorder=4)
-            ry -= 1.0
-
-    # accepted example
-    result_card(6.55, "Region 1 · “SUMMER SALE”", True, [
+    # main card: Region 1 (accepted)
+    cx0, cy0, cw, chh = 2.6, 4.9, 10.9, 5.0
+    rrect(ax, cx0, cy0, cw, chh, "white", COLORS["grid"], lw=1.1, z=2)
+    rect(ax, cx0 + 0.4, cy0 + chh - 1.9, 2.7, 1.4, "#EEF2F6", muted, lw=1.0, z=3)
+    ax.text(cx0 + 1.75, cy0 + chh - 1.2, "text crop", ha="center", va="center",
+            fontsize=7, color=muted, style="italic", zorder=4)
+    ax.text(cx0 + 0.4, cy0 + chh - 2.25, "Region 1 · “SUMMER SALE”", ha="left",
+            va="center", fontsize=8.5, weight="bold", color=ink, zorder=4)
+    rrect(ax, cx0 + 0.4, cy0 + 0.35, 2.9, 0.55, COLORS["teal_bg"], teal,
+          lw=1.0, z=3)
+    ax.text(cx0 + 1.85, cy0 + 0.625, "KNOWN — in palette", ha="center",
+            va="center", fontsize=6.8, weight="bold", color=teal, zorder=4)
+    rx, ry = cx0 + 3.7, cy0 + chh - 0.75
+    ax.text(rx, ry + 0.35, "Top-3 candidates", ha="left", va="center",
+            fontsize=7.5, weight="bold", color=muted, zorder=4)
+    for rank, (name, prev, frac) in enumerate([
         ("Montserrat Bold", "SUMMER SALE", 0.94),
         ("Poppins SemiBold", "SUMMER SALE", 0.89),
         ("Raleway Bold", "SUMMER SALE", 0.85),
-    ])
-    # rejected example (open-set)
-    result_card(1.35, "Region 2 · “get 50% off”", False, [
-        ("Pacifico", "get 50% off", 0.41),
-        ("Lobster", "get 50% off", 0.38),
-        ("Satisfy", "get 50% off", 0.36),
-    ])
-    ax.text(5.4, 1.7, "max similarity 0.41 < τ  →  rejected as out-of-palette (open-set)",
-            ha="left", va="center", fontsize=7, color=rose, style="italic", zorder=4)
+    ], 1):
+        ax.text(rx, ry, f"#{rank}", ha="left", va="center", fontsize=8.5,
+                weight="bold", color=ink, zorder=4)
+        ax.text(rx + 0.55, ry, name, ha="left", va="center", fontsize=8.5,
+                weight="bold", color=ink, zorder=4)
+        ax.text(rx + 0.55, ry - 0.3, prev, ha="left", va="center", fontsize=7.5,
+                color=muted, style="italic", zorder=4)
+        score_bar(ax, rx + 4.6, ry - 0.05, 1.7, frac, teal)
+        ax.text(rx + 6.45, ry - 0.02, f"{frac:.2f}", ha="left", va="center",
+                fontsize=7.5, color=ink, zorder=4)
+        ry -= 1.15
+
+    # sliver of the next card peeking in from the right (carousel affordance)
+    rrect(ax, 13.9, 4.9, 1.35, 5.0, "white", COLORS["grid"], lw=1.1, z=2)
+    rect(ax, 14.15, 8.5, 0.85, 0.9, "#EEF2F6", muted, lw=0.8, z=3)
+    rrect(ax, 14.15, 5.25, 0.85, 0.55, COLORS["rose_bg"], rose, lw=0.9, z=3)
+
+    # prev / next arrows over the card edges
+    ax.plot(2.1, 7.4, marker="<", markersize=10, color=ink, zorder=5)
+    ax.plot(14.57, 7.4, marker=">", markersize=10, color=ink, zorder=5)
+
+    # pagination: region counter + plain dots (status lives on each card's badge)
+    ax.plot(6.7, 4.3, marker="<", markersize=6, color=muted, zorder=4)
+    ax.plot(9.5, 4.3, marker=">", markersize=6, color=muted, zorder=4)
+    ax.text(8.1, 4.3, "Region 1 of 2", ha="center", va="center", fontsize=8.5,
+            weight="bold", color=ink, zorder=4)
+    ax.plot(7.95, 3.65, marker="o", markersize=6, color=ink, zorder=4)
+    ax.plot(8.25, 3.65, marker="o", markersize=6, mfc="white", mec=muted,
+            mew=1.2, zorder=4)
 
     save_figure(fig, "app_wireframe")
     plt.close(fig)
