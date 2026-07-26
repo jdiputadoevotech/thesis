@@ -53,12 +53,64 @@ def build_markdown():
     return PAGEBREAK.join(chunks)
 
 
+def _add_keepnext(p):
+    """Insert <w:keepNext/> right after the paragraph's pStyle (schema order)."""
+    if "<w:keepNext" in p:
+        return p
+    return p.replace(" />", " /><w:keepNext />", 1) if "<w:pStyle" in p else p
+
+
+def apa_document(doc):
+    """APA 7 figure/table layout fixes shared by both exporters."""
+    # pandoc renders each image's alt text as a caption paragraph below the
+    # figure; the real APA caption (number + italic title) already sits above
+    doc = re.sub(r'<w:p><w:pPr><w:pStyle w:val="ImageCaption" />.*?</w:p>',
+                 "", doc, flags=re.S)
+    paras = list(re.finditer(r"<w:p>.*?</w:p>", doc, flags=re.S))
+    marks = set()
+    for i, m in enumerate(paras):
+        if 'w:val="CaptionedFigure"' not in m.group(0):
+            continue
+        # figure number + italic title stay with the image ...
+        marks.update(j for j in (i - 2, i - 1) if j >= 0)
+        # ... and the image stays with its Note, when one follows
+        if i + 1 < len(paras) and ">Note.<" in paras[i + 1].group(0):
+            marks.add(i)
+    # table number + italic title stay with the table's first row
+    for t in re.finditer(r"<w:tbl>", doc):
+        before = [i for i, m in enumerate(paras) if m.end() <= t.start()]
+        marks.update(before[-2:])
+    out, last = [], 0
+    for i, m in enumerate(paras):
+        out.append(doc[last:m.start()])
+        out.append(_add_keepnext(m.group(0)) if i in marks else m.group(0))
+        last = m.end()
+    out.append(doc[last:])
+    return "".join(out)
+
+
+def apa_styles(sty):
+    """APA 7 table borders: horizontal rules only — top, header, bottom.
+
+    Pandoc's Table style already draws the header underline (firstRow
+    tblStylePr) and repeats the header row when a table splits (tblHeader);
+    this adds the top and bottom rules and nothing vertical."""
+    return sty.replace(
+        '<w:tblInd w:type="dxa" w:w="0" />',
+        '<w:tblInd w:type="dxa" w:w="0" />'
+        '<w:tblBorders><w:top w:val="single" /><w:bottom w:val="single" />'
+        "</w:tblBorders>",
+        1,
+    )
+
+
 def postprocess(docx_path):
     """Rewrite styles and layout inside the docx (stdlib zipfile only)."""
     with zipfile.ZipFile(docx_path) as z:
         items = {n: z.read(n) for n in z.namelist()}
 
     doc = items["word/document.xml"].decode("utf-8")
+    doc = apa_document(doc)
     # no bookmark anchors on headings
     doc = re.sub(r"<w:bookmark(Start|End)[^>]*/>", "", doc)
     # A4, 1-inch margins, 1.5-inch left (twips: 1440 = 1in); pandoc's sectPr
@@ -70,9 +122,22 @@ def postprocess(docx_path):
         '<w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="2160" '
         'w:header="720" w:footer="720" w:gutter="0"/></w:sectPr>',
     )
+    # bibliography entries: APA hanging indent instead of the global
+    # first-line indent, left-aligned (overrides beat the BodyText style)
+    idx = doc.rfind(">Bibliography<")
+    if idx != -1:
+        head, tail = doc[:idx], doc[idx:]
+        tail = tail.replace(
+            '<w:pStyle w:val="BodyText" /></w:pPr>',
+            '<w:pStyle w:val="BodyText" />'
+            '<w:ind w:left="720" w:hanging="720"/>'
+            '<w:jc w:val="left"/></w:pPr>',
+        )
+        doc = head + tail
     items["word/document.xml"] = doc.encode("utf-8")
 
     sty = items["word/styles.xml"].decode("utf-8")
+    sty = apa_styles(sty)
     # every style: Arial, 12 pt (24 half-points), plain black; theme-font
     # references would fall back to Calibri/Cambria, so pin them too
     sty = re.sub(r'w:ascii="[^"]*"', 'w:ascii="Arial"', sty)
@@ -98,6 +163,20 @@ def postprocess(docx_path):
 
     sty = re.sub(r'<w:style [^>]*w:styleId="Heading[1-6]".*?</w:style>',
                  _embolden, sty, flags=re.S)
+
+    # body prose: justified, first line indented one tab (720 twips = 0.5in);
+    # FirstParagraph is based on BodyText, so it inherits both
+    sty = re.sub(
+        r'(<w:style [^>]*w:styleId="BodyText".*?)</w:pPr>',
+        r'\1<w:ind w:firstLine="720"/><w:jc w:val="both"/></w:pPr>',
+        sty, count=1, flags=re.S,
+    )
+    # Compact (table cells, tight lists) is based on BodyText — reset both
+    sty = re.sub(
+        r'(<w:style [^>]*w:styleId="Compact".*?)</w:pPr>',
+        r'\1<w:ind w:firstLine="0"/><w:jc w:val="left"/></w:pPr>',
+        sty, count=1, flags=re.S,
+    )
     sty = re.sub(r"<w:color[^>]*/>", '<w:color w:val="000000"/>', sty)
     # 1.5 line spacing: set the document default, and force it onto any style
     # that declares its own spacing without a line value

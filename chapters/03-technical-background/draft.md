@@ -28,11 +28,11 @@ As shown in Figure 1, font identity is carried by fine-grained geometric traits 
 
 The dominant deep-learning tool for reading such visual traits is the **convolutional neural network (CNN)**, an architecture that exploits the spatial structure of images through local, weight-sharing operations (LeCun, Bengio, & Hinton, 2015). Its central operation is **convolution**, in which a small **kernel** (also called a filter, a compact matrix of learnable weights) is slid across the image, computing a weighted sum at every position:
 
-$$(I * K)(i, j) = \sum_{m} \sum_{n} I(i+m,\, j+n)\, K(m, n)$$
+$$(I * K)(i, j) = \sum_{m} \sum_{n} I(i+m,\, j+n)\, K(m, n) \qquad (1)$$
 
 Here $I$ is the input image (a two-dimensional array of pixel intensities), $K$ is the kernel, $(i, j)$ is the output spatial location, and $m, n$ index positions within the kernel. The resulting array is a **feature map**, an image in which each value records how strongly the kernel's pattern (an edge, a corner, a serif) is present at that location. The region of the input that influences a single feature-map value is that value's **receptive field**; stacking convolutional layers enlarges the receptive field, so deeper layers respond to progressively larger and more abstract structures (Goodfellow, Bengio, & Courville, 2016). The spatial size $O$ of a feature map is determined by the input and kernel geometry:
 
-$$O = \left\lfloor \frac{W - F + 2P}{S} \right\rfloor + 1$$
+$$O = \left\lfloor \frac{W - F + 2P}{S} \right\rfloor + 1 \qquad (2)$$
 
 where $W$ is the input width (in pixels), $F$ is the kernel size, $P$ is the amount of zero-padding added to the border, $S$ is the **stride** (the step size between kernel positions), and $\lfloor \cdot \rfloor$ denotes the floor function. Between convolutional layers, **pooling** downsamples each feature map, usually by taking the maximum value in each small window, which shrinks the representation and grants tolerance to small shifts in glyph position (Sarker, 2021). Figure 2 presents this convolution-pooling-classification pipeline.
 
@@ -50,7 +50,7 @@ As shown in Figure 2, a CNN processes an image through successive convolution an
 
 The input distribution this thesis targets is not clean type but **typographic hallucination**: the probabilistic glyph deformation introduced when generative AI image models render text, including micro-warping, elastic distortion, and variable kerning (inconsistent spacing between characters). Kondo et al. (2024) demonstrate that diffusion models natively emit novel, unclassified glyph geometries when interpolating in latent space. This establishes that the deformations are an intrinsic output of the model class rather than an occasional artifact. To make this precise, hallucination is modeled here as a **degradation operator** $D$ applied to a pristine glyph crop:
 
-$$\tilde{x} = D\big(x;\ \theta_{\text{warp}},\, \theta_{\text{blur}},\, \theta_{\text{kern}}\big)$$
+$$\tilde{x} = D\big(x;\ \theta_{\text{warp}},\, \theta_{\text{blur}},\, \theta_{\text{kern}}\big) \qquad (3)$$
 
 where $x$ is the clean rendered crop, $\tilde{x}$ is the resulting hallucinated crop, and $D$ composes three parameterized corruptions: an elastic **warp** (governed by $\theta_{\text{warp}}$), **Gaussian blur and noise** ($\theta_{\text{blur}}$), and **kerning jitter** ($\theta_{\text{kern}}$). This operator, illustrated in Figure 3, is the formal object the synthetic-data pipeline of Chapter 4 will instantiate to train a deformation-robust recognizer. Modeling degradation as controlled, layered augmentation follows established practice: Plastropoulos and Tegos (2024) show that combining such transformations with deep feature extraction forces networks to learn resilient, continuous shape boundaries.
 
@@ -78,17 +78,17 @@ A deep network is trained by minimizing a **loss function**, a scalar-valued fun
 
 **Metric learning** is the family of methods that trains an **embedding function** $f_\theta$ (a network, with parameters $\theta$, that maps an input crop to a vector) so that geometric distance in the output space corresponds to semantic similarity (Schroff, Kalenichenko, & Philbin, 2015). Two distances are used to compare embeddings. The **Euclidean distance** between two crops $a$ and $b$ is
 
-$$d(a, b) = \lVert f(a) - f(b) \rVert_2,$$
+$$d(a, b) = \lVert f(a) - f(b) \rVert_2, \qquad (4)$$
 
 where $f(a)$ and $f(b)$ are their embedding vectors and $\lVert \cdot \rVert_2$ is the $L^2$ (straight-line) norm; smaller $d$ means greater similarity. **Cosine similarity** instead measures the angle between the two vectors,
 
-$$\cos(a, b) = \frac{f(a) \cdot f(b)}{\lVert f(a) \rVert\, \lVert f(b) \rVert},$$
+$$\cos(a, b) = \frac{f(a) \cdot f(b)}{\lVert f(a) \rVert\, \lVert f(b) \rVert}, \qquad (5)$$
 
 where $f(a) \cdot f(b)$ is the dot product; it ranges from $-1$ to $1$ and ignores vector magnitude, so it captures only direction.
 
 To force these distances to encode font identity, the embedding is trained with a **triplet loss**. A triplet consists of an **anchor** crop $a$, a **positive** $p$ set in the *same* typeface as the anchor, and a **negative** $n$ set in a *different* typeface. The loss is
 
-$$L = \sum_{i} \left[\, \lVert f(a_i) - f(p_i) \rVert^2 - \lVert f(a_i) - f(n_i) \rVert^2 + \alpha \,\right]_+,$$
+$$L = \sum_{i} \left[\, \lVert f(a_i) - f(p_i) \rVert^2 - \lVert f(a_i) - f(n_i) \rVert^2 + \alpha \,\right]_+, \qquad (6)$$
 
 where the sum runs over triplets, $\alpha$ is the **margin** (a minimum required gap between the anchor-positive and anchor-negative distances), and $[\,\cdot\,]_+ = \max(0, \cdot)$ keeps only positive violations (Schroff et al., 2015). Minimizing $L$ pulls same-font crops together and pushes different-font crops apart by at least $\alpha$. FaceNet established this on face identity, but it was validated only on clean, photographic faces, not on deformed glyphs. Two further results extend the rationale to the regime here. Huang and Zhou (2022) show that deep networks can decompose complex visual domains into structured feature vectors that support *continuous proximity rankings* rather than hard label buckets, and Umer et al. (2022) provide the optimization backing for tracking structural closeness on high-variance, distorted geometries. A cleaner space still helps: Wang et al. (2024) impose a non-negativity constraint on contrastive features, which yields sparse, axis-aligned embeddings, though their guarantees are also demonstrated on standard benchmarks rather than on typographic deformation.
 
@@ -106,11 +106,11 @@ As shown in Figure 4, known typefaces form compact clusters while a hallucinated
 
 The rejection score can be read at several points in the network. Many scores start from the **logits** (the raw, pre-normalization outputs $f_i(x)$ of the classification layer for each class $i$), which the **softmax** function converts to a probability distribution,
 
-$$\sigma(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}},$$
+$$\sigma(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}}, \qquad (7)$$
 
 where $z_i$ is the logit for class $i$ and the denominator sums over all classes so the outputs total one. Softmax confidence alone is a poor rejection score because networks are overconfident off-manifold; the recent literature therefore reads richer signals. Hofmann et al. (2024) compute an **energy score**,
 
-$$E(x) = -T \cdot \log \sum_i \exp\!\big(f_i(x) / T\big),$$
+$$E(x) = -T \cdot \log \sum_i \exp\!\big(f_i(x) / T\big), \qquad (8)$$
 
 where $T$ is a temperature constant and the sum runs over class logits; low energy indicates an in-distribution input and high energy flags the unknown, and they sharpen the boundary by mining hard outliers near it. Djurisic et al. (2024) keep the decision in logit space but rescale the whole logit vector by a feature-derived scalar before thresholding, and this requires no retraining. Karunanayake et al. (2025) argue that the *ranking* of the runner-up classes is itself diagnostic, and far more deterministic for known inputs than for unknown ones. This idea maps directly onto a Top-K font shortlist, where the order of the second- and third-place fonts signals a hallucinated glyph. The limitation that ties all four together is that every one of these scores is validated on natural-image out-of-distribution benchmarks (CIFAR, ImageNet). None has been tested on *typographic* out-of-distribution input, the probabilistic warping and variable kerning this thesis targets. Whether these scores transfer to font hallucination over a localized palette is the question the methodology sets out to answer.
 
@@ -124,7 +124,7 @@ A deep-learning **framework** is a software library that supplies the building b
 
 The backbone architecture is the **Vision Transformer (ViT)**, which processes an image not through convolution but by splitting it into a grid of fixed-size **patches**, flattening each patch into a **patch embedding** (a vector), and letting the patches interact through **self-attention**. Self-attention, introduced by Vaswani et al. (2017), lets every element of a sequence weigh the relevance of every other element. Each patch embedding is projected into three vectors, a **query** $Q$, a **key** $K$, and a **value** $V$, and the operation is
 
-$$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V,$$
+$$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V, \qquad (9)$$
 
 where $QK^\top$ scores how well each query matches each key, $d_k$ is the key dimension whose square root rescales the scores to keep them numerically stable, softmax turns the scores into weights summing to one, and $V$ carries the aggregated content. Figure 5 depicts this patch-embedding-and-attention flow.
 
@@ -146,7 +146,7 @@ Training a ViT from scratch is the data-hungry step this thesis wants to avoid. 
 
 A frozen encoder trades adaptation for economy: its weights never move, so it cannot specialize to type. Full fine-tuning restores that specialization but at prohibitive cost, updating all of the backbone's parameters (87.2 million for a ViT-B/14) and storing a full copy per task. **Parameter-efficient fine-tuning (PEFT)** is the middle path, adapting a large pre-trained model to a new task by training only a small set of new parameters while the original weights stay frozen. The dominant PEFT method is **Low-Rank Adaptation (LoRA)**, which rests on the observation that the *update* a model needs for a new task has low intrinsic rank. Rather than learn a full weight-update matrix $\Delta W$ for a layer, LoRA factors it into two thin matrices:
 
-$$W' = W_0 + \Delta W = W_0 + \frac{\alpha}{r}\, B A,$$
+$$W' = W_0 + \Delta W = W_0 + \frac{\alpha}{r}\, B A, \qquad (10)$$
 
 where $W_0$ is the frozen pre-trained weight matrix, $A$ and $B$ are the trainable low-rank factors (with $A \in \mathbb{R}^{r \times k}$, $B \in \mathbb{R}^{d \times r}$), $r$ is the **rank** (a small integer, e.g. $r=8$, that bounds how much the update can express), and $\alpha$ is a **scaling factor** that controls the update's magnitude. Because $r$ is far smaller than the layer's dimensions, the product $BA$ reconstructs a full-size update from a tiny number of parameters. Chen et al. (2026) adapt a frozen DINOv2 ViT-B/14 to font classification this way with $r=8$ and $\alpha=16$, training roughly 150,000 parameters — about 0.2% of the backbone — and reach approximately 86% Top-1 accuracy across 394 Google Font variants, with the trained factors mergeable back into $W_0$ so inference incurs no added cost. The strength is decisive economy: the frozen backbone preserves its general visual knowledge while a negligible adapter specializes it, avoiding both the compute of full fine-tuning and the label-free ceiling of a purely frozen encoder. The limitations are equally direct and shape this thesis's design. LoRA adaptation is **supervised and closed-set** — Chen et al. train on labeled synthetic renders over a fixed 394-class catalogue — and their model, trained exclusively on pristine synthetic type, is self-reported to fail on photographs and heavily styled graphics; its residual errors concentrate between near-identical weight variants of the same family (family-level accuracy falls to 40.2%), which the authors attribute to detail lost at the 224×224 input resolution. PEFT thus offers a cheap route to a *specialized* typographic encoder, but one whose closed-set, clean-glyph training is the very regime this thesis's open-set, deformation-robust framing is built to move beyond.
 
@@ -154,7 +154,7 @@ where $W_0$ is the frozen pre-trained weight matrix, $A$ and $B$ are the trainab
 
 To score how well a predicted font matches a crop, the framework needs a **structural-similarity metric**, a measure of perceptual, structural agreement rather than pixel-by-pixel identity. The original one is the **Structural Similarity Index (SSIM)** of Wang et al. (2004), which models similarity as a product of luminance, contrast, and structure terms:
 
-$$\text{SSIM}(x, y) = \frac{(2\mu_x \mu_y + C_1)(2\sigma_{xy} + C_2)}{(\mu_x^2 + \mu_y^2 + C_1)(\sigma_x^2 + \sigma_y^2 + C_2)},$$
+$$\text{SSIM}(x, y) = \frac{(2\mu_x \mu_y + C_1)(2\sigma_{xy} + C_2)}{(\mu_x^2 + \mu_y^2 + C_1)(\sigma_x^2 + \sigma_y^2 + C_2)}, \qquad (11)$$
 
 where $\mu_x, \mu_y$ are the mean intensities of the two image windows $x$ and $y$, $\sigma_x^2, \sigma_y^2$ their variances, $\sigma_{xy}$ their covariance, and $C_1, C_2$ small constants that prevent division by zero. SSIM is interpretable and computationally light, but classical pixel-SSIM collapses under **geometric misalignment** (when the two images are warped or shifted relative to each other), which is the normal case for a hallucinated glyph. Figure 6 illustrates the re-render-and-compare protocol this metric serves.
 

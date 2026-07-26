@@ -20,11 +20,11 @@ The study is carried out by two researchers, both of whom act as researcher and 
 
 *Division of Responsibilities*
 
-| Member | Role | Responsibilities |
-|--------|------|------------------|
-| Janritch Diputado | Researcher and developer | Python scripting: synthetic data pipeline, model training, and the inference engine. Lead author of Chapter 2 (Review of Related Literature) and Chapter 3 (Technical Background). |
-| Matt Cabarrubias | Researcher and developer | Backend REST API (FastAPI) and the React frontend web application. Lead author of Chapter 4 (Methodology); contributor and reviewer for Chapters 2 and 3. |
-| Both (shared) | Researchers and developers | System design, integration, evaluation and human-proxy panel coordination, and preparation for the final defense. |
+| Member | Responsibilities |
+|--------|------------------|
+| Janritch Diputado | Python scripting: synthetic data pipeline, model training, and the inference engine. Lead author of Chapter 2 (Review of Related Literature) and Chapter 3 (Technical Background). |
+| Matt Cabarrubias | Backend REST API (FastAPI) and the React frontend web application. Lead author of Chapter 4 (Methodology); contributor and reviewer for Chapters 2 and 3. |
+| Both (shared) | System design, integration, evaluation and human-proxy panel coordination, and preparation for the final defense. |
 
 *Note.* Authorship is stated by lead contributor; both members reviewed and contributed to all chapters.
 
@@ -36,8 +36,8 @@ The budget below estimates what it would cost another researcher or organization
 
 *Estimated Replication Budget*
 
-| Category | Item | Basis / assumption | Est. cost (PHP) |
-|----------|------|--------------------|-----------------|
+| Category | Item | Basis / assumption | Amount (PHP) |
+|----------|------|--------------------|-------------:|
 | Labor | 2 researcher-developers | ~30 weeks × ~15 hr/week each ≈ 900 hours total, at an illustrative ₱250/hr | 225,000 |
 | Compute | Cloud GPU for training and experiments | ~100 to 150 GPU-hours; the backbone is frozen and only the metric head trains, so free Colab/Kaggle tiers can bring this near ₱0 | 5,000 |
 | Subscriptions | Software stack | Fully open-source; none required | 0 |

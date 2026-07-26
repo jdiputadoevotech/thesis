@@ -1,4 +1,6 @@
-# Software Requirements Specification
+# APPENDIX A
+
+# SOFTWARE REQUIREMENTS SPECIFICATION
 
 **FontID — Typographic-Hallucination Font Matcher**
 Web demonstrator for *"Addressing Typographic Hallucination in Generative AI Images: An Open-Set Metric Learning Approach to Font Style Recognition."*
@@ -79,9 +81,13 @@ Single page, three vertically stacked zones (wireframe below):
 
 The interface **shall** work at desktop widths and keep all three zones reachable on one page. Standard affordances: every result font preview offers a copy-name / preview action.
 
-![Figure — FontID single-page wireframe (Input → Processing → Results).](../../../assets/figures/app_wireframe.png)
+**Figure A1**
 
-*Figure. FontID wireframe: three-zone single page. Results are a carousel, one card per detected region: Region 1 accepts (Top-3 in palette); Region 2, reached with the next arrow, is rejected as out-of-palette (max similarity < τ), demonstrating open-set behavior.*
+*FontID Single-Page Wireframe (Input → Processing → Results)*
+
+![FontID single-page wireframe with three stacked zones: an upload dropzone with sample thumbnails, a processing zone showing detected text regions and pipeline status, and a results carousel of per-region cards](../../../assets/figures/app_wireframe.png)
+
+*Note.* Three-zone single page. Results are a carousel, one card per detected region: Region 1 accepts (Top-3 in palette); Region 2, reached with the next arrow, is rejected as out-of-palette (max similarity < τ), demonstrating open-set behavior.
 
 ### 3.2 Software Interfaces
 | Interface | Purpose | Data exchanged |
@@ -161,5 +167,5 @@ Let the user visually confirm a match. **Stimulus/response:** for each candidate
 
 ---
 
-## Appendix A — Traceability
+## 6. Traceability
 Functional features 4.1–4.4 realize the §4.5.1 functional requirements (upload · isolate crop · Top-K or unknown · font preview) and are served by the §4.5.2 architecture (Fig 9). Zones in the §3.1 wireframe map one-to-one to features 4.1 (Input), 4.2 (Processing), and 4.3–4.4 (Results).

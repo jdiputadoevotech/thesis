@@ -3,7 +3,7 @@
 Reference this when editing `draft.md` in this folder. `draft.md` is the thesis reference list; it must follow **APA 7th edition** exactly. Source of record for what goes in it is `literature/references.md`.
 
 ## Non-negotiable rules
-1. **One list, alphabetical.** All sources in a single list, ordered by the first author's surname (letter by letter). No numbering, no grouping by type.
+1. **Grouped by source type, alphabetical within each group.** Adviser-mandated categories, in this order: Books, Journal Articles, Conference Proceedings Articles, Web Articles (arXiv-only preprints live here), Interviews (omit the heading if empty). Within a group, order by the first author's surname (letter by letter). No numbering.
 2. **Hanging indent.** Each entry: first line flush left, subsequent lines indented 0.5 in. (Markdown can't show this; apply on DOCX/PDF export.)
 3. **Double spacing** throughout, both within and between entries. Body 12 pt.
 4. **Every in-text citation has exactly one matching entry here, and vice versa.** No orphans in either direction.
