@@ -1,19 +1,20 @@
 # Proposal Presentation — Speaker Script & Q&A Prep
 
-> **Per-slide talk track lives inline** in `slides/slides.md` as Marp `<!-- speaker notes -->`
-> comments (they export to PowerPoint presenter notes). This file holds the **Q&A prep** —
-> the 40-minute stress-test is worth more rehearsal than the 30-minute deck.
-> Scope here: **Sections 1–3** (partner owns Section 4 Q&A).
+> **Per-slide talk track lives in `slides/slides.md`** — the script that mirrors the PPTX.
+> This file holds the **Q&A prep**; the 40-minute stress-test is worth more rehearsal than the
+> 30-minute deck. Scope here: **Sections 1–3, slides S1–S8** (partner owns Section 4 Q&A).
 
 ## Timing
 - 30 min presentation · 40 min Q&A · 20 min deliberation (see `requirements.md`)
-- Sections 1–3 ≈ 9 content slides ≈ **10–12 min**; leave the rest for the partner's Section 4.
+- S1–S8 ≈ **14 min**; the rest is the partner's Section 4.
 
 ---
 
 ## Anticipated Q&A — Sections 1–3
 
-### On the internship origin (S1b)
+### On the internship origin — **verbal only, no slide backs this**
+*(The internship slide was cut from the deck. S5 "Without an Answer" makes the same point
+generically; the internship story is now Q&A material only.)*
 - **Q: Is this just an internal tool for your employer?**
   A: The internship is where we *found* the problem, but the contribution is general and
   open-source — any designer reusing generative typography hits the same wall. Our pipeline is
@@ -64,8 +65,12 @@
   A: The **seam**. No prior work connects attention-based text isolation → deformation-robust metric
   embedding → open-set font-identity ranking on a localized palette. Every cited field solves one link
   and leaves the same blind spot: they assume a clean glyph exists.
+  *(The five-cluster RRL table was cut from the deck — this is verbal only. The clusters are legacy
+  recognition, generative text, open-set rejection, metric embedding, visual distance metrics; the
+  verbatim gap sentence for each is in `chapters/02-review-of-related-literature/draft.md` §2.2–2.6.)*
 
 - **Q: Chen et al. (2026) already do frozen-ViT font classification — how are you different?**
+  *(The Storia-AI baseline slide was cut — verbal only.)*
   A: They are the closest antecedent and our baseline, but explicitly **closed-set, trained on pristine
   renders**; by their own report family accuracy collapses to 40.2% on non-synthetic input. We target
   exactly that failure regime with open-set rejection.
@@ -79,6 +84,6 @@
 ---
 
 ## Delivery reminders
-- Read the **central question** (S4) and the **blind spot** (S6) verbatim and slowly — they are the spine.
+- Read the **central question** (S4) and the **blind spot** (closing line of S8) verbatim and slowly — they are the spine.
 - Gold Standard Rule (`requirements.md`): take panel feedback **gratefully**. Coachability > a perfect deck.
-- Placeholders on title slide (`[JD]`, `[MC]`, adviser, date) — fill before export.
+- Fill the defense date on the title slide before export.
