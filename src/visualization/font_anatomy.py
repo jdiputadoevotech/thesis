@@ -51,19 +51,19 @@ def create_figure():
                         (xh, "Mean line (x-height)", COLORS["teal"]),
                         (0.0, "Baseline", COLORS["ink"]),
                         (desc, "Descender line", COLORS["muted"])]:
-        ax.text(0.12, y + 0.05, label, fontsize=8.5, weight="bold", color=c, va="bottom")
+        ax.text(0.12, y + 0.05, label, fontsize=11.5, weight="bold", color=c, va="bottom")
 
     def dim(x, y0, y1, label, color, label_dy=0.0):
         ax.annotate("", xy=(x, y1), xytext=(x, y0),
                     arrowprops=dict(arrowstyle="<->", color=color, lw=1.3))
-        ax.text(x + 0.14, (y0 + y1) / 2 + label_dy, label, fontsize=8.5,
+        ax.text(x + 0.14, (y0 + y1) / 2 + label_dy, label, fontsize=11.5,
                 weight="bold", color=color, va="center")
 
     dim(4.8 + e_h.xmax + 0.28, xh, asc, "Ascender", COLORS["blue"])
     dim(6.5 + e_x.xmax + 0.28, 0, xh, "x-height", COLORS["teal"])
     dim(8.1 + e_p.xmax + 0.28, 0, desc, "Descender", COLORS["rose"])
     ax.set_title("Typographic reference lines and vertical font metrics",
-                 weight="bold", pad=12)
+                 weight="bold", pad=12, fontsize=13.5)
 
     # ---------------- Bottom: the four structural families --------------------
     families = [
@@ -94,25 +94,25 @@ def create_figure():
         axf.add_patch(mpatches.FancyBboxPatch(
             (-0.92, -0.92), 1.84, 1.84, boxstyle="round,pad=0.03",
             fc=COLORS["box"], ec=COLORS["muted"], lw=0.9, zorder=1))
-        axf.text(0, 0.73, name, fontsize=11.5, weight="bold",
+        axf.text(0, 0.73, name, fontsize=14, weight="bold",
                  ha="center", color=COLORS["ink"], zorder=4)
-        axf.text(0, -1.06, desc_txt, fontsize=8, ha="center", va="top",
-                 color=COLORS["muted"], linespacing=1.35)
+        axf.text(0, -1.04, desc_txt, fontsize=10.5, ha="center", va="top",
+                 color=COLORS["muted"], linespacing=1.25)
         axf.text(0, -0.18, "e", fontname=font, fontsize=95, ha="center",
                  va="center", color=COLORS["ink"], zorder=2)
 
         for label, tip, txt, c in callouts:
-            axf.annotate(label, xy=tip, xytext=txt, fontsize=7.2, weight="bold",
+            axf.annotate(label, xy=tip, xytext=txt, fontsize=9.5, weight="bold",
                          color=c, ha="center", va="center", zorder=5,
                          arrowprops=dict(arrowstyle="->", color=c, lw=1.0,
-                                         shrinkA=8, shrinkB=2))
+                                         shrinkA=10, shrinkB=2))
         if name == "Monospace":
             for xv in (-0.58, 0.58):
                 axf.plot([xv, xv], [-0.88, 0.55], color=COLORS["teal"],
                          linestyle=":", lw=1.1, zorder=2)
             axf.annotate("", xy=(0.58, 0.44), xytext=(-0.58, 0.44),
                          arrowprops=dict(arrowstyle="<->", color=COLORS["teal"], lw=1.0))
-            axf.text(0, 0.34, "fixed advance", fontsize=7.2, weight="bold",
+            axf.text(0, 0.34, "fixed advance", fontsize=9.5, weight="bold",
                      ha="center", va="top", color=COLORS["teal"])
 
     save_figure(fig, "font_anatomy")

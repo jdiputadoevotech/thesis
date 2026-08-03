@@ -55,28 +55,31 @@ def create_figure():
         ("4 · + Kerning jitter", jittered, "Per-character tracking offsets"),
     ]
 
-    fig, axes = plt.subplots(1, 4, figsize=(12, 2.9))
-    fig.subplots_adjust(left=0.015, right=0.985, top=0.78, bottom=0.20, wspace=0.30)
+    # vertical stack: reads top-to-bottom so the figure stays legible at
+    # single-column width in the paper
+    fig, axes = plt.subplots(4, 1, figsize=(5.6, 10.4))
+    fig.subplots_adjust(left=0.06, right=0.94, top=0.955, bottom=0.015,
+                        hspace=0.62)
 
     for axp, (title, img, sub) in zip(axes, stages):
         axp.imshow(1.0 - img, cmap="gray", vmin=0, vmax=1)
-        axp.set_title(title, fontsize=10.5, weight="bold", pad=7)
+        axp.set_title(title, fontsize=11.5, weight="bold", pad=6)
         axp.set_xticks([])
         axp.set_yticks([])
         for s in axp.spines.values():
             s.set_color(COLORS["muted"])
             s.set_linewidth(0.9)
-        axp.text(0.5, -0.10, sub, transform=axp.transAxes, fontsize=8.5,
+        axp.text(0.5, -0.10, sub, transform=axp.transAxes, fontsize=9.5,
                  ha="center", va="top", color=COLORS["muted"])
 
-    # flow arrows between panels (figure coordinates)
+    # flow arrows between panels, pointing down (figure coordinates)
     for a, b in zip(axes[:-1], axes[1:]):
         pa, pb = a.get_position(), b.get_position()
-        y = (pa.y0 + pa.y1) / 2
+        x = (pa.x0 + pa.x1) / 2
         fig.add_artist(mpatches.FancyArrowPatch(
-            (pa.x1 + 0.006, y), (pb.x0 - 0.006, y),
-            transform=fig.transFigure, arrowstyle="-|>", mutation_scale=15,
-            color=COLORS["ink"], lw=1.5))
+            (x, pa.y0 - 0.030), (x, pb.y1 + 0.036),
+            transform=fig.transFigure, arrowstyle="-|>", mutation_scale=16,
+            color=COLORS["ink"], lw=1.6))
 
     save_figure(fig, "degradation_pipeline")
     plt.close(fig)

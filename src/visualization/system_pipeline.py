@@ -26,7 +26,7 @@ def create_figure():
          COLORS["blue_bg"], COLORS["blue"], None),
     ]
     for cy, title, sub, fc, ec, tc in steps:
-        draw_box(ax, 5, cy, W, H, title, sub, fc=fc, ec=ec, tc=tc)
+        draw_box(ax, 5, cy, W, H, title, sub, fc=fc, ec=ec, tc=tc, sub_fs=9.5)
     for cy_from, cy_to in [(10.975, 10.525), (9.575, 9.125), (8.175, 7.725),
                            (6.775, 6.325), (5.375, 4.93)]:
         draw_arrow(ax, (5, cy_from), (5, cy_to), lw=1.5)
@@ -53,10 +53,12 @@ def create_figure():
 
     draw_box(ax, 2.5, 1.8, 4.0, H, "Rejected as unknown",
              "out-of-palette / hallucinated style",
-             fc=COLORS["rose_bg"], ec=COLORS["rose"], tc=COLORS["rose"])
+             fc=COLORS["rose_bg"], ec=COLORS["rose"], tc=COLORS["rose"],
+             sub_fs=9.5)
     draw_box(ax, 7.5, 1.8, 4.0, H, "Top-K font shortlist",
              "ranked in-palette Google Fonts",
-             fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"])
+             fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
+             sub_fs=9.5)
 
     ax.text(5, 12.15, "End-to-end open-set font identification pipeline",
             fontsize=13, weight="bold", ha="center", color=COLORS["ink"])
