@@ -2,15 +2,15 @@
 
 ### 4.9.1 Schedule and Timeline
 
-The project runs from June to December 2026. The schedule follows the increment order of Section 4.6, with the written chapters interleaved so that each empirical chapter is drafted as its results become available. Figure 11 shows the plan as a Gantt chart. As of the reporting date (July 10, 2026), Chapters 2 and 3 are complete and Chapter 4 is in progress; the four development increments, the results and conclusion chapters, and the final revisions follow through December.
+The project runs from June to December 2026. The schedule follows the increment order of Section 4.6, with the written chapters interleaved so that each empirical chapter is drafted as its results become available. Development begins only after the proposal defense, so that the build implements an approved design rather than a proposed one; the weeks before it are given to the written groundwork and to preparing the development environment, the font corpus, and the tooling. Figure 11 shows the plan as a Gantt chart. As of the reporting date (July 10, 2026), Chapters 2 and 3 are complete, Chapter 4 is in progress, and preparation is under way; the four development increments, the results and conclusion chapters, and the final revisions follow from August through December.
 
 **Figure 11**
 
 *Project Schedule and Timeline (June to December 2026)*
 
-![Weekly-cell Gantt grid spanning June to December 2026 with four week columns per month, tasks grouped into Writing, Development, and Closeout. Writing shows Chapter 2 and Chapter 3 completed, Chapter 4 in progress at the July 10 marker, and Chapters 5 and 6 planned. Development breaks the four increments into subtasks (palette and rendering, degradation operator, encoder and metric head, training and distillation, open-set and Top-K, evaluation and human panel, backend API, frontend and Docker). Closeout covers revisions and final defense in December](../../../assets/figures/gantt_timeline.png)
+![Weekly-cell Gantt grid spanning June to December 2026 with four week columns per month, tasks grouped into Writing, Development, and Closeout. A dashed marker at July 10 shows the reporting date and a second dashed marker at August 3 to 5 shows the proposal defense. Writing shows Chapter 2 and Chapter 3 completed, Chapter 4 in progress, and Chapters 5 and 6 planned for October and November. Development opens with a preparation row (environment, corpus, tooling) running to the defense, after which the four increments break into subtasks (palette and rendering, degradation operator, encoder and metric head, training and distillation, open-set and Top-K, evaluation and human panel, backend API, frontend and Docker). Closeout covers revisions and final defense in December](../../../assets/figures/gantt_timeline.png)
 
-As shown in Figure 11, the early months cover the written groundwork (Chapters 2 and 3), the middle months carry the build increments from the synthetic data pipeline through the web application, and the final months are reserved for the results and conclusion chapters and for revision ahead of the defense. The development increments overlap the empirical chapters deliberately, because Chapter 5 reports the evaluation that increment 3 produces.
+As shown in Figure 11, each increment is compressed to roughly three weeks so that the post-defense start still clears the fixed submission dates: the evaluation in increment 3 completes in the first week of October, ahead of the conference, and the final revisions occupy December. The development increments overlap the empirical chapters deliberately, because Chapter 5 reports the evaluation that increment 3 produces.
 
 ### 4.9.2 Responsibilities
 

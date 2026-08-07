@@ -22,6 +22,15 @@ order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figures 8–11 
 | `sdlc_model.py` | Figure 10 | Ch4 | Iterative-incremental model — four increments × Analyze/Design/Build/Evaluate | Matplotlib |
 | `gantt_timeline.py` | Figure 11 | Ch4 | Project schedule Gantt — Jun–Dec 2026, done/active/planned | Matplotlib |
 
+## Deck-only scripts
+| Script | Renders | Output |
+|---|---|---|
+| `presentation_timeline.py` | Two milestone-strip schedule banners for the proposal defense (Jun–defense, post-defense–Dec) | `proposal-presentation/slides/assets/timeline_{1,2}.png` |
+
+Not a thesis figure — the paper keeps `gantt_timeline.py` (Figure 11). This one writes outside
+`assets/figures/` and uses its own cream palette, so it does not call `_style.save_figure()`.
+It self-checks label collisions on run and fails loudly rather than emitting an unreadable banner.
+
 ## Conventions
 - Every script imports `_style.py` and writes `assets/figures/<name>.png` at 300 dpi with consistent styling.
 - Output goes to `assets/` (per repo schema), **not** into this folder.

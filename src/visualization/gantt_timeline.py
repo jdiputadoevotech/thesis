@@ -9,6 +9,7 @@ from _style import apply_style, save_figure, COLORS
 MONTHS = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 NWEEKS = len(MONTHS) * 4  # 28
 TODAY = 4 + 1.4           # Jul, ~1.4 weeks in (Jul 10)
+DEFENSE = 8 + 0.4         # Aug, ~0.4 weeks in (Aug 3) — development starts after this
 
 FILL = {"done": COLORS["teal_bg"], "active": COLORS["orange_bg"], "planned": COLORS["blue_bg"]}
 EDGE = {"done": COLORS["teal"], "active": COLORS["orange"], "planned": COLORS["blue"]}
@@ -16,22 +17,23 @@ EDGE = {"done": COLORS["teal"], "active": COLORS["orange"], "planned": COLORS["b
 # rows top -> bottom. ('group', label) or ('task', label, (col_start, col_end_inclusive), status)
 ROWS = [
     ("group", "WRITING"),
-    ("task", "Ch. 2  Review of Related Literature", (0, 2), "done"),
-    ("task", "Ch. 3  Technical Background", (1, 5), "done"),
+    ("task", "Ch. 2  Review of Related Literature", (2, 4), "done"),
+    ("task", "Ch. 3  Technical Background", (2, 5), "done"),
     ("task", "Ch. 4  Methodology", (4, 7), "active"),
-    ("task", "Ch. 5  Results and Discussion", (17, 21), "planned"),
-    ("task", "Ch. 6  Summary and Conclusions", (21, 24), "planned"),
+    ("task", "Ch. 5  Results and Discussion", (16, 17), "planned"),
+    ("task", "Ch. 6  Summary and Conclusions", (18, 23), "planned"),
     ("group", "DEVELOPMENT"),
-    ("task", "Inc 1   Palette curation + rendering", (5, 7), "planned"),
-    ("task", "Inc 1   Degradation operator D", (7, 9), "planned"),
-    ("task", "Inc 2   Frozen encoder + metric head", (9, 11), "planned"),
-    ("task", "Inc 2   Triplet training + distillation", (11, 13), "planned"),
-    ("task", "Inc 3   Open-set rejection + Top-K", (13, 15), "planned"),
-    ("task", "Inc 3   Evaluation + human panel", (15, 18), "planned"),
-    ("task", "Inc 4   Backend + inference API", (17, 19), "planned"),
-    ("task", "Inc 4   Frontend + Docker deploy", (19, 21), "planned"),
+    ("task", "Prep    Environment, corpus, tooling", (4, 8), "active"),
+    ("task", "Inc 1   Palette curation + rendering", (8, 9), "planned"),
+    ("task", "Inc 1   Degradation operator D", (10, 11), "planned"),
+    ("task", "Inc 2   Frozen encoder + metric head", (11, 12), "planned"),
+    ("task", "Inc 2   Triplet training + distillation", (13, 14), "planned"),
+    ("task", "Inc 3   Open-set rejection + Top-K", (13, 14), "planned"),
+    ("task", "Inc 3   Evaluation + human panel", (15, 16), "planned"),
+    ("task", "Inc 4   Backend + inference API", (16, 17), "planned"),
+    ("task", "Inc 4   Frontend + Docker deploy", (18, 19), "planned"),
     ("group", "CLOSEOUT"),
-    ("task", "Revisions and final defense", (24, 27), "planned"),
+    ("task", "Revisions and final defense", (24, 26), "planned"),
 ]
 
 
@@ -87,6 +89,12 @@ def create_figure():
             linestyle=(0, (4, 2)), zorder=5)
     ax.text(TODAY, -0.35, "today (Jul 10)", ha="center", va="center", fontsize=8,
             weight="bold", color=COLORS["rose"])
+
+    # proposal defense — the development increments all start after it
+    ax.plot([DEFENSE, DEFENSE], [0, R + 0.15], color=COLORS["ink"], lw=1.7,
+            linestyle=(0, (4, 2)), zorder=5)
+    ax.text(DEFENSE, -0.95, "proposal defense (Aug 3–5)", ha="center", va="center",
+            fontsize=8, weight="bold", color=COLORS["ink"])
 
     # legend
     handles = [mpatches.Patch(fc=FILL[k], ec=EDGE[k], lw=1.1, label=v)
