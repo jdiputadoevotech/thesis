@@ -1,609 +1,605 @@
----
-marp: true
-paginate: true
-theme: default
-title: Proposal Defense — Typographic Hallucination in Generative AI Images
-footer: "Typographic Hallucination · Open-Set Font Recognition"
----
+# Proposal Defense — Speaker Script, Slides 1–11
 
-<!--
-DECK SCOPE: Sections 1–3 only (Big Picture · Specific Problem · The Gap).
-Section 4 "Your Solution" is the thesis partner's slides — continues after S8.
-Authoritative spec: proposal-presentation/requirements.md.
-Speaker notes live in HTML comments under each slide (export to PPTX presenter notes).
-Keep slide bullets sparse — talk track carries the detail.
--->
+> **The PPTX is the source of truth.** `Proposal Presentation template.pptx` (and its PDF export)
+> is the deck. This file is the talk track that mirrors it — it is not a second deck and must not
+> become one. If a slide changes in PowerPoint, change the **On screen** block here to match.
+>
+> Scope: the presenter's part only — title through Technical Background. Matt takes over at The Solution.
+> Q&A ammunition lives in `../script.md`. Defense spec lives in `../requirements.md`.
 
-# Addressing Typographic Hallucination in Generative AI Images
+## Timing
 
-### An Open-Set Metric Learning Approach to Font Style Recognition
+| # | Slide | Budget |
+|---|---|---|
+| S1 | Title | 1:00 |
+| S2 | The Big Picture | 1:15 |
+| S3 | The Specific Problem | 3:00 |
+| S4 | Research Question | 1:30 |
+| S5 | Without an Answer | 1:30 |
+| S6 | Significance | 2:15 |
+| S7 | Scope & Limitations | 3:45 |
+| S8 | The Gap | 2:15 |
+| S9 | Technical Background: Reading Type | 1:00 |
+| S10 | Technical Background: Deciding and Refusing | 1:00 |
+| S11 | Technical Background: How We Measure | 1:00 |
+| — | Handoff | 0:15 |
+| | **Total** | **≈ 19:45** |
 
-**Proponents:** [JD] · [MC]
-**Adviser:** [Adviser name]
-**Proposal Defense · [Date]**
+Budgets are measured off the written **Say** blocks at ~130 wpm.
 
-<!--
-Opening (chair-led): after the chair introduces the panel, introduce yourselves
-and lead the short prayer, then open with the one-line hook —
-"Generative AI can make a design in seconds, but it cannot spell — and that broken
-text has no free tool to recover its font. That gap is what we close."
--->
+> ⚠️ **The presenter's half is now ≈ 19:45 of a 30-minute total, leaving Matt ≈ 10.** This is the
+> deck's tightest constraint and it is getting worse with each expansion — S7 alone has grown from
+> 1:30 to 3:45. Rehearse both halves together against a timer *before* trusting these numbers. If
+> Matt cannot fit in 10 minutes, cut in the order below; the first two cuts alone recover ~1:30.
 
-<!-- STUDY NOTES — Title slide
+Cut order when running long:
 
-WHAT this slide is: just the title, names, and the one-sentence hook. Nothing to
-argue yet; the job is to plant the five key terms the panel will hear all defense.
+1. **S7** — the "top fifty to a hundred" paragraph explaining *why* the palette skews serif/sans
+   (~85 words, ~40s; it is marked inline in the Say block). Drop it and go straight to the Zhuang
+   paragraph — the bullet still lands.
+2. **S7** — if more is needed, compress the whole palette-coverage limitation to one line: "our
+   thinnest coverage is display and script, which is where deformation is worst; that is what the
+   unknown verdict is for." The full version survives as Q&A ammunition in the **If probed** lines.
+3. **S11** — collapse to one spoken line ("we score with Top-K, an SSIM re-render check, and a
+   three-rater Fleiss' κ panel"); Matt's measurement slides cover the same instruments in detail.
+4. **S3** — the encoder paragraph (*"nothing inside the model catches it"*); Kondo and Gillani
+   carry the mechanism on their own.
 
-DECODE THE TITLE, term by term:
-- "Typographic Hallucination" = when a generative AI draws text that looks like
-  letters but is subtly wrong — smeared strokes, warped curves, spacing that no
-  real font uses. We borrow the word "hallucination" from how chatbots invent
-  facts; here the model invents *letterforms*. This is the core phenomenon we study.
-- "Generative AI Images" = pictures made from a text prompt by tools like Gemini
-  "Nano Banana", GPT Image, Midjourney. The text baked into those pictures is what
-  breaks.
-- "Open-Set" = a recognition setting where the correct answer might NOT be in your
-  list of known classes. Opposite is "closed-set" (answer is always one of your N
-  categories). Open-set means the system is allowed — and required — to say
-  "none of these / unknown." Critical for us because a hallucinated glyph may match
-  no font in our palette.
-- "Metric Learning" = a machine-learning approach that learns a distance. Instead
-  of classifying "this is font #37," it learns to place similar-looking glyphs
-  CLOSE together and different ones FAR apart in a numeric space, then answers by
-  nearest-neighbor distance. This is what lets us compare a broken glyph to clean
-  reference fonts by *similarity* rather than exact match.
-- "Font Style Recognition" = identifying which typeface (font) a piece of text is
-  set in. "Style" signals we care about the visual character (serif shapes, weight,
-  proportions), not reading the words.
+**S9–S11 exist because the advisor asked for a technical background before The Solution.** They
+are a vocabulary primer, not an argument: the panel meets *f_θ*, τ, DINOv2, conformal Top-K, and
+Fleiss' κ here so that Matt's slides can use the words without stopping to define them. Every line
+on them is traceable to `chapters/03-technical-background/draft.md` or
+`chapters/04-methodology/draft.md` — the section is printed next to each claim below, because the
+panel is expected to cross-check.
 
-WHY the title is built this way: it names the problem (typographic hallucination),
-the domain (GenAI images), and the two-part method (open-set + metric learning)
-that make our solution different from every existing font finder. Panel should
-leave this slide knowing the topic is "recover the font of broken AI text, for free."
--->
+## Ownership map — read before editing anything
 
+Each fact has exactly one home. Everywhere else names the conclusion and moves on. An advisor
+flagged repetition in the mock defense; this map is how it stays fixed.
 
----
-
-<!-- _class: lead -->
-## 1 · The Big Picture
-
-Generative AI image tools — Google Gemini "Nano Banana", OpenAI GPT Image, Midjourney — now produce marketing graphics, mockups, and social assets **in seconds**.
-
-**But the text they render is typographically unreliable.**
-
-There is no free, license-clear way to recover the typography of a generative image.
-
-<!--
-RATIONALE / why-now (this is the Rationale of the Study). Designers already build
-with these tools daily. When they want to reuse the *typography* of a generated
-image, they hit a wall: the font is unnamed and the letterforms are broken.
-The only fallback is paid identifiers — which, as the next slides show, fail on
-exactly this input. So the practical stake: free template reconstruction of
-generative typography has no working tool today. Next slide grounds this in our
-own experience.
--->
-
-<!-- STUDY NOTES — 1 · The Big Picture
-
-WHAT this slide claims: (1) GenAI image tools are now everyday design tools,
-(2) the text they render is unreliable, (3) there is no free/legal way to recover
-that text's typography. This is the "Rationale of the Study" — WHY the topic
-matters at all, before we make it personal.
-
-DECODE THE TERMS:
-- "Generative AI image tools" = software that turns a written prompt into a
-  finished picture. The three named ones are the current market leaders; naming
-  them shows the problem is mainstream, not a toy.
-- "in seconds" = the speed is the whole appeal — designers now reach for these
-  first. That's what makes the text flaw matter: high usage, high stakes.
-- "typographically unreliable" = the LETTERS specifically come out wrong, even
-  when the rest of the image looks great. "Typography" = the craft/appearance of
-  arranged type (fonts, spacing, weight).
-- "license-clear" = legally safe to reuse. Commercial font-ID tools point you to
-  PAID fonts with restrictive licenses. "License-clear" means we aim for fonts you
-  can legally use for free (Google Fonts).
-- "recover the typography" = figure out the font so you can re-typeset the text
-  yourself in an editable file.
-
-WHY it flows to the next slide: this slide argues the problem matters to the whole
-design world (abstract rationale). The next slide narrows to "and it personally
-blocks US at work" (personal rationale). General stake first, personal stake second.
-
-LIKELY PANEL PROBE: "Isn't AI text getting better?" Answer: even improving models
-still fail most of the time on stylized fonts, and once a broken image exists there
-is still no free tool to recover its font — the recovery gap stays open regardless.
--->
-
+| Slide | Owns | Must NOT say |
+|---|---|---|
+| S2 | Adoption. These are everyday design tools — and a real broken word is on screen. | "AI gets text wrong." Let them read the typo. |
+| S3 | The measured rate (Liu), the mechanism (Gillani, Kondo), today's products failing (Wang, Jiang). | Re-describing what a hallucination looks like — S2 showed one. |
+| S4 | The central question, verbatim. | Any new evidence. Any hint of the answer. |
+| S5 | The human cost while the question is unanswered. | Tool capability (S3 owns it), beneficiaries (S6 owns them). |
+| S6 | Beneficiaries and what becomes possible — including the reusable artifacts other researchers inherit. | Restating the cost (S5 just said it). **And do not say the field lacks a human-consensus benchmark — S8 owns that.** Name the artifact; let S8 land why it is missing. |
+| S7 | The perimeter and the honest limits. | Re-arguing why free fonts matter. |
+| S8 | The research-level blind spot: the field never posed this question. | S3's point in new clothes. **S3 = shipped products break. S8 = nobody asked.** |
+| S9 | How a crop becomes a point: glyph traits, the degradation operator *D*, the metric head *f_θ*. | Why the gap exists (S8 owns it). Any accuracy figure. |
+| S10 | The refusal mechanism: open-set, the threshold τ, the calibrated shortlist. | Re-arguing *that* the system should refuse — S4 and S7 already established it. This slide is only *how*. |
+| S11 | The measurement instruments and what each one asks. | Results. Nothing has been run. Name the instrument, not an outcome. |
 
 ---
 
-## 1 · Where This Started — Our Internship
+## S1 · Title — 1:00
 
-At the company we intern for, we build a pipeline that turns an **AI-generated image into an editable `.psd`** file.
+**On screen**
+Addressing Typographic Hallucination in Generative AI Images: An Open-Set Metric Learning
+Approach to Font Style Recognition · Janritch D. Diputado, Matt Erron G. Cabarrubias ·
+Christine D. Bandalan, MEng · Department of Computer, Information Sciences and Mathematics ·
+University of San Carlos
 
-- We generate the images with AI and **prompt for a specific font**
-- The rendered font comes back **inaccurate** — it looks different from what we asked for
-- To make the `.psd` truly editable, we must **identify the real font** — the missing link in our own pipeline
+**Say**
 
-*This thesis grew directly out of that gap.*
+After the chair introduces the panel, introduce yourselves, lead the short prayer, then:
 
-![w:520](assets/pipeline-placeholder.png)
+"Good morning. Our study is titled *Addressing Typographic Hallucination in Generative AI
+Images: An Open-Set Metric Learning Approach to Font Style Recognition*. Three words in that
+title carry the whole thesis, so let me give them to you now and we will keep coming back to
+them. *Typographic hallucination* is what happens when a generative model draws something that
+looks like letters but is subtly wrong. *Open-set* means the system is allowed to answer
+'none of these.' *Metric learning* means we identify a font by measuring visual distance rather
+than by picking from a fixed list."
 
-<!--
-This is the personal rationale — why WE picked this topic, not just why it matters
-abstractly. Tell the story plainly: our internship builds an AI-image -> editable
-.psd pipeline. The one step that breaks is font identity — we prompt a font, the AI
-renders something close-but-wrong, and without the true font the .psd can't be
-faithfully rebuilt. So this is not a hypothetical problem; it is a wall we hit at
-work. SCREENSHOTS: replace assets/pipeline-placeholder.png with real screenshots of
-the existing pipeline (drop PNGs into proposal-presentation/slides/assets/). Show the
-AI image on one side and the .psd / font-mismatch on the other — concrete proof the
-problem is real and we already own the surrounding tooling.
--->
+**→ Transition out**
 
-<!-- STUDY NOTES — 1 · Where This Started — Our Internship
+"Generative AI can produce a finished design in seconds — but it cannot spell. And once that
+broken text exists, there is no free way back to its font. Let me show you what I mean."
 
-WHAT this slide does: turns the abstract problem into a real wall we hit at work.
-This is the "personal rationale" — why WE chose this, which makes the thesis
-credible and grounded, not invented for a paper.
-
-THE STORY IN PLAIN TERMS: at our internship we built a pipeline (an automated
-multi-step process) that takes an AI-generated image and rebuilds it as an editable
-Photoshop file. Every step works EXCEPT one: the font. We prompt for a specific
-font, the AI renders something close but wrong, and without knowing the true font
-we cannot faithfully rebuild the editable file.
-
-DECODE THE TERMS:
-- ".psd" = Photoshop Document — a layered, fully editable image file. "Editable"
-  means each text block is real, re-typeable text in its correct font, not a flat
-  picture. That is the deliverable our pipeline promises.
-- "pipeline" = a chain of automated steps, each feeding the next (generate image →
-  segment → extract text → rebuild layers → output .psd).
-- "prompt for a specific font" = we tell the AI "use font X." The AI does not obey
-  precisely — it renders an approximation. That mismatch is the failure point.
-- "the missing link" = font identification is the one broken step; fix it and the
-  whole pipeline delivers a truly editable file. This thesis IS that missing link.
-
-WHY it matters for the defense: it answers "why should we believe this problem is
-real?" with lived evidence and shows we already own the surrounding engineering —
-we only need to solve the font step. The placeholder image will become real
-screenshots (AI image vs. broken .psd) as visual proof.
-
-LIKELY PANEL PROBE: "Is this just an internship deliverable, not research?" Answer:
-the internship exposed the gap, but the gap itself (deformation-robust, open-set,
-free font recovery) is unsolved in the literature — that is the research contribution,
-covered in the Gap section.
--->
-
+**If probed** — "Style, not the words" — we identify the typeface, not what it says. That is OCR's job, not ours.
 
 ---
 
-## 2 · The Problem Is Real
+## S2 · The Big Picture — 1:30
 
-- AI draws text wrong **most of the time** — under **1 in 5** images have correct letters *(Liu, 2024)*
-- It **smears letters together** and invents shapes matching **no real font** — **"typographic hallucination"** *(Gillani, 2025; Kondo, 2024)*
-- Font-finder tools need **clean letters**, so they break *(Wang, 2015)*: a 3,474-font tool still fails on messy text *(Jiang, 2025)*, the best system drops to **40%** *(Chen, 2026)*, and AI assistants read the **word, not the shape** *(Li, 2025)*
+**On screen**
+Two AI-generated marketing posters (badminton training, pickleball tournament).
 
-<!--
-This slide does double duty: the problem is real AND existing tools can't touch it.
-Lead with the load-bearing <20% stat (Liu) — measured, not anecdotal. Then it is
-systematic, not luck: attention bleed (Gillani) + continuous latent manifold emitting
-glyphs between real fonts (Kondo); worst on display/script faces a designer picks for
-effect (Zhuang 2025). Then the pivot: the classical paradigm and WhatTheFont-class
-tools assume a geometrically intact glyph to recover (Wang) — true for a scan, false
-for a hallucinated crop. Throwing more fonts at it doesn't help (Jiang's 3,474), the
-SOTA collapses 86%->40.2% off pristine input (Chen), and VLMs hit Stroop interference
-where reading the word overrides seeing its shape (Li). Optional visual: uncomment the
-degradation figure below.
--->
+**Say**
 
-<!-- STUDY NOTES — 2 · The Problem Is Real
+"These two posters were generated from a text prompt. No designer, no layout file, seconds of
+work. This is genuinely how marketing material gets made now — small businesses, campus orgs,
+social media teams reach for these tools first because the output looks professional and costs
+nothing.
 
-WHAT this slide proves TWO things at once: (A) AI really does draw text wrong, and
-(B) existing font-finder tools cannot handle that broken text. Every bullet is
-backed by a cited paper so it reads as measured fact, not opinion.
+Take a moment with the one on the right." *(pause — let them find it)* "Community
+**TOURNNAMT**. Everything else in that poster is publishable. The typography is not.
 
-BULLET 1 — "under 1 in 5 images have correct letters (Liu, 2024)":
-- Meaning: in a controlled study, fewer than ~20% of generated images rendered the
-  text correctly. So the failure is the NORM, not a rare glitch.
-- Why it leads: it is the strongest, most quantified stat — measured, not anecdotal.
+And notice what you cannot do about it. You cannot open the poster and retype that one word,
+because it is not text — it is pixels. You would have to know the font first."
 
-BULLET 2 — "smears letters together, invents shapes matching no real font —
-'typographic hallucination' (Gillani, 2025; Kondo, 2024)":
-- This explains the MECHANISM, i.e. WHY it fails, so the panel sees it is systematic,
-  not bad luck.
-- "smears letters together" = attention bleed: the model mixes neighboring letters
-  because it doesn't cleanly separate them.
-- "invents shapes matching no real font" = the model generates from a continuous
-  latent space (a smooth numeric landscape of possible shapes), so it can output a
-  glyph that sits BETWEEN two real fonts and belongs to neither. This is exactly why
-  we need "open-set" — the true answer may be "no font."
-- "typographic hallucination" = our name for this whole effect (see title notes).
+**→ Transition out**
 
-BULLET 3 — "font-finder tools need clean letters, so they break (Wang, 2015)...":
-- This is the PIVOT: even if you wanted to identify the font, today's tools can't.
-- "need clean letters" = the classical recognition paradigm assumes a geometrically
-  intact, undamaged glyph (true for a scanned document, false for a hallucinated crop).
-- "a 3,474-font tool still fails (Jiang, 2025)" = throwing MORE fonts at the problem
-  doesn't help; the issue is broken input, not a small catalog.
-- "the best system drops to 40% (Chen, 2026)" = state-of-the-art accuracy collapses
-  from ~86% on clean text to ~40% on deformed text. "SOTA" = state of the art, the
-  current best published system.
-- "AI assistants read the word, not the shape (Li, 2025)" = vision-language models
-  (VLMs) suffer Stroop interference: they READ "HELLO" and report the meaning instead
-  of analyzing the letter shapes. Stroop = the classic effect where reading a word
-  overrides noticing its visual form. So VLMs are the wrong tool too.
+"Now, one bad poster is an anecdote. A panel should not accept a thesis built on an anecdote —
+so here is the measurement."
 
-WHY the slide is structured problem→mechanism→tools-fail: it walks the panel from
-"this happens" to "here's why" to "and nothing existing fixes it," which sets up our
-Statement of the Problem on the next slide.
-
-TERM CHEAT-SHEET:
-- "glyph" = the drawn shape of a single character (the visual 'A', not the letter A).
-- "crop" = the cut-out image patch containing just the text we analyze.
-- "latent manifold / latent space" = the internal numeric space a generative model
-  samples shapes from; being continuous is why in-between (fake) fonts appear.
--->
-
-
-<!-- ![w:820](../../assets/figures/degradation_pipeline.png) -->
+**If probed** — Yes, newer models are improving. That does not close this study: uncorrected output is still what a designer receives, and every image already generated stays broken.
 
 ---
 
-## 2 · Statement of the Problem
+## S3 · The Specific Problem — 2:30
 
-**How can the typeface of hallucinated text in a generative-AI image be identified against a localized, open-source font palette when the glyph is probabilistically deformed and may belong to no font in the palette?**
+**On screen**
+- AI draws text wrong **most of the time** *(Liu et al., 2024)*
+- The AI **smears nearby letters together** and invents shapes that **match no real font** *(Gillani et al., 2025; Kondo et al., 2024)*
+- Font-finder tools need **clean letters**, or they break *(Wang, 2015)*: a 3,474-font tool still fails on messy text *(Jiang, 2025)*
+- *(hallucinated text crop: "Cartchy tuns … a pasadise of sweet teats")*
 
-Two capabilities are missing **at once**:
+**Say**
 
-1. Read font identity from a **deformed**, not pristine, glyph
-2. **Refuse to answer** when the glyph belongs to no catalogued font
+"First bullet. Liu and colleagues measured this in 2024: fewer than one in five generated images
+render their text correctly. So what you just saw is not the unlucky poster — it is the normal
+outcome.
 
-<!--
-Read the central question verbatim — it is the spine of the whole proposal. Then the
-crux: no existing system does *either* of these, let alone both together. Reading a
-deformed glyph is a metric-embedding problem; refusing an out-of-palette glyph is an
-open-set recognition problem (Lu et al., 2025) — and a hallucinated crop is the normal,
-not the edge, case. The central question resolves into 5 specific questions (dataset
-fidelity, metric embedding on frozen ViT, open-set rejection, Top-K accuracy vs
-baselines + human panel, whether errors stay within typographic families) — offer to
-walk through them if the panel asks; otherwise keep moving.
--->
+Second bullet is *why*, and this is the part that matters for our method.
 
-<!-- STUDY NOTES — 2 · Statement of the Problem
+Start with what the model is *not* doing. When we set type, the software looks up a font file and
+stamps a stored outline — an exact vector for that letter. A diffusion model has no font file and
+does no lookup. It paints pixels. What it learned from training images is not a catalogue of
+typefaces; it is a continuous sense of how letters look — where a stroke thickens, whether a serif
+is there, how round a bowl is. A font lives in that space as a blend of traits, not as an entry
+you select from.
 
-WHAT this slide is: the single central research question, read VERBATIM. It is the
-spine of the whole proposal — everything else exists to answer it.
+Two documented consequences. Kondo's group: because the space is continuous, the model can land
+*between* two real fonts and emit a letterform no foundry ever cut. It reads as type because every
+trait is plausible; it matches nothing because it was sampled, not chosen. Gillani's group: the
+model paints the whole word at once through attention, and attention does not respect character
+boundaries — neighbouring letters share evidence and strokes bleed together. Look at the crop:
+*Cartchy tuns*, and at the end, *sweet teats*.
 
-DECODE THE CENTRAL QUESTION, phrase by phrase:
-- "How can the typeface of hallucinated text ... be identified" = the goal: name
-  the font of broken AI text.
-- "against a localized, open-source font palette" = we don't match against every
-  font on earth; we match against a small, chosen set of free Google Fonts. "Palette"
-  = our curated shortlist of candidate fonts. "Localized" = deliberately small/bounded.
-  "Open-source" = free and legally reusable.
-- "when the glyph is probabilistically deformed" = the input is randomly warped by
-  the generative model (each render distorts differently — that's the "probabilistic"
-  part). We must read the font THROUGH that distortion.
-- "and may belong to no font in the palette" = the true font might not be in our set
-  (or might be a fake in-between shape), so the system must be able to decline.
+And nothing inside the model catches it, because — Liu again — the text encoder handles the word
+as meaning, not as shapes. It has no sub-character spatial sense to check the drawing against.
 
-THE TWO MISSING CAPABILITIES (this is the key takeaway):
-1. "Read font identity from a deformed glyph" = a METRIC-EMBEDDING problem: learn a
-   distance that stays reliable even when the glyph is warped, so the nearest clean
-   font is still the right one.
-2. "Refuse to answer when the glyph belongs to no catalogued font" = an OPEN-SET
-   RECOGNITION problem: know when NONE of your known fonts fit and output "unknown."
+That is the crux. The damage is not dirt on top of a real font. Sometimes there is no real font
+underneath.
 
-WHY BOTH AT ONCE IS THE HARD PART: existing systems do neither of these, and
-certainly not together. And for us the hard case (a deformed, possibly-unknown glyph)
-is the NORMAL input, not a rare edge case — so both capabilities are mandatory, not
-optional.
+Third bullet is where the practical wall is. Every font identifier available today — Wang's line
+of work, and the commercial tools built on it — assumes a geometrically intact glyph it can
+measure. That assumption holds for a scanned document. It fails here. And you cannot fix it with
+a bigger catalogue: Jiang's 2025 classifier covers three thousand four hundred seventy-four
+Google Fonts and still fails on deformed input. The bottleneck is not how many fonts you know."
 
-DECODE THE SUPPORTING TERMS:
-- "metric embedding" = converting a glyph image into a point in a numeric space where
-  distance = visual similarity (see Metric Learning in title notes).
-- "open-set recognition (Lu et al., 2025)" = the formal name for a classifier that can
-  say "none of the above" instead of always picking a known class.
-- "frozen ViT" (mentioned in speaker notes) = a Vision Transformer (image model)
-  whose weights we do NOT retrain ("frozen"); we reuse its general visual features and
-  only learn the distance on top. Cheaper and avoids overfitting.
+**→ Transition out**
 
-STRUCTURE NOTE: the one central question breaks into 5 specific sub-questions (dataset
-fidelity, the metric embedding, open-set rejection, Top-K accuracy vs baselines + human
-panel, and whether errors stay within font families). Only walk those if the panel asks.
--->
+"So: the failure is the normal case, we know the mechanism, and nothing on the market touches it.
+That leaves one question that has to be stated precisely."
 
+**If probed** — Chen et al. (2026): state-of-the-art drops from ~86% on clean glyphs to 40.2% on deformed input. Held for Q&A; full answer in `../script.md`.
+
+**If probed — "so it's a rendering bug?"** No. Rendering implies a correct outline exists and got damaged. Here the glyph is *drawn*, never rendered: style is a continuous latent manifold, so an out-of-catalogue letterform is a valid sample, not a fault (Kondo et al., 2024). That is why our system must be allowed to answer "unknown."
+> *Do not add the long-tail point here.* Zhuang's finding — that deformation concentrates in display, script, and rare faces — is **S7's**, where it is on screen and fully unpacked against our palette coverage. Spending it at S3 means saying it twice.
 
 ---
 
-## 2 · Significance & Scope
+## S4 · Research Question — 1:30
 
-**Significance** — first **free** font identifier for AI-hallucinated text; enables rebuilding editable templates with open-source Google Fonts.
+**On screen**
+How can the typeface of hallucinated text in a generative-AI image be identified against a
+localized, open-source font palette when the glyph is probabilistically deformed and may belong
+to no font in the palette?
 
-**Scope**
+**Say**
+
+Read it verbatim, unhurried. Then unpack only the loaded phrases:
+
+"Three phrases in there are doing real work.
+
+*A localized, open-source font palette* — we are not matching against every font that exists. We
+match against a small, deliberately chosen set of free Google Fonts.
+
+*Probabilistically deformed* — the distortion is random on every render. The same prompt twice
+gives you two different deformations. So we cannot memorise the damage; we have to read through
+it.
+
+*May belong to no font in the palette* — and this is the one panels usually push on. Because of
+the mechanism I described, the honest answer is sometimes 'unknown.' A system that always names
+a font would be confidently wrong. Ours has to be able to decline."
+
+**→ Transition out**
+
+*(pause)* "That is the question. Before I say who is helped by answering it — I want you to see
+what happens for as long as nobody can."
+
+**If probed** — The central question resolves into five specific questions: dataset fidelity, the metric embedding, open-set rejection, Top-K accuracy against baselines and the human panel, and whether errors stay inside typographic families. Offer to walk them only if asked.
+
+---
+
+## S5 · Without an Answer — 1:30
+
+**On screen**
+- The image is finished — the design is not
+- Today: retype by eye, guess, or pay for a font that still misses
+- The poster stays a picture, never a template
+
+**Say**
+
+"Put yourself in front of that pickleball poster with a client waiting.
+
+The image is done. The design is not — one word is misspelled and you cannot edit it. So you
+have three moves, and all three are bad.
+
+You retype the whole text block by eye and try to match the font from memory. That is manual
+work on something a machine already made, and the match is a guess.
+
+You use a paid identifier. It charges you, it hands you a licensed commercial font, and — as we
+just established — on deformed letters it hands you the wrong one anyway. You have now paid for
+a mismatch.
+
+Or you regenerate and hope. Same probability, new typo.
+
+So the poster stays what it is: a picture. It never becomes a template you can reuse, rebrand, or
+hand to a client. Everything the generator saved you, that last step takes back."
+
+**→ Transition out**
+
+"That is the cost of the question staying open. Here is who is standing on the other side of it."
+
+**If probed** — This is exactly the wall we hit at our internship: we build a pipeline that turns an AI image into an editable `.psd`, and font identity is the one step that has no solution. Verbal only — no slide.
+
+---
+
+## S6 · Significance — 2:15
+
+**On screen**
+1. First *free, open-set, license-clear* font identifier — makes the template rebuild legal
+2. **Designers / AI-gen users** — creative control over AI typography, not whatever the model rendered
+3. **Companies** — reuse AI marketing material without buying a font licence
+4. **Researchers** — a reproducible hallucinated-type corpus and the first human-consensus benchmark
+
+*(43 words. Four beneficiaries do not fit at the previous phrasing — three alone already ran 49
+words, and adding researchers verbatim would have hit 71 against a 45-word cap. Every line is
+compressed; the full argument stays in the **Say** block, which is where it belongs.)*
+
+**Say**
+
+"Four groups.
+
+First, the field. To our knowledge this is the first font identifier that is free, that works on
+hallucinated text, and that is allowed to say 'unknown.' Each of those exists somewhere on its
+own. Together, in one system, they do not. And the *free* part is not a cost footnote — it is
+what makes the output usable. If the answer is a licensed commercial font, the designer still
+cannot ship the rebuild. Point them at a Google Font and the design is legally reusable the
+moment they know its name.
+
+Second, designers and AI-gen users. This is the creative-control point. Right now the model
+decides your typography and you accept whatever it renders. Recover the font and the decision
+comes back to you — regenerate the text properly, change the weight, keep the layout. You direct
+the tool instead of negotiating with it.
+
+Third, companies and establishments — the small business that generates its own marketing
+material precisely because it has no design budget. They are the ones with the least room to
+absorb either a font licence or a designer's hours.
+
+Fourth, other researchers — and this one is different in kind. The first bullet is what is *new*;
+this one is what is *reusable*. We leave two artifacts behind. A synthetic corpus of deformed type
+that is seed-deterministic, so anyone can regenerate our exact training data. And a hundred real
+generative crops, each labeled independently by three typographers with their agreement reported.
+Whoever works on this next does not have to build either one."
+
+**→ Transition out**
+
+"For that payoff to be real and not a promise, we had to bound the work. This is exactly how far
+it goes — and where it stops."
+
+**If probed** — Beyond fonts: the recipe is controlled synthetic degradation plus post-hoc open-set rejection. That pairing transfers to any fine-grained recognition task where inputs are randomly distorted and the true class may sit outside the catalogue.
+
+**If probed — "isn't bullet 4 the same as bullet 1?"** No. One is the claim, the other is the leftovers. Bullet 1 says no system currently does free + hallucination-robust + open-set together. Bullet 4 is the reusable output regardless of whether our accuracy numbers land: the seeded corpus (Chapter 4 §4.2.1) and the human-labeled benchmark (§4.2.3) hold their value even if the model underperforms.
+
+---
+
+## S7 · Scope & Limitations — 3:45
+
+**On screen**
+
+*Scope*
 - **Top 50–100 Google Fonts** (serif · sans-serif · display · mono)
-- Tested against existing tools **and a 3-person human panel**
+- **English/Latin** fonts only
+- Font **classification** only — localization is off-the-shelf
 - Can answer **"unknown"** when no font fits
 
-**Delimitation** — not a general OCR or all-fonts tool; palette is bounded on purpose.
+*Limitations*
+- Only three deformations modeled — **elastic warp, blur/noise, kerning jitter** — not every generator's artifacts *(Gillani, 2025; Chen, 2026)*
+- Palette cannot span every typeface — a top-50–100 list is mostly serif and sans, so **display and script are our thinnest coverage**, and that is exactly where generative deformation is worst *(Zhuang, 2025)*
 
-<!--
-Significance and Scope are assembled from the objectives (Ch1 has no standalone
-prose for these yet — flag internally, not to the panel). Significance framing:
-this is not "a better WhatTheFont," it is the free, open-set capability that does
-not exist. Scope boundaries all come straight from the six specific objectives —
-stress the palette is deliberately localized (50–100 fonts), which is what makes
-open-set rejection tractable. Delimitation manages panel expectations: we are not
-solving general OCR, and "unknown" is a feature, not a failure.
--->
+*(75 words — deliberately over the ~55 hard cap, because the coverage limitation is not
+self-explanatory at slide length and a panelist who has to ask "why display and script?" has
+already lost the point. **Recommended: split this into two slides** — S7a Scope, S7b Limitations.
+That costs no spoken time (the **Say** block is unchanged either way), puts each half comfortably
+under the cap, and gives the limitations room to breathe. If it must stay one slide, cut scope line
+4 to just **Can answer "unknown"** and accept a dense frame. Two limitations stay spoken-only —
+the 3-person panel as a proxy, and the unknown-threshold trade-off. Do not add them to the slide.)*
 
-<!-- STUDY NOTES — 2 · Significance & Scope
+*(Wording note: the PPTX previously read "not localization of texts within the images," which reads
+as "we never localize." The conceptual-framework figure six slides later shows a live localization
+step, so a cross-checking panelist would catch the contradiction. Chapter 4 §4.4.2 is precise —
+the localizer runs, it is off-the-shelf, and it is not a contribution of this work. The bullet above
+now says that.)*
 
-WHAT this slide answers THREE standard proposal questions: why does this matter
-(Significance), what exactly will we build/test (Scope), and what will we NOT do
-(Delimitation). Panels always look for these three.
+**Say**
 
-SIGNIFICANCE — "first free font identifier for AI-hallucinated text":
-- The contribution isn't "a better version of an existing tool." It is a capability
-  that does not exist at all: free + works on broken AI text + can say unknown.
-- "enables rebuilding editable templates with open-source Google Fonts" = the payoff:
-  once you know the font, you can re-typeset the design for free and hand back an
-  editable file (ties straight back to the internship pipeline).
+"Scope first — four bounds, each chosen for a reason.
 
-SCOPE — the exact boundaries of what we test:
-- "Top 50–100 Google Fonts (serif · sans-serif · display · mono)" = our palette size
-  and coverage. The four categories are the main typographic families:
-    * serif = fonts with little feet/strokes on letter ends (e.g. Times).
-    * sans-serif = no feet, clean (e.g. Arial).
-    * display = decorative/headline fonts, high style — the ones AI mangles WORST.
-    * mono(space) = every character same width (e.g. Courier), code-style fonts.
-- "Tested against existing tools AND a 3-person human panel" = two benchmarks: current
-  software (baseline) and human judgment (ground-truth proxy). The human panel gives a
-  realistic "what a person could tell" bar to compare our accuracy against.
-- "Can answer 'unknown' when no font fits" = the open-set capability, restated as a
-  user-facing feature.
+Fifty to a hundred Google Fonts across the four families. Bounded on purpose: you can only
+reliably say 'none of these' when 'these' is well defined. A small, known palette is what makes
+the unknown answer meaningful.
 
-DELIMITATION — "not a general OCR or all-fonts tool; palette is bounded on purpose":
-- "OCR" = Optical Character Recognition — reading the TEXT (the words). We are NOT
-  doing that; we identify the FONT (the style). Saying so stops the panel from judging
-  us on a goal we never set.
-- "bounded on purpose" = the small palette is a design choice, not a limitation we
-  failed to overcome. A small known set is precisely what makes "unknown" detection
-  (open-set rejection) mathematically tractable — you can only reliably say "none of
-  these" when "these" is a well-defined, limited set.
+Second line is that capability stated as scope — the system is built to abstain.
 
-WHY DELIMITATION IS STRATEGIC: it manages expectations. "Unknown" is framed as a
-FEATURE (honest refusal) rather than a failure (couldn't answer). Reframing the
-limitation as a strength is deliberate.
--->
+Latin only. And our contribution is the classification, not the finding. Locating the text inside
+the image is done by an off-the-shelf detector — it does run, on every upload, but we did not build
+it and we do not claim it. We identify the font of a text crop; we do not rebuild page structure.
 
+Now the limitations, and I would rather raise these than have you find them.
 
----
+First, our degradation pipeline models exactly three deformations — elastic warp, blur and noise,
+and kerning jitter. Those three were not picked casually; warp and kerning jitter come from
+Gillani's attention-smearing mechanism, blur and noise from the render-quality baseline Chen's
+group used, and each one is a dial we log per image. But three is three. A generator we
+never tested may break type in a fourth way we did not model, so accuracy on our synthetic data
+may not fully transfer to it.
 
-<!-- _class: lead -->
-## 3 · The Gap — The Blind Spot
+Second, and this is the one I would press on if I were you: we cannot cover every kind of typeface,
+and the gap is not evenly spread.
 
-All prior work assumes a **clean glyph exists to be recovered**, and treats deformation as noise to invert.
+*(⏱ The next paragraph is the single longest optional passage in the presenter's half — about 85
+words, roughly 40 seconds. It is the "why" behind the bullet. If the rehearsal clock is tight, drop
+it and go straight to the Zhuang paragraph; the bullet still lands, just with less colour.)*
 
-**No one recovers font identity from a natively deformed generative glyph — scored open-set over a localized palette.**
+Start with what a 'top fifty to a hundred' list actually contains. Popularity rankings track how
+often a face gets used, and most type gets used for body copy — paragraphs, captions, labels. Body
+copy is set in serif and sans-serif. So a popularity-ranked palette is overwhelmingly serif and
+sans by construction. Display and script faces are used sparingly and deliberately, one headline at
+a time, so they sit far down that ranking. They are our long tail.
 
-<!--
-This is the single most important sentence of the rationale. Slow down here. The
-entire literature — legacy recognition, generative-text research, open-set methods,
-metric embeddings, distance metrics — shares one assumption: a topologically faithful
-glyph exists somewhere to recover. This thesis inverts the question: what if the
-deformation is not noise but an irreducible, probabilistic property of the generative
-model itself? Then you cannot "clean" it — you must recognize *through* it, and reject
-when it belongs to nothing catalogued.
--->
+Now the second half of the problem. Generative deformation is not uniform either. Zhuang's group
+measured this: it concentrates in exactly that long tail — the display, script, and rare faces.
+Which means our thinnest coverage sits directly on top of the hardest input. The place we are least
+equipped to name a font is the place the model is most likely to have mangled one.
 
-<!-- STUDY NOTES — 3 · The Gap — The Blind Spot
+That is an uncomfortable overlap and I would rather say it than have you find it. It is also
+precisely why the system is built to abstain: on a face we do not carry, deformed past recognition,
+the honest output is 'unknown' — not the nearest thing in our palette dressed up as an answer. And
+every commercial or foundry typeface is outside the palette by construction, so those return
+'unknown' too.
 
-WHAT this slide is: the single most important sentence of the whole rationale. It
-names the exact hole in existing research that our thesis fills. Deliver it slowly.
+Third, our human baseline is three people. That is a reasonable proxy for what a person can tell.
+It is not authoritative ground truth, and we will not present it as one — Jiang's group says the
+quiet part out loud: font ground truth is usually unavailable, and many fonts look alike.
 
-THE SHARED ASSUMPTION (the blind spot):
-- "All prior work assumes a clean glyph exists to be recovered" = every existing
-  approach believes there is one true, undamaged letter shape hiding under the damage,
-  and the job is to uncover it.
-- "treats deformation as noise to invert" = they treat the warping like static on a
-  photo — random junk you can filter out to get the clean original back. "Invert" =
-  mathematically undo. "Noise" = unwanted random corruption on top of a real signal.
+And fourth, the unknown threshold is a genuine trade-off — the standard one the rejection
+literature reports, surveyed by Lu and colleagues. Set it strict and we reject matches that
+were actually right. Set it loose and hallucinated glyphs get forced onto a font. It is tunable,
+but it does not disappear."
 
-OUR INVERSION (the new idea):
-- "No one recovers font identity from a natively deformed generative glyph — scored
-  open-set over a localized palette."
-- "natively deformed" = the deformation is BUILT IN by the generative model, not added
-  afterward. This is the crux: what if the warping is NOT removable noise but an
-  irreducible, probabilistic property of how the model draws? Then there is no clean
-  original to recover — you must recognize the font THROUGH the deformation, not clean
-  it off first.
-- "scored open-set over a localized palette" = and you must also be able to reject
-  (say "unknown") against a small known font set. "Scored" = we measure/rank matches
-  by a numeric similarity score.
+**→ Transition out**
 
-WHY THIS IS THE HEART OF THE THESIS: it reframes the entire problem. Everyone else:
-"remove the damage, then recognize." Us: "the damage is permanent — recognize despite
-it, and admit when nothing fits." That reframing is the original contribution; the next
-slide shows five research fields that all share this same blind spot.
+"Those bounds are ours — we chose them. The next one we did not choose. It is what we found
+missing when we read the field."
 
-TERM CHEAT-SHEET:
-- "recover / recovery" = reconstruct the original clean glyph before identifying it.
-- "irreducible" = cannot be removed or reduced away; a fundamental property.
-- "probabilistic" = varies randomly each time the model renders; not fixed.
--->
+**If probed** — Two more limitations held back: compute budget caps training epochs and palette size; text localization is an off-the-shelf component, so its failures propagate into the crops we analyse.
 
+**If probed — "why only those three deformations?"** Each maps to a documented mechanism: elastic warp and kerning jitter to cross-character attention bleeding (Gillani et al., 2025), blur and noise to the render-quality baseline our synthetic precedent used (Chen et al., 2026). Chapter 3 §3.2.3 defines them formally as the operator *D*, and Chapter 4 Table 1 logs each level per image, so the bound is auditable rather than asserted.
+
+**If probed — "then why not just add more display and script faces?"** Because the palette bound is what makes the unknown verdict meaningful — you can only say "none of these" when "these" is a defined, well-sampled set, and every face we add needs its own ~575 rendered variants and its share of a fixed compute budget (Chapter 4 §4.3.1). Widening the palette to chase the tail would thin the coverage of every class in it. The design answer is not a bigger catalogue — that is the failure mode we cite Jiang et al. (2025) for on S3, where 3,474 fonts still break on deformed input. It is abstention plus an honest statement of where coverage is thin, which is what this slide is.
+
+**If probed — "can you quantify how thin?"** Not yet. The palette is specified as 50–100 faces across four family classes (Chapter 4 §4.3.1); the exact per-class split is fixed when the palette is finalized, and the family-level breakdown will appear in the confusion matrix of Chapter 5. We are not going to invent a number here.
 
 ---
 
-## 3 · Five Gaps, Five Clusters
+## S8 · The Gap — 2:00
 
-| Cluster | The blind spot | Anchor |
-|---|---|---|
-| **Legacy recognition** | recover a glyph, never *read* deformation | Wang 2015 |
-| **Generative text** | suppress deformation in-generator, never read it back | Liu 2024 · Zhuang 2025 |
-| **Open-set rejection** | validated on natural images only, not font micro-irregularities | Karunanayake 2025 · Lu 2025 |
-| **Metric embedding** | works on clean glyphs, untested under warping | Oquab 2024 · Wang 2024 |
-| **Visual distance metrics** | assume an undeformed input glyph | Zhang 2024 |
+**On screen**
+- Current studies train on **pristine glyphs**, not AI-generated images *(Wang, 2015; Chen, 2026)*
+- They treat AI deformations as **bugs to suppress in generation**, not as typographic identity to recover *(Du, 2025; Zhuang, 2025)*
+- Predictions are scored **machine-vs-label** — classifier top-k or MLLM judge, never human consensus *(Jiang, 2025; Shu, 2025)*
 
-**Seam:** none connects text isolation → deformation-robust embedding → open-set ranking on a localized palette.
+*(47 words — inside the ~55 hard cap. Citations use the folder's short `*(Author, Year)*` form, as
+S3 already does; the full `et al.` strings would push this slide 12 words over.)*
 
-<!--
-Walk the table top to bottom — one line each, this is the RRL condensed. Each field
-solves a piece but leaves the same blind spot from a different angle. The punchline is
-the "Seam" row: the contribution is not any single component, it is *connecting* them
-into one pipeline that no prior work joins. If a panelist pushes on any one cluster,
-you have the verbatim gap sentence from Chapter 2 §2.2–2.6 to back each row.
--->
+**Say**
 
-<!-- STUDY NOTES — 3 · Five Gaps, Five Clusters
+"Earlier I cited Wang and Chen as tools that break. Here they are again for a different reason —
+not what their systems fail at, but what the field assumed before building them.
 
-WHAT this slide is: the entire Review of Related Literature (Chapter 2) compressed
-into one table. Five research fields ("clusters") each solve PART of our problem but
-all leave the SAME blind spot. The table proves the gap is real across the whole field,
-not just one paper.
+Every one of these studies trains on pristine glyphs. Clean renders, straight from the font file.
+The assumption underneath is that a correct letterform exists somewhere and the job is to recover
+it — treat the damage as noise and invert it. That assumption is reasonable for a scan. For a
+generative glyph it is false, because the deformation is not something that happened *to* the
+letter. It is how the model drew it.
 
-READ EACH ROW AS: [field] → [what it can't do] → [the paper we cite as proof].
+Second: there is a large body of work on generative text, and it is all pointed the other way —
+at suppressing deformation inside the generator so the model renders cleanly next time. Du's group
+gates attention so text regions stop bleeding into each other; Zhuang's group rebuilds the
+rendering path for rare glyphs. Useful work, both of them. But nobody turns around and reads the
+broken output back to recover what typeface it was reaching for. That direction is empty.
 
-ROW 1 — Legacy recognition (Wang 2015):
-- "Legacy recognition" = classical font/character recognition — the pre-deep-learning
-  and early-CNN approaches, e.g. WhatTheFont-style tools.
-- Blind spot: they RECOVER a clean glyph but never READ the deformation itself as
-  information. They assume the damage is removable.
+Third, and this one is methodological: look at how the field checks its own font predictions.
+Jiang's group runs into this directly — they admit font ground truth is usually unavailable and
+that many fonts look alike — and their answer is to push both images through a pre-trained font
+classifier and compare the top-k probability distributions that come out.
+Shu's group scores generated text with a multimodal model acting as judge. In both cases the
+referee is another machine. We could not find a study that asks whether three people looking at the
+same deformed crop would agree on the font.
 
-ROW 2 — Generative text (Liu 2024 · Zhuang 2025):
-- "Generative text" = research on making AI render text BETTER inside the generator.
-- Blind spot: they try to SUPPRESS deformation at generation time; nobody reads the
-  broken output back afterward to identify its font. Opposite end of the pipe from us.
+So the blind spot is one sentence: no one recovers font identity from a natively deformed
+generative glyph, scored open-set, against a localized palette."
 
-ROW 3 — Open-set rejection (Karunanayake 2025 · Lu 2025):
-- "Open-set rejection" = methods for saying "unknown / none of my classes" (see title
-  notes).
-- Blind spot: validated only on NATURAL images (photos of cats, cars, scenes), never
-  on font MICRO-IRREGULARITIES — the tiny stroke/curve differences that separate fonts.
-  So the technique exists but was never tested on our kind of input.
+**→ Transition out**
 
-ROW 4 — Metric embedding (Oquab 2024 · Wang 2024):
-- "Metric embedding" = the distance-learning approach we use (Oquab 2024 = DINOv2, the
-  image model we build on).
-- Blind spot: proven on CLEAN glyphs, untested under warping. The tool we need, never
-  stress-tested in the condition we need it.
+"To recap — the problem is measured, the question is stated, the cost of leaving it open is
+concrete, and the gap is real. Before Matt shows you the system we built to close it, let me hand
+you the vocabulary it runs on, so none of it arrives cold."
 
-ROW 5 — Visual distance metrics (Zhang 2024):
-- "Visual distance metrics" = ways to score how visually similar two images are (e.g.
-  SSIM, LPIPS — used to check if our re-rendered font matches the input).
-- Blind spot: they assume an UNDEFORMED input glyph to compare against. Same assumption
-  breaks again.
+**If probed** — Chen et al. (2026) is the closest antecedent and our comparative baseline: frozen-ViT font classification, but explicitly closed-set and trained on pristine renders. We target the regime where they collapse.
 
-THE PUNCHLINE — the "Seam" row:
-- "none connects text isolation → deformation-robust embedding → open-set ranking on a
-  localized palette."
-- "Seam" = the join between fields where the work SHOULD connect but doesn't. Our
-  contribution is not inventing any single component — it is STITCHING these five into
-  one working pipeline that no prior work joins.
-- The three stages named are our pipeline: (1) text isolation = cut the text out of the
-  image; (2) deformation-robust embedding = turn the warped glyph into a reliable point
-  in metric space; (3) open-set ranking = rank candidate fonts and reject if none fit.
-
-WHY A TABLE: it lets a panelist attack any single field and get a crisp one-line answer,
-while the visual pattern (same blind spot, five times) makes the gap undeniable.
-
-"Anchor" column = the flagship paper that best represents each cluster's blind spot —
-your citation to defend that row if challenged.
--->
-
+**If probed — "which paper says nobody uses a human panel?"** None, and we would not claim one does. The citable half is what the field *does* do: Jiang et al. (2025) score font fidelity by classifier top-k distribution, Shu et al. (2025) by an MLLM judge. The absence of a human-consensus check is our reading of that evidence, not a finding we are attributing to anyone.
 
 ---
 
-## 3 · The Baseline That Fails in the Wild
+## S9 · Technical Background: Reading Type — 1:00
 
-- **Storia-AI / ControlText** — 3,474-font classifier, the field's reference embedding *(Jiang et al., 2025)*
-- Together with **WhatTheFont-class** commercial identifiers:
-  - reference-grade **on clean glyphs**
-  - **collapse on hallucinated crops** — the exact regime we target
+**On screen**
+- Font identity lives in **stroke, serif, x-height** — not in the word
+- **Degradation D**: warp · blur · kerning jitter, applied to clean renders
+- **Metric head f_θ** turns a crop into a point; same font lands near
+- Backbone: **frozen DINOv2** ViT, never retrained
 
-→ This is our comparative baseline. **Our solution begins here.**
+*(40 words. Figure: `assets/figures/degradation_pipeline.png`.)*
 
-<!--
-Close section 3 by naming the concrete baseline we measure against: Storia-AI's
-Google Font Classifier (our font-classify/ sandbox), which ControlText (Jiang 2025)
-established as the reference embedding. It is genuinely strong — on clean glyphs. It
-is validated only on undeformed input and collapses in open-set generative
-environments. That collapse is the opening for our approach. HANDOFF: this is where
-the partner's Section 4 "Your Solution" begins.
--->
+**Say**
 
-<!-- STUDY NOTES — 3 · The Baseline That Fails in the Wild
+"Four terms, and then Matt can use them freely.
 
-WHAT this slide is: names the concrete system we will measure OURSELVES against, and
-shows it fails exactly where we operate. Closing the Gap section by pointing at the
-opening our solution steps into.
+First, what the system actually looks at. Not the word — the *shape*. Stroke thickness, whether a
+serif is there, how tall the lowercase body is. Those traits are what separate one typeface from
+another, and they survive when the spelling does not.
 
-DECODE THE BASELINE:
-- "baseline" = the reference system you compare your new method to, to prove yours is
-  better. You must name one; ours is Storia-AI's Google Font Classifier.
-- "Storia-AI / ControlText — 3,474-font classifier (Jiang et al., 2025)" = an
-  open-source deep-learning model that identifies fonts across 3,474 Google Fonts.
-  ControlText (the Jiang 2025 paper) established it as "the field's reference
-  embedding" = the standard, widely-cited feature representation others compare to.
-  It lives in our font-classify/ sandbox — we run it directly, not just cite it.
-- "reference embedding" = the benchmark numeric representation of a glyph that the
-  field treats as the one to beat.
+Second, *D*. That is our degradation operator: we take a clean render of a known Google Font and
+deliberately break it — elastic warp, blur and noise, jittered letter spacing. We know the font,
+because we chose it, and we know exactly how much damage we did, because we set the dials. That is
+how we manufacture labeled hallucinated text.
 
-DECODE THE FAILURE:
-- "WhatTheFont-class commercial identifiers" = paid font-ID tools of the same family
-  (upload an image, get a font name + a link to buy it).
-- "reference-grade on clean glyphs" = genuinely excellent — on undamaged, scanned, or
-  vector-clean input. We concede it is strong; that makes the next line credible.
-- "collapse on hallucinated crops — the exact regime we target" = on warped AI text it
-  falls apart. "In the wild" = real-world messy input, as opposed to lab-clean test
-  data. "Regime" = the operating condition/environment. Their weakness is precisely
-  our target zone.
-- WHY it fails ties back to the Gap: it was trained and validated only on pristine
-  input (over-fitted to clean glyphs), so it has never learned to handle native
-  deformation or to say "unknown."
+Third, *f-theta* — the metric head. It takes a crop and returns a point in a space. Crops set in
+the same typeface land near each other; different typefaces land apart. Recognition then becomes a
+distance measurement instead of a lookup, which is the whole reason a deformed glyph can still be
+placed *near* its source.
 
-WHY END THE SECTION HERE: "Our solution begins here" is the deliberate handoff line.
-We have now shown (1) the problem is real, (2) the central question, (3) the gap, and
-(4) the concrete tool that fails in that gap. That failure is the door the partner's
-Section 4 walks through with the proposed solution.
+Fourth, the backbone underneath it: DINOv2, a vision transformer that already learned general
+shape features without labels, from images that were never about type. We freeze it. Its weights
+never move. Only the small head on top learns anything about typography."
 
-TERM CHEAT-SHEET:
-- "classifier" = a model that assigns an input to one of N known categories (here,
-  which of 3,474 fonts) — note: closed-set, which is part of why it can't say unknown.
-- "over-fitted / over-fitting" = a model tuned so tightly to its clean training data
-  that it fails on anything different (like our deformed crops).
--->
+**→ Transition out**
 
+"That gets us a point in a space. Now — how does the system decide whether that point is close
+enough to name a font at all?"
+
+**If probed** — All four are defined in Chapter 3: font anatomy §3.2.1, the operator *D* §3.2.3 (Eq. 3), the metric embedding and triplet loss §3.3.2 (Eqs. 4–6), the frozen encoder §3.4.2.
+
+**If probed — "why freeze the backbone?"** Two reasons: in-the-wild crops arrive with no font labels, so we cannot fine-tune on them; and a frozen encoder keeps general shape knowledge that a small font-specific network would lose. Chapter 4 §4.3.2 keeps LoRA fine-tuning off the open-set path for exactly that reason.
 
 ---
 
-<!-- _class: lead -->
-## Section 4 · Your Solution
+## S10 · Technical Background: Deciding and Refusing — 1:00
 
-*(continues — thesis partner)*
+**On screen**
+- **Open-set**: allowed to answer *"unknown"* instead of forcing a label
+- Match test: distance to nearest palette font vs. threshold **τ**, set so 95% of true in-palette crops pass
+- Shortlist calibrated by **conformal prediction** *(Shi, 2024)*
+- Candidate score under test: **energy** *E(x)* *(Hofmann, 2024)*
 
-<!-- STUDY NOTES — Section 4 handoff
+*(43 words. Figure: `assets/figures/embedding_space.png`.)*
 
-WHAT this slide is: just the transition marker. Your part (Sections 1–3: Big Picture,
-the Problem, the Gap) ends; your thesis partner takes over with Section 4 (the proposed
-solution — the metric-learning + open-set pipeline that fills the gap you just proved).
+**Say**
 
-WHAT YOU'VE ESTABLISHED by this point (the through-line to remember):
-1. Big Picture — GenAI text is unreliable and has no free font-recovery tool.
-2. Internship — we personally hit this wall building an AI-image → editable .psd pipeline.
-3. Problem Is Real — measured proof it fails, plus proof existing tools can't fix it.
-4. Statement of the Problem — the central question: read a deformed glyph AND reject
-   unknowns, over a small free-font palette.
-5. Significance & Scope — first free, open-set identifier; bounded palette on purpose.
-6. The Gap — everyone assumes a clean glyph exists to recover; we recognize THROUGH
-   the deformation instead.
-7. Five Clusters — five fields, same blind spot; contribution is the seam that joins them.
-8. Baseline — Storia-AI/WhatTheFont are strong on clean glyphs, collapse on ours.
+"You already know the system has to be able to decline. This slide is the machinery that lets it.
 
-Hand to partner cleanly: "We've shown the problem is real, unsolved, and where existing
-tools fail. [Partner] will now show how we solve it." Then stop talking.
--->
+The decision is one comparison. We measure the distance from the crop's point to the nearest font
+in the palette, and we ask whether that distance is under a threshold — tau. Under it, we name the
+font. Over it, we say unknown, and we name nothing at all.
 
+Tau is not a number we pick by feel. We calibrate it on validation data, at the cutoff where
+ninety-five per cent of crops whose font genuinely *is* in the palette get accepted. That fixes the
+trade-off in the open, and it means we can report how often an out-of-palette crop slips through.
+
+When we do name a font, we do not hand over one guess. We return a short ranked list, and conformal
+prediction sizes that list so it carries a stated confidence rather than an arbitrary top-three.
+
+And the distance itself is a design choice we are still testing. The default is embedding distance.
+The alternative in the literature is an energy score, which reads how far off-manifold an input is.
+We evaluate both at the same operating point; whichever rejects better, wins."
+
+**→ Transition out**
+
+"Naming a font is easy to claim. So the last thing to hand you is how we check whether the name was
+right."
+
+**If probed** — Open-set recognition and the rejection score are Chapter 3 §3.3.3 (Eqs. 7–8); the threshold τ and its 95%-recall calibration are Chapter 4 §4.4.2, with the false-positive rate at that operating point reported per §4.10.2; the calibrated shortlist is §4.2.2 (Shi et al., 2024 — RC3P; Ding et al., 2025).
+
+**If probed — "so which score do you actually use?"** Distance to the nearest palette font is the default and the one the framework diagram shows. Energy is a named candidate we benchmark against it — Chapter 3 §3.3.3 flags that no OOD score has been validated on typographic deformation, so deciding between them by measurement is part of the work, not a gap in it.
+
+**If probed — "an unknown could mean two things"** Correct, and we say so in Chapter 4 §4.4.2: the font may sit outside our 50–100, or the glyph may be hallucinated past recovery. Both surface identically. What the verdict guarantees is that no font is invented to fill the gap.
+
+---
+
+## S11 · Technical Background: How We Measure — 1:00
+
+**On screen**
+- **Top-1 / Top-3 accuracy** — is the true font in the shortlist *(Wang, 2015)*
+- **Re-render check** — SSIM of re-rendered prediction vs. the crop
+- **Fleiss' κ** — three raters, 2-of-3 agreement fixes the label
+- Confusion matrix by family: serif · sans · display · mono
+
+*(38 words. Figure: `assets/figures/ssim_pipeline.png`.)*
+
+**Say**
+
+"Four instruments, and none of them has produced a number yet — this is a proposal.
+
+Top-1 and Top-3 accuracy: does the true font come back first, or at least in the shortlist. That is
+DeepFont's protocol from 2015, and we keep it so our results are comparable to the field's.
+
+The re-render check: we take the font we predicted, render the same word in it, and score how
+closely that rendering matches the original crop structurally, using SSIM. It answers a different
+question from accuracy — not *was the label right*, but *does the answer actually look like the
+input*.
+
+Fleiss' kappa: our ground truth for real generative crops comes from three typographers who label
+the same hundred crops independently, blind to each other and to the model. Two of three must agree
+before a label is fixed, and kappa is the number that tells you how much they agreed overall. We
+report it whatever it says.
+
+And the confusion matrix, broken down by family. If we get a font wrong, we want to know whether we
+missed inside the serif family or jumped from a serif to a monospace. Those are not equally bad
+errors, and the matrix is what makes the difference visible."
+
+**→ Transition out**
+
+"That is the vocabulary and that is the yardstick. Matt will now take you through the system
+itself."
+
+*Then stop talking.*
+
+**If probed** — Top-K is Chapter 4 §4.2.2 (Wang et al., 2015); the structural-similarity metrics are Chapter 3 §3.4.4 (Eq. 11) with the deformation-robust successors DeepSSIM and SAMScore; the human-proxy rubric and its 2-of-3 rule are §4.2.3; validation and the family-weighted severity index are §4.10.2 (Chen et al., 2026).
+
+**If probed — "three raters is not many"** Agreed, and we list it as a limitation on S7. It is an accuracy floor and a proxy for what a person can tell, not authoritative ground truth, and we will not present it as one. The bound is expert effort: a hundred crops labeled by three people is three hundred independent judgments.
+
+---
+
+## Delivery reminders
+
+- Read **S4** (the question) and the final sentence of **S8** (the blind spot) verbatim and slowly. They are the spine.
+- The pause after S4 is deliberate. Let the question sit before moving to S5.
+- **S9–S11 change register.** S1–S8 argue; S9–S11 explain. Slow down, drop the persuasion, and say each term once, plainly. If the panel is nodding, move — do not elaborate.
+- Every S9–S11 claim has a chapter section printed in its **If probed** line. If a panelist reaches for the document, name the section rather than paraphrasing it again.
+- Gold Standard Rule (`../requirements.md`): the panel grades coachability. Take feedback gratefully — a flawed proposal defended graciously beats a perfect one defended defensively.
+- Fill the defense date on the title slide before export.
+
+---
+
+## Appendix — pending PPTX corrections outside this script
+
+Not talk track. These are deck↔chapter mismatches found while writing S9–S11, and they sit in
+**Matt's half**, so they are recorded here only to be handed over. Each is a line a cross-checking
+panelist lands on.
+
+| Slide | Currently says | Chapter says | Change to |
+|---|---|---|---|
+| The Solution (Energy/RC3P) | "Energy Score Bouncer" | Ch4 §4.4.2 decides with distance vs. calibrated **τ**; energy is surveyed literature in Ch3 §3.3.3 | "Rejects with a calibrated threshold **τ**; **energy score** *E(x)* benchmarked as an alternative *(Hofmann, 2024)*" — now backed by Ch4 §4.10.2 |
+| The Solution (Energy/RC3P) | "RC3P Conformal Prediction" | Ch4 §4.2.2 — Shi et al. (2024) *is* RC3P | Content is right; add the citation *(Shi, 2024)* |
+| Methodology (synthetic data) | "DINOV2-ViTB/24" | Ch4 §4.3.1: **ViT-B/14** | Typo — the patch size is 14 |
+| If NOT Answered | "how ti looks" | — | "how it looks" |
+| The Gap | `et. al.,` between two sources | — | Short form `*(Author, Year; Author, Year)*`, matching S3 |
+
+`chapters/04-methodology/draft.md` §4.10.2 has already been amended to name the energy score as a
+benchmarked alternative, so the first row is now safe to say out loud. The rest are deck-side only.
