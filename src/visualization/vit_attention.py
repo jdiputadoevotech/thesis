@@ -34,10 +34,10 @@ def create_figure():
         px = gx + c * step + step / 2
         py = gy + gs - (r * step + step / 2)
         patch_centers.append((px, py))
-        ax.text(px, py, f"P{i + 1}", fontsize=8, weight="bold",
+        ax.text(px, py, f"P{i + 1}", fontsize=10.5, weight="bold",
                 color=COLORS["muted"], ha="center", va="center", zorder=5)
     ax.text(gx + gs / 2, gy - 0.35, "Input glyph crop\nsplit into 3 × 3 patches",
-            fontsize=9, weight="bold", ha="center", va="top")
+            fontsize=12, weight="bold", ha="center", va="top")
 
     # ---------------- Patch tokens + position embeddings ----------------------
     tok_x, tok_w, tok_h = 4.35, 0.75, 0.30
@@ -52,9 +52,9 @@ def create_figure():
                                      fc=COLORS["orange"], ec="none", zorder=3))
         ax.text(tok_x + tok_w + 0.35, y, "+", fontsize=8, weight="bold",
                 color="white", ha="center", va="center", zorder=4)
-    ax.text(tok_x + 0.55, 0.95, "Linear projection", fontsize=8.5,
+    ax.text(tok_x + 0.55, 1.0, "Linear projection", fontsize=11.5,
             ha="center", va="top", weight="bold")
-    ax.text(tok_x + 0.55, 0.60, "+ position embedding", fontsize=8.5,
+    ax.text(tok_x + 0.55, 0.62, "+ position embedding", fontsize=11.5,
             ha="center", va="top", weight="bold", color=COLORS["orange"])
 
     cy = ys[4]
@@ -66,10 +66,10 @@ def create_figure():
         (bx0, by0), bx1 - bx0, by1 - by0, boxstyle="round,pad=0.04",
         fc="#FBFCFE", ec=COLORS["teal"], lw=1.6, zorder=2))
     bcx = (bx0 + bx1) / 2
-    ax.text(bcx, by1 - 0.35, "Transformer encoder block", fontsize=10.5,
+    ax.text(bcx, by1 - 0.35, "Transformer encoder block", fontsize=13,
             weight="bold", color=COLORS["teal"], ha="center", zorder=4)
-    ax.text(bcx, by1 - 0.72, "each token projects to queries Q, keys K, values V",
-            fontsize=8, color=COLORS["muted"], ha="center", zorder=4)
+    ax.text(bcx, by1 - 0.75, "each token projects to queries Q, keys K, values V",
+            fontsize=10, color=COLORS["muted"], ha="center", zorder=4)
 
     # 9x9 attention matrix
     rng = np.random.RandomState(3)
@@ -91,15 +91,15 @@ def create_figure():
                                     fc="none", ec=COLORS["teal"], lw=1.7, zorder=5))
     for idx in (0, 4, 8):
         ax.text(mx0 + idx * cell + cell / 2, my1 - 9 * cell - 0.12, f"P{idx + 1}",
-                fontsize=6.5, color=COLORS["muted"], ha="center", va="top", zorder=4)
+                fontsize=8.5, color=COLORS["muted"], ha="center", va="top", zorder=4)
         ax.text(mx0 - 0.12, my1 - idx * cell - cell / 2, f"P{idx + 1}",
-                fontsize=6.5, color=COLORS["muted"], ha="right", va="center", zorder=4)
-    ax.text(bcx, my1 - 9 * cell - 0.42, "keys (patch index)", fontsize=7.5,
+                fontsize=8.5, color=COLORS["muted"], ha="right", va="center", zorder=4)
+    ax.text(bcx, my1 - 9 * cell - 0.46, "keys (patch index)", fontsize=10,
             color=COLORS["muted"], ha="center", va="top", zorder=4)
-    ax.text(mx0 - 0.55, my1 - 4.5 * cell, "queries", fontsize=7.5,
+    ax.text(mx0 - 0.62, my1 - 4.5 * cell, "queries", fontsize=10,
             color=COLORS["muted"], ha="center", va="center", rotation=90, zorder=4)
     ax.text(bcx, by0 + 0.42, r"$A = \mathrm{softmax}(QK^{\top}/\sqrt{d_k})$",
-            fontsize=10, ha="center", va="center", zorder=4)
+            fontsize=12, ha="center", va="center", zorder=4)
 
     # ---------------- Contextualized output tokens ----------------------------
     out_x = 12.5
@@ -112,18 +112,18 @@ def create_figure():
             fc=COLORS["teal"] if is_p5 else COLORS["box"],
             ec=COLORS["teal"] if is_p5 else COLORS["ink"],
             lw=1.4 if is_p5 else 0.9, zorder=3))
-    ax.text(out_x + tok_w / 2, 0.95, "Contextualized\noutput embeddings",
-            fontsize=8.5, weight="bold", color=COLORS["teal"],
+    ax.text(out_x + tok_w / 2, 1.0, "Contextualized\noutput embeddings",
+            fontsize=11.5, weight="bold", color=COLORS["teal"],
             ha="center", va="top")
     ax.annotate("P5 aggregates stroke\nfeatures from P1 and P9",
-                xy=(out_x + tok_w + 0.10, ys[4]), xytext=(13.35, 6.55),
-                fontsize=8.5, weight="bold", color=COLORS["teal"],
+                xy=(out_x + tok_w + 0.10, ys[4]), xytext=(13.25, 6.55),
+                fontsize=10.5, weight="bold", color=COLORS["teal"],
                 ha="left", va="center", zorder=5,
                 arrowprops=dict(arrowstyle="->", color=COLORS["teal"], lw=1.2,
                                 connectionstyle="arc3,rad=-0.25"))
 
     ax.set_title("Patch embedding and multi-head self-attention in a Vision Transformer",
-                 weight="bold", pad=10)
+                 weight="bold", pad=10, fontsize=14)
     save_figure(fig, "vit_attention")
     plt.close(fig)
 

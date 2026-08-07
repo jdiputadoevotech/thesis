@@ -23,16 +23,16 @@ def create_figure():
     apply_style()
     fig, ax = plt.subplots(figsize=(13, 5.2))
     ax.set_xlim(0, 15.8)
-    ax.set_ylim(0.4, 6.4)
+    ax.set_ylim(0.1, 6.4)
     ax.set_aspect("equal")
     ax.axis("off")
     cy = 4.35
-    label_y = 1.55
+    label_y = 1.6
 
     def label(x, title, sub):
-        ax.text(x, label_y, title, fontsize=9, weight="bold", ha="center", va="top")
-        ax.text(x, label_y - 0.42, sub, fontsize=8, ha="center", va="top",
-                color=COLORS["muted"], linespacing=1.35)
+        ax.text(x, label_y, title, fontsize=13, weight="bold", ha="center", va="top")
+        ax.text(x, label_y - 0.52, sub, fontsize=11, ha="center", va="top",
+                color=COLORS["muted"], linespacing=1.3)
 
     # --- Input glyph crop -----------------------------------------------------
     in_sz = 2.3
@@ -46,7 +46,7 @@ def create_figure():
     kx, ky, ks = 1.05, cy + 0.42, 0.52
     ax.add_patch(mpatches.Rectangle((kx, ky), ks, ks, fc="none",
                                     ec=COLORS["rose"], lw=1.4, zorder=5))
-    ax.text(kx + ks / 2, cy + in_sz / 2 + 0.14, "5×5 kernel", fontsize=7.5,
+    ax.text(kx + ks / 2, cy + in_sz / 2 + 0.14, "5×5 kernel", fontsize=10.5,
             color=COLORS["rose"], ha="center", va="bottom", weight="bold", zorder=5)
 
     # --- Conv1 / Pool1 / Conv2 / Pool2 ---------------------------------------
@@ -76,7 +76,10 @@ def create_figure():
     for y in fc_ys:
         ax.plot(fc_x, y, "o", ms=5.5, mfc=COLORS["box"], mec=COLORS["ink"],
                 mew=0.9, zorder=3)
-    label(fc_x, "Fully connected", "flatten → dense")
+    ax.text(fc_x, label_y, "Fully\nconnected", fontsize=13, weight="bold",
+            ha="center", va="top", linespacing=1.15)
+    ax.text(fc_x, label_y - 1.0, "flatten → dense", fontsize=11, ha="center",
+            va="top", color=COLORS["muted"])
 
     # --- Embedding vector -----------------------------------------------------
     em_x = 14.5
@@ -87,10 +90,10 @@ def create_figure():
         fc="white", ec=COLORS["teal"], lw=1.4, zorder=2))
     for y in em_ys:
         ax.plot(em_x, y, "o", ms=5.5, mfc=COLORS["teal"], mec=COLORS["teal"], zorder=3)
-    ax.text(em_x, label_y, "Embedding", fontsize=9, weight="bold",
+    ax.text(em_x, label_y, "Embedding", fontsize=13, weight="bold",
             ha="center", va="top", color=COLORS["teal"])
-    ax.text(em_x, label_y - 0.42, "128-D font-style\nmetric space", fontsize=8,
-            ha="center", va="top", color=COLORS["muted"], linespacing=1.35)
+    ax.text(em_x, label_y - 0.52, "128-D font-style\nmetric space", fontsize=11,
+            ha="center", va="top", color=COLORS["muted"], linespacing=1.3)
 
     # dense connections FC -> embedding
     for y1 in fc_ys:
@@ -104,7 +107,7 @@ def create_figure():
         draw_arrow(ax, (x0, cy), (x1, cy), lw=1.5)
 
     ax.set_title("Convolutional feature hierarchy for glyph-style encoding",
-                 weight="bold", pad=10)
+                 weight="bold", pad=10, fontsize=14)
     save_figure(fig, "cnn_block")
     plt.close(fig)
 

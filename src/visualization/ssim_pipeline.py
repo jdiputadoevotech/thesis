@@ -55,9 +55,9 @@ def create_figure():
         for s in axp.spines.values():
             s.set_color(edge)
             s.set_linewidth(1.6)
-        axp.text(0.5, 1.155, title, transform=axp.transAxes, fontsize=10,
+        axp.text(0.5, 1.19, title, transform=axp.transAxes, fontsize=13,
                  weight="bold", ha="center", va="bottom")
-        axp.text(0.5, 1.05, sub, transform=axp.transAxes, fontsize=8.5,
+        axp.text(0.5, 1.05, sub, transform=axp.transAxes, fontsize=11,
                  ha="center", va="bottom", color=COLORS["muted"])
 
     # ---- SSIM score card -----------------------------------------------------
@@ -67,13 +67,14 @@ def create_figure():
     ax4.add_patch(mpatches.FancyBboxPatch((0.03, 0.02), 0.94, 0.96,
                                           boxstyle="round,pad=0.03",
                                           fc=COLORS["box"], ec=COLORS["teal"], lw=1.5))
-    ax4.text(0.5, 0.86, "SSIM score", fontsize=11, weight="bold", ha="center")
-    ax4.text(0.5, 0.60, "0.742", fontsize=27, weight="bold", ha="center",
+    ax4.text(0.5, 0.86, "SSIM score", fontsize=13, weight="bold", ha="center")
+    ax4.text(0.5, 0.60, "0.742", fontsize=30, weight="bold", ha="center",
              color=COLORS["teal"])
     ax4.plot([0.18, 0.82], [0.47, 0.47], color=COLORS["grid"], lw=1)
     ax4.text(0.5, 0.40, "luminance   0.981\ncontrast      0.912\nstructure    0.828",
-             fontsize=8.5, ha="center", va="top", color=COLORS["muted"], linespacing=1.6)
-    ax4.text(0.5, 0.07, "(illustrative values)", fontsize=7, style="italic",
+             fontsize=10.5, ha="center", va="top", color=COLORS["muted"],
+             linespacing=1.5)
+    ax4.text(0.5, 0.05, "(illustrative values)", fontsize=8.5, style="italic",
              ha="center", color=COLORS["muted"])
 
     # ---- Flow arrows (figure coordinates, from realized axes positions) ------
@@ -87,13 +88,13 @@ def create_figure():
             mutation_scale=15, color=color, lw=1.5))
 
     harrow(p1.x1 + 0.008, p2.x0 - 0.008, ymid)
-    fig.text((p1.x1 + p2.x0) / 2, ymid + 0.045, "predict font,\nre-render",
-             fontsize=8.5, weight="bold", ha="center", va="bottom")
-    fig.text((p1.x1 + p2.x0) / 2, ymid - 0.045, "“Georgia”", fontsize=8.5,
+    fig.text((p1.x1 + p2.x0) / 2, ymid + 0.05, "predict font,\nre-render",
+             fontsize=10.5, weight="bold", ha="center", va="bottom")
+    fig.text((p1.x1 + p2.x0) / 2, ymid - 0.05, "“Georgia”", fontsize=10.5,
              weight="bold", color=COLORS["teal"], ha="center", va="top")
 
     harrow(p2.x1 + 0.008, p3.x0 - 0.008, ymid)
-    fig.text((p2.x1 + p3.x0) / 2, ymid + 0.045, "compare", fontsize=8.5,
+    fig.text((p2.x1 + p3.x0) / 2, ymid + 0.05, "compare", fontsize=10.5,
              weight="bold", ha="center", va="bottom")
 
     harrow(p3.x1 + 0.008, p4.x0 - 0.008, ymid)
@@ -104,11 +105,11 @@ def create_figure():
         transform=fig.transFigure, arrowstyle="-|>", mutation_scale=13,
         color=COLORS["muted"], lw=1.2, connectionstyle="arc3,rad=-0.12"))
     fig.text((p1.x1 + p3.x0) / 2 + 0.02, p1.y0 - 0.115,
-             r"SSIM$(\tilde{x},\, x)$ over local windows", fontsize=8.5,
+             r"SSIM$(\tilde{x},\, x)$ over local windows", fontsize=10.5,
              color=COLORS["muted"], ha="center")
 
     fig.suptitle("Re-render-and-compare evaluation via structural similarity (SSIM)",
-                 fontsize=12.5, weight="bold", y=0.97)
+                 fontsize=14, weight="bold", y=0.985)
     save_figure(fig, "ssim_pipeline")
     plt.close(fig)
 

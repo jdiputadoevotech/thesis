@@ -6,7 +6,7 @@ IEEE 830 / ISO·IEC·IEEE 29148 Format
 
 **Addressing Typographic Hallucination in Generative AI Images: An Open-Set Metric Learning Approach to Font Style Recognition**
 
-Version 1.1 · July 26, 2026
+Version 1.2 · August 3, 2026
 
 By
 Janritch Diputado
@@ -21,6 +21,7 @@ Faculty Adviser
 | :--- | :--- | :--- | :--- |
 | 2026-07-16 | 1.0 | Initial thesis-scoped SRS | Research team |
 | 2026-07-26 | 1.1 | Restructured to the IEEE 830 capstone template; adviser format revisions | Research team |
+| 2026-08-03 | 1.2 | Post-defense revisions: word-level localization, mixed-typography verdict, word-merge presentation | Research team |
 
 ## 1. Introduction
 
@@ -58,9 +59,9 @@ FontID is a **new, self-contained** front end over an existing trained model; it
 ### 2.2 Product Functions
 
 - Accept a GenAI image by drag-drop, file browse, or a bundled sample — drawn from a pool of at least 10 real AI-generated demo images, never part of any training data, with 3 offered at random each start-up.
-- Localize the text region(s) in the image and crop each one.
-- Embed each crop and rank it against the font palette.
-- Return a Top-K shortlist per crop with a similarity score, or reject it as out-of-palette.
+- Localize the text in the image at word granularity and crop each word.
+- Embed each crop, check it for font homogeneity, and rank it against the font palette.
+- Return a Top-K shortlist per crop with a similarity score, reject it as out-of-palette, or report it as mixed typography; adjacent words with the same verdict merge into one result.
 - Render each candidate font as a live preview of the detected text for visual confirmation.
 
 ### 2.3 User Classes and Characteristics
@@ -97,7 +98,7 @@ Single page, three vertically stacked zones (wireframe below):
 
 1. **Input** — a drag-drop/browse dropzone, sample thumbnails, and an **Identify Fonts** action.
 2. **Processing** — the uploaded image with detected text regions boxed, plus a pipeline status/progress indicator.
-3. **Results** — a carousel showing one card at a time per detected crop, navigated with previous/next arrows, a region indicator ("Region 1 of 2"), and pagination dots. Each card holds the crop thumbnail, its Top-K font shortlist (name · preview · similarity bar), and a **KNOWN / UNKNOWN** badge for the open-set decision.
+3. **Results** — a carousel showing one card at a time per detected crop, navigated with previous/next arrows, a region indicator ("Region 1 of 2"), and pagination dots. Each card holds the crop thumbnail, its Top-K font shortlist (name · preview · similarity bar), and a **KNOWN / UNKNOWN / MIXED** badge for the open-set decision.
 
 The interface shall work at desktop widths and keep all three zones reachable on one page. Standard affordances: every result font preview offers a copy-name / preview action.
 
@@ -160,16 +161,17 @@ The backend finds text regions and prepares each crop for matching. Priority: **
 
 | ID | Requirement Description | Priority |
 | :--- | :--- | :--- |
-| REQ-4.2-1 | The system shall detect one or more text regions and crop each region for independent matching. | High |
+| REQ-4.2-1 | The system shall localize text at word granularity (one bounding box per word) and crop each word for independent matching. | High |
 | REQ-4.2-2 | The system shall preprocess each crop (square-pad → 224² → normalize) inside the model forward pass. | High |
 | REQ-4.2-3 | The system shall show processing status/progress and detected-region boxes while inference runs. | Med |
 | REQ-4.2-4 | The system should return an informative error if no text region is found. | Med |
+| REQ-4.2-5 | The system shall check each crop for font homogeneity using the encoder's patch-level features; a flagged crop shall be split once at the detected boundary and each half matched independently. | High |
 
 ### 4.3 Font Matching and Top-K Results
 
 #### 4.3.1 Description and Priority
 
-For each crop, the system ranks the palette and decides known vs. unknown. Priority: **High**.
+For each crop, the system ranks the palette and decides known, unknown, or mixed typography. Priority: **High**.
 
 #### 4.3.2 Stimulus/Response Sequences
 
@@ -181,9 +183,10 @@ Embedding is compared to the palette → if best similarity ≥ τ, return the r
 | :--- | :--- | :--- |
 | REQ-4.3-1 | The system shall return a Top-K (K = 3) ranked shortlist of Google Fonts per crop, each with a similarity score. | High |
 | REQ-4.3-2 | The system shall reject a crop as "unknown / out-of-palette" when its best similarity falls below threshold τ (open-set). | High |
-| REQ-4.3-3 | The system shall present each crop's result as its own card in a carousel with previous/next navigation and a region indicator (e.g., "Region 1 of 2"), each card labeled KNOWN or UNKNOWN. | High |
+| REQ-4.3-3 | The system shall present each result as its own card in a carousel with previous/next navigation and a region indicator (e.g., "Region 1 of 2"), each card labeled KNOWN, UNKNOWN, or MIXED. | High |
 | REQ-4.3-4 | The system should report a typographic-distance (SSIM) score between the crop and the top match. | Low |
 | REQ-4.3-5 | The backend should log each crop's similarity scores and its threshold (τ) decision for researcher analysis; these diagnostics are not shown in the user interface. | Low |
+| REQ-4.3-6 | The system shall report a crop that remains font-inhomogeneous after one split as "mixed typography" rather than assigning a single font, and shall merge adjacent word crops that share the same verdict into one region card. | High |
 
 ### 4.4 Font Preview
 
@@ -256,6 +259,7 @@ As a single-user local demo the app has no authentication and no persistence; no
 | Typographic hallucination | Probabilistic glyph deformation (warping, kerning jitter, smear) that GenAI introduces into rendered text. |
 | Palette | The curated closed set of 50–100 known Google Fonts the model can name. |
 | Open-set / reject | Returning "unknown" when a crop's best match falls below threshold **τ**, instead of forcing a wrong label. |
+| Mixed typography | Verdict for a crop whose patch-level features indicate more than one typeface and that stays inhomogeneous after one split; no single font is assigned. |
 | Top-K | The K highest-ranked font candidates for one text crop (K = 3 in the demo). |
 | Embedding | The fixed-length style vector produced by the DINOv2 encoder + metric head. |
 | SSIM | Structural Similarity Index — re-render score between the input crop and the predicted font. |

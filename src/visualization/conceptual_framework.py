@@ -65,13 +65,15 @@ def create_figure():
     for cx, t, s in [
         (2.7, "Google Fonts palette", "50–100 typefaces\n4 family classes"),
         (6.4, "Render pristine words", "clean text crops\nfont of each is known"),
-        (10.1, "Degradation  $D$", "warp · blur · noise\nkerning jitter"),
+        (10.1, "Degradation  $D$", "warp · blur · noise · kerning jitter\n"
+         "corpus keeps both the pristine\ncrops and their degraded copies"),
     ]:
-        draw_box(ax, cx, 12.5, 3.4, 1.05, t, s, fs=9.5, sub_fs=7.2, **DIM)
+        draw_box(ax, cx, 12.5, 3.4, 1.35, t, s, fs=9.5, sub_fs=7.2, **DIM)
     for x0, x1 in [(4.4, 4.7), (8.1, 8.4)]:
         draw_arrow(ax, (x0, 12.5), (x1, 12.5), lw=1.4)
 
-    # degraded crops feed both the teacher and the student
+    # the full corpus — pristine renders AND their degraded look-alikes —
+    # feeds both the teacher and the student
     ax.plot([11.8, 13.15], [12.5, 12.5], color=COLORS["ink"], lw=1.4,
             zorder=2)
     ax.plot([13.15, 13.15], [11.5, 13.45], color=COLORS["ink"], lw=1.4,
