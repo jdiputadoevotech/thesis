@@ -130,7 +130,7 @@ def create_figure():
             ha="left", va="top", fontsize=7, color=muted, style="italic",
             zorder=4)
 
-    ax.text(17.4, 11.7, "Which palette font is the closest match to this crop?",
+    ax.text(17.4, 11.7, "Q1 · Which palette font is the closest match to this crop?",
             ha="left", va="center", fontsize=9.5, weight="bold", color=ink,
             zorder=4)
     ax.text(30.6, 11.7, "* required", ha="right", va="center", fontsize=7.5,
@@ -152,14 +152,26 @@ def create_figure():
     ax.text(18.2, 8.8, "Choose this when the lettering is too deformed, or the font is clearly outside the palette.",
             ha="left", va="center", fontsize=7.3, color=muted, zorder=4)
 
-    rrect(ax, 17.4, 6.6, 3.0, 0.9, "white", muted, lw=1.1, z=3)
-    ax.text(18.9, 7.05, "←  Back", ha="center", va="center", fontsize=9,
+    # Q2 — coherence judgment (one typeface or more?)
+    ax.text(17.4, 8.15, "Q2 · Does this crop use one typeface throughout?",
+            ha="left", va="center", fontsize=9.5, weight="bold", color=ink,
+            zorder=4)
+    ax.text(30.6, 8.15, "* required", ha="right", va="center", fontsize=7.5,
+            color=rose, zorder=4)
+    for x, t in [(17.75, "One"), (20.1, "More than one"), (24.6, "Cannot tell")]:
+        ax.plot(x, 7.6, marker="o", markersize=8, mfc="white", mec=muted,
+                mew=1.3, zorder=4)
+        ax.text(x + 0.4, 7.6, t, ha="left", va="center", fontsize=8.5,
+                color=ink, zorder=4)
+
+    rrect(ax, 17.4, 6.3, 3.0, 0.9, "white", muted, lw=1.1, z=3)
+    ax.text(18.9, 6.75, "←  Back", ha="center", va="center", fontsize=9,
             weight="bold", color=muted, zorder=4)
-    rrect(ax, 26.4, 6.6, 4.2, 0.9, teal, teal, lw=1.2, z=3)
-    ax.text(28.5, 7.05, "Save & next  →", ha="center", va="center",
+    rrect(ax, 26.4, 6.3, 4.2, 0.9, teal, teal, lw=1.2, z=3)
+    ax.text(28.5, 6.75, "Save & next  →", ha="center", va="center",
             fontsize=9.5, weight="bold", color="white", zorder=4)
 
-    ax.text(17.4, 5.6, "Each answer saves on “Save & next”; you may close the tab and resume where you left off.",
+    ax.text(17.4, 5.4, "Each answer saves on “Save & next”; you may close the tab and resume where you left off.",
             ha="left", va="center", fontsize=7.3, color=muted, style="italic",
             zorder=4)
 
