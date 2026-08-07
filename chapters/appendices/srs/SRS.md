@@ -98,7 +98,7 @@ Single page, three vertically stacked zones (wireframe below):
 
 1. **Input** — a drag-drop/browse dropzone, sample thumbnails, and an **Identify Fonts** action.
 2. **Processing** — the uploaded image with detected text regions boxed, plus a pipeline status/progress indicator.
-3. **Results** — a carousel showing one card at a time per detected crop, navigated with previous/next arrows, a region indicator ("Region 1 of 2"), and pagination dots. Each card holds the crop thumbnail, its Top-K font shortlist (name · preview · similarity bar), and a **KNOWN / UNKNOWN / MIXED** badge for the open-set decision.
+3. **Results** — a carousel showing one card at a time per result region, adjacent word crops sharing a verdict having been merged into one, navigated with previous/next arrows, a region indicator ("Region 1 of 2"), and pagination dots. Each card holds the crop thumbnail, its Top-K font shortlist (name · preview · similarity bar), and a **KNOWN / UNKNOWN / MIXED** badge for the open-set decision.
 
 The interface shall work at desktop widths and keep all three zones reachable on one page. Standard affordances: every result font preview offers a copy-name / preview action.
 
@@ -106,7 +106,7 @@ The interface shall work at desktop widths and keep all three zones reachable on
 
 *FontID Single-Page Wireframe (Input → Processing → Results)*
 
-![FontID single-page wireframe with three stacked zones: an upload dropzone with sample thumbnails, a processing zone showing detected text regions and pipeline status, and a results carousel of per-region cards](../../../assets/figures/app_wireframe.png)
+![FontID single-page wireframe with three stacked zones: an upload dropzone with sample thumbnails, a processing zone showing detected text regions and a pipeline checklist that includes the font-homogeneity check, and a results carousel of per-region cards whose badge carries one of the three verdicts KNOWN, UNKNOWN, or MIXED](../../../assets/figures/app_wireframe.png)
 
 *Note.* Three-zone single page. Results are a carousel, one card per detected region: Region 1 accepts (Top-3 in palette); Region 2, reached with the next arrow, is rejected as out-of-palette (max similarity < τ), demonstrating open-set behavior.
 
@@ -162,7 +162,7 @@ The backend finds text regions and prepares each crop for matching. Priority: **
 | ID | Requirement Description | Priority |
 | :--- | :--- | :--- |
 | REQ-4.2-1 | The system shall localize text at word granularity (one bounding box per word) and crop each word for independent matching. | High |
-| REQ-4.2-2 | The system shall preprocess each crop (square-pad → 224² → normalize) inside the model forward pass. | High |
+| REQ-4.2-2 | The system shall preprocess each crop (square-pad → 224² → grayscale → normalize) inside the model forward pass. | High |
 | REQ-4.2-3 | The system shall show processing status/progress and detected-region boxes while inference runs. | Med |
 | REQ-4.2-4 | The system should return an informative error if no text region is found. | Med |
 | REQ-4.2-5 | The system shall check each crop for font homogeneity using the encoder's patch-level features; a flagged crop shall be split once at the detected boundary and each half matched independently. | High |
@@ -262,6 +262,7 @@ As a single-user local demo the app has no authentication and no persistence; no
 | Mixed typography | Verdict for a crop whose patch-level features indicate more than one typeface and that stays inhomogeneous after one split; no single font is assigned. |
 | Top-K | The K highest-ranked font candidates for one text crop (K = 3 in the demo). |
 | Embedding | The fixed-length style vector produced by the DINOv2 encoder + metric head. |
+| Prototype | One reference embedding per palette font, the average of that font's training crops; a match is scored against the prototypes, not against raw examples. |
 | SSIM | Structural Similarity Index — re-render score between the input crop and the predicted font. |
 
 ## Appendix B: Analysis Models

@@ -63,11 +63,11 @@ def create_figure():
     ax.text(8.0, 7.95, "PyTorch inference service", ha="center", va="center",
             fontsize=11, weight="bold", color=COLORS["teal"], zorder=4)
     steps = [
-        (7.3, "Text localization", "off-the-shelf · crop each region", COLORS["box"], COLORS["muted"]),
-        (6.35, "Preprocessing", "224² · normalize", COLORS["box"], COLORS["ink"]),
-        (5.4, "Frozen DINOv2 encoder", "self-supervised patch features", COLORS["teal_bg"], COLORS["teal"]),
+        (7.3, "Text localization", "off-the-shelf · one crop per word", COLORS["box"], COLORS["muted"]),
+        (6.35, "Preprocessing", "square-pad · 224² · grayscale · normalize", COLORS["box"], COLORS["ink"]),
+        (5.4, "Frozen DINOv2 encoder", "patch features · homogeneity check", COLORS["teal_bg"], COLORS["teal"]),
         (4.45, "Metric head  $f_\\theta$", "font-style embedding", COLORS["blue_bg"], COLORS["blue"]),
-        (3.5, "Open-set decision + Top-K", "reject unknown · rank palette", COLORS["orange_bg"], COLORS["orange"]),
+        (3.5, "Open-set decision + Top-K", "rank palette · reject unknown · flag mixed", COLORS["orange_bg"], COLORS["orange"]),
     ]
     for cy, t, s, fc, ec in steps:
         draw_box(ax, 8.0, cy, 5.9, 0.74, t, s, fc=fc, ec=ec, tc=ec,
@@ -99,8 +99,9 @@ def create_figure():
     ax.plot([10.95, 13.6, 13.6], [3.5, 3.5, 11.8], color=COLORS["teal"],
             lw=1.4, zorder=1)
     draw_arrow(ax, (13.6, 11.8), (11.7, 11.8), lw=1.4, color=COLORS["teal"])
-    ax.text(13.8, 7.0, "Top-K fonts / unknown\n+ rendered previews", ha="left",
-            va="center", fontsize=8.5, color=COLORS["teal"], style="italic")
+    ax.text(13.8, 7.0, "Top-K fonts /\nunknown / mixed\n+ rendered previews",
+            ha="left", va="center", fontsize=8.5, color=COLORS["teal"],
+            style="italic")
 
     # ---- resource feeds (dashed, elbows only) ----
     _dashed_line(ax, [3.5, 3.5], [1.95, 5.4], COLORS["muted"])

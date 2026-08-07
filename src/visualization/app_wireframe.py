@@ -94,10 +94,11 @@ def create_figure():
     ax.text(8.95, 16.15, "Pipeline", ha="left", va="center", fontsize=8.5,
             weight="bold", color=muted, zorder=4)
     steps = [
-        ("●", "Text localization  ·  2 regions found", teal, 15.55),
-        ("●", "Preprocess  ·  square-pad → 224² → normalize", teal, 15.05),
-        ("●", "DINOv2 encoder  ·  extract embedding", orange, 14.55),
-        ("○", "Metric head + open-set match  ·  rank palette", muted, 14.05),
+        ("●", "Text localization  ·  4 word crops found", teal, 15.55),
+        ("●", "Preprocess  ·  square-pad → 224² → gray → normalize", teal, 15.05),
+        ("●", "DINOv2 encoder  ·  embedding + patch tokens", orange, 14.65),
+        ("●", "Homogeneity check  ·  one font per crop?", orange, 14.25),
+        ("○", "Metric head + open-set match  ·  rank palette", muted, 13.85),
     ]
     for mark, label, col, yy in steps:
         ax.text(8.95, yy, mark, ha="left", va="center", fontsize=9, weight="bold",
@@ -108,7 +109,7 @@ def create_figure():
             color=muted, zorder=4)
 
     # ==== ZONE 3 — RESULTS (carousel: one card per detected region) ====
-    ax.text(1.7, 11.05, "3  Results — one card per detected text region",
+    ax.text(1.7, 11.05, "3  Results — one card per region (adjacent words merged)",
             ha="left", va="center", fontsize=10.5, weight="bold", color=teal, zorder=4)
 
     # main card: Region 1 (accepted)
@@ -123,6 +124,10 @@ def create_figure():
           lw=1.0, z=3)
     ax.text(cx0 + 1.85, cy0 + 0.625, "KNOWN — in palette", ha="center",
             va="center", fontsize=6.8, weight="bold", color=teal, zorder=4)
+    # the badge carries one of three verdicts; this card shows the accepted one
+    ax.text(cx0 + 3.7, cy0 + 0.625, "badge states:  KNOWN  ·  UNKNOWN  ·  MIXED",
+            ha="left", va="center", fontsize=7, color=muted, style="italic",
+            zorder=4)
     rx, ry = cx0 + 3.7, cy0 + chh - 0.75
     ax.text(rx, ry + 0.35, "Top-3 candidates", ha="left", va="center",
             fontsize=7.5, weight="bold", color=muted, zorder=4)

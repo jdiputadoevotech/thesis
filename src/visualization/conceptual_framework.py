@@ -4,9 +4,11 @@ grid:
 
   BEFORE DEPLOYMENT  (dashed)  palette -> render -> degrade -> teacher
                                -> student -> trained model (f_theta, tau)
-  AT USE             (solid)   AI image -> localize -> per crop: prepare ->
-                               frozen ViT -> student head -> match test ->
-                               Top-K shortlist or "unknown font"
+  AT USE             (solid)   AI image -> localize (one box per word) ->
+                               per crop: prepare -> frozen ViT (+ homogeneity
+                               check) -> student head -> match test ->
+                               Top-K shortlist, "unknown font", or
+                               "mixed typography"
   HOW WE MEASURE IT  (dashed)  Top-K accuracy, re-render check, human panel
                                — researcher instruments, never user-facing
 
@@ -99,7 +101,7 @@ def create_figure():
 
     # Trained model, aligned above the runtime metric head for a straight drop.
     draw_box(ax, 11.2, 10.5, 3.6, 0.9, "Trained model",
-             "learned weights $f_\\theta$ · match threshold $\\tau$",
+             "weights $f_\\theta$ · prototypes · threshold $\\tau$",
              fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
              fs=10, sub_fs=7.2, lw=1.8)
     ax.plot([15.9, 15.9], [10.8, 10.5], color=COLORS["ink"], lw=1.4,
@@ -120,24 +122,23 @@ def create_figure():
              "contains rendered text with warped, uneven glyphs",
              fs=10, sub_fs=7.2, **DIM)
     draw_box(ax, 8.9, 8.55, 4.2, 0.95, "Text localization",
-             "off-the-shelf detector\nfinds and cuts out every text region",
+             "off-the-shelf detector\none bounding box per word",
              fs=10, sub_fs=7.2, **DIM)
     draw_arrow(ax, (6.25, 8.55), (6.8, 8.55), lw=1.5)
 
     ax.plot([8.9, 8.9, 2.7], [8.075, 7.7, 7.7], color=COLORS["ink"],
             lw=1.5, zorder=2)
     draw_arrow(ax, (2.7, 7.7), (2.7, 7.325), lw=1.5)
-    ax.text(5.8, 7.76, "one crop per text region · each crop handled on its own",
+    ax.text(5.8, 7.76, "one crop per word · each crop handled on its own",
             ha="center", va="bottom", fontsize=7.5, color=COLORS["muted"],
             style="italic", zorder=4)
 
     draw_box(ax, 2.7, 6.55, 4.1, 1.55, "Image preparation",
-             "resize to 224 × 224 pixels\nconvert to grayscale\n"
-             "rescale brightness values",
+             "square-pad, resize to 224 × 224\nconvert to grayscale\nnormalize",
              fs=10, sub_fs=7.0, **DIM)
     draw_box(ax, 7.4, 6.55, 4.1, 1.55, "Frozen ViT encoder",
-             "DINOv2, self-supervised\ngeneral shape features\n"
-             "weights never updated",
+             "DINOv2, self-supervised · frozen\n"
+             "patch tokens drive the\none-font homogeneity check",
              fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
              fs=10, sub_fs=7.0, lw=1.8)
     draw_box(ax, 12.1, 6.55, 4.1, 1.55, "Metric head  $f_\\theta$",
@@ -152,21 +153,32 @@ def create_figure():
     for x0, x1 in [(4.75, 5.35), (9.45, 10.05), (14.15, 14.75)]:
         draw_arrow(ax, (x0, 6.55), (x1, 6.55), lw=1.5)
 
-    # the fork: a match, or no match at all
-    ax.plot([15.5, 15.5, 9.5], [5.775, 5.35, 5.35], color=COLORS["teal"],
+    # three verdicts, each drawn under the stage that produces it: the
+    # homogeneity check exits at the encoder, the match test forks below it
+    draw_arrow(ax, (7.4, 5.775), (7.4, 5.0), lw=1.5, color=COLORS["orange"])
+    ax.text(7.6, 5.39, "patch tokens disagree — split once;\n"
+            "a half that stays mixed exits here", ha="left", va="center",
+            fontsize=7.0, color=COLORS["orange"], style="italic", zorder=4)
+
+    ax.plot([15.5, 15.5, 12.2], [5.775, 5.35, 5.35], color=COLORS["teal"],
             lw=1.5, zorder=2)
-    draw_arrow(ax, (9.5, 5.35), (9.5, 5.0), lw=1.5, color=COLORS["teal"])
-    ax.text(9.8, 5.42, "yes — close enough", ha="left", va="bottom",
+    draw_arrow(ax, (12.2, 5.35), (12.2, 5.0), lw=1.5, color=COLORS["teal"])
+    ax.text(12.5, 5.42, "yes — close enough", ha="left", va="bottom",
             fontsize=7.5, color=COLORS["teal"], style="italic", zorder=4)
     draw_arrow(ax, (18.0, 5.775), (18.0, 5.0), lw=1.5, color=COLORS["rose"])
     ax.text(18.15, 5.4, "no", ha="left", va="center", fontsize=7.5,
             color=COLORS["rose"], style="italic", zorder=4)
 
-    draw_box(ax, 9.5, 4.55, 6.4, 0.9, "Top-K Google Fonts shortlist",
-             "ranked open-source candidates · one shortlist per crop",
+    draw_box(ax, 7.4, 4.55, 4.2, 0.9, "Mixed typography",
+             "more than one typeface in one crop —\n"
+             "no single font is assigned",
+             fc=COLORS["orange_bg"], ec=COLORS["orange"], tc=COLORS["orange"],
+             fs=10, sub_fs=7.0, lw=1.8)
+    draw_box(ax, 12.2, 4.55, 4.2, 0.9, "Top-K Google Fonts shortlist",
+             "ranked open-source candidates\none shortlist per word crop",
              fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
-             fs=10, sub_fs=7.5, lw=1.8)
-    draw_box(ax, 16.75, 4.55, 4.3, 0.9, "Unknown font",
+             fs=10, sub_fs=7.0, lw=1.8)
+    draw_box(ax, 16.9, 4.55, 4.2, 0.9, "Unknown font",
              "outside the palette, or too deformed\n"
              "to match — no font is guessed",
              fc=COLORS["rose_bg"], ec=COLORS["rose"], tc=COLORS["rose"],
@@ -174,20 +186,20 @@ def create_figure():
 
     # ---- Legend (two line kinds only), in the free lower-left corner ----
     ax.add_patch(mpatches.FancyBboxPatch(
-        (0.75, 3.75), 5.2, 1.45, boxstyle="round,pad=0.02", fc="white",
+        (0.55, 3.75), 4.4, 1.45, boxstyle="round,pad=0.02", fc="white",
         ec=COLORS["muted"], lw=0.9, zorder=3))
-    ax.text(1.0, 4.97, "Legend", ha="left", va="center", fontsize=8.5,
+    ax.text(0.8, 4.97, "Legend", ha="left", va="center", fontsize=8.5,
             weight="bold", color=COLORS["ink"], zorder=4)
-    ax.annotate("", xy=(1.72, 4.5), xytext=(1.05, 4.5), zorder=5,
+    ax.annotate("", xy=(1.52, 4.5), xytext=(0.85, 4.5), zorder=5,
                 arrowprops=dict(arrowstyle="-|>", color=COLORS["ink"], lw=1.5,
                                 mutation_scale=14, shrinkA=0, shrinkB=0))
-    ax.text(1.9, 4.5, "solid: happens for every uploaded image",
+    ax.text(1.7, 4.5, "solid: every uploaded image",
             ha="left", va="center", fontsize=7.2, color=COLORS["ink"], zorder=4)
-    ax.annotate("", xy=(1.72, 4.05), xytext=(1.05, 4.05), zorder=5,
+    ax.annotate("", xy=(1.52, 4.05), xytext=(0.85, 4.05), zorder=5,
                 arrowprops=dict(arrowstyle="-|>", color=COLORS["muted"], lw=1.4,
                                 mutation_scale=14, shrinkA=0, shrinkB=0,
                                 linestyle=(0, (4, 3))))
-    ax.text(1.9, 4.05, "dashed: done by the researchers,\noutside the per-image path",
+    ax.text(1.7, 4.05, "dashed: researcher-side,\noutside the per-image path",
             ha="left", va="center", fontsize=7.2, color=COLORS["ink"], zorder=4)
 
     # ================= BAND 3 — evaluation =================
@@ -202,8 +214,8 @@ def create_figure():
          "by consensus, as the accuracy floor"),
     ]:
         draw_box(ax, cx, 1.55, 5.6, 1.15, t, s, fs=9.5, sub_fs=7.0, **DIM)
-    _dashed_arrow(ax, (9.5, 4.1), (9.5, 3.3), COLORS["muted"], lw=1.3)
-    _dashed_arrow(ax, (16.75, 4.1), (16.75, 3.3), COLORS["muted"], lw=1.3)
+    _dashed_arrow(ax, (12.2, 4.1), (10.5, 3.3), COLORS["muted"], lw=1.3)
+    _dashed_arrow(ax, (16.9, 4.1), (16.9, 3.3), COLORS["muted"], lw=1.3)
 
     ax.text(9.7, 14.62,
             "Conceptual framework of the proposed font-identification system",
