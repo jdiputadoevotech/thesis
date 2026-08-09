@@ -97,20 +97,25 @@ def create_figure():
             ha="left", va="center", fontsize=6.8, color=COLORS["muted"],
             style="italic", zorder=4)
 
-    # Trained model, aligned above the runtime metric head for a straight drop.
-    draw_box(ax, 11.2, 10.5, 3.6, 0.9, "Trained model",
+    # Trained model, left of the student stack; the startup drop elbows over
+    # to land on the runtime metric head.
+    draw_box(ax, 10.5, 10.5, 3.6, 0.9, "Trained model",
              "learned weights $f_\\theta$ · match threshold $\\tau$",
              fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
              fs=10, sub_fs=7.2, lw=1.8)
     ax.plot([15.9, 15.9], [10.8, 10.5], color=COLORS["ink"], lw=1.4,
             zorder=2)
-    ax.plot([15.9, 13.2], [10.5, 10.5], color=COLORS["ink"], lw=1.4,
+    ax.plot([15.9, 12.7], [10.5, 10.5], color=COLORS["ink"], lw=1.4,
             zorder=2)
-    draw_arrow(ax, (13.2, 10.5), (13.0, 10.5), lw=1.4)
+    draw_arrow(ax, (12.7, 10.5), (12.3, 10.5), lw=1.4)
 
     # startup hand-off: the only link between the offline and runtime paths
-    _dashed_arrow(ax, (11.2, 10.05), (11.2, 7.325), COLORS["teal"], lw=1.6)
-    ax.text(11.45, 8.6, "loaded once at startup",
+    ax.plot([10.5, 10.5], [10.05, 9.35], color=COLORS["teal"], lw=1.6,
+            linestyle=(0, (4, 3)), zorder=2)
+    ax.plot([10.5, 13.5], [9.35, 9.35], color=COLORS["teal"], lw=1.6,
+            linestyle=(0, (4, 3)), zorder=2)
+    _dashed_arrow(ax, (13.5, 9.35), (13.5, 7.325), COLORS["teal"], lw=1.6)
+    ax.text(13.7, 8.55, "loaded once\nat startup",
             ha="left", va="center", fontsize=7.5, color=COLORS["teal"],
             style="italic", zorder=4)
 
@@ -120,55 +125,64 @@ def create_figure():
              "contains rendered text with warped, uneven glyphs",
              fs=10, sub_fs=7.2, **DIM)
     draw_box(ax, 8.9, 8.55, 4.2, 0.95, "Text localization",
-             "off-the-shelf detector\nfinds and cuts out every text region",
+             "off-the-shelf detector\none bounding box per word",
              fs=10, sub_fs=7.2, **DIM)
     draw_arrow(ax, (6.25, 8.55), (6.8, 8.55), lw=1.5)
 
-    ax.plot([8.9, 8.9, 2.7], [8.075, 7.7, 7.7], color=COLORS["ink"],
+    ax.plot([8.9, 8.9, 2.25], [8.075, 7.7, 7.7], color=COLORS["ink"],
             lw=1.5, zorder=2)
-    draw_arrow(ax, (2.7, 7.7), (2.7, 7.325), lw=1.5)
-    ax.text(5.8, 7.76, "one crop per text region · each crop handled on its own",
+    draw_arrow(ax, (2.25, 7.7), (2.25, 7.325), lw=1.5)
+    ax.text(5.6, 7.76, "one crop per word · each word handled on its own",
             ha="center", va="bottom", fontsize=7.5, color=COLORS["muted"],
             style="italic", zorder=4)
 
-    draw_box(ax, 2.7, 6.55, 4.1, 1.55, "Image preparation",
-             "resize to 224 × 224 pixels\nconvert to grayscale\n"
-             "rescale brightness values",
+    draw_box(ax, 2.25, 6.55, 3.2, 1.55, "Image preparation",
+             "resize to 224 × 224\nconvert to grayscale\nrescale brightness",
              fs=10, sub_fs=7.0, **DIM)
-    draw_box(ax, 7.4, 6.55, 4.1, 1.55, "Frozen ViT encoder",
-             "DINOv2, self-supervised\ngeneral shape features\n"
-             "weights never updated",
+    draw_box(ax, 6.0, 6.55, 3.2, 1.55, "Frozen ViT encoder",
+             "DINOv2, self-supervised\nshape features\nweights never updated",
              fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
              fs=10, sub_fs=7.0, lw=1.8)
-    draw_box(ax, 12.1, 6.55, 4.1, 1.55, "Metric head  $f_\\theta$",
+    draw_box(ax, 9.75, 6.55, 3.2, 1.55, "Same-font check",
+             "do the crop's patches\nagree on one style?\nif not: split once",
+             fc=COLORS["orange_bg"], ec=COLORS["orange"], tc=COLORS["orange"],
+             fs=10, sub_fs=7.0, lw=1.8)
+    draw_box(ax, 13.5, 6.55, 3.2, 1.55, "Metric head  $f_\\theta$",
              "the trained student\nturns the crop into a\nfont-style fingerprint",
              fc=COLORS["blue_bg"], ec=COLORS["blue"], tc=COLORS["blue"],
              fs=10, sub_fs=7.0, lw=1.8)
-    draw_box(ax, 16.8, 6.55, 4.1, 1.55, "Match test",
-             "is the closest font in the\npalette similar enough\n"
-             "(within threshold $\\tau$)?",
+    draw_box(ax, 17.25, 6.55, 3.2, 1.55, "Match test",
+             "closest palette font\nsimilar enough\n(within threshold $\\tau$)?",
              fc=COLORS["orange_bg"], ec=COLORS["orange"], tc=COLORS["orange"],
              fs=10, sub_fs=7.0, lw=1.8)
-    for x0, x1 in [(4.75, 5.35), (9.45, 10.05), (14.15, 14.75)]:
+    for x0, x1 in [(3.85, 4.4), (7.6, 8.15), (11.35, 11.9), (15.1, 15.65)]:
         draw_arrow(ax, (x0, 6.55), (x1, 6.55), lw=1.5)
 
-    # the fork: a match, or no match at all
-    ax.plot([15.5, 15.5, 9.5], [5.775, 5.35, 5.35], color=COLORS["teal"],
+    # the fork: a match, no match at all, or more than one font in the crop
+    ax.plot([16.5, 16.5, 12.7], [5.775, 5.35, 5.35], color=COLORS["teal"],
             lw=1.5, zorder=2)
-    draw_arrow(ax, (9.5, 5.35), (9.5, 5.0), lw=1.5, color=COLORS["teal"])
-    ax.text(9.8, 5.42, "yes — close enough", ha="left", va="bottom",
+    draw_arrow(ax, (12.7, 5.35), (12.7, 5.0), lw=1.5, color=COLORS["teal"])
+    ax.text(13.0, 5.42, "yes — close enough", ha="left", va="bottom",
             fontsize=7.5, color=COLORS["teal"], style="italic", zorder=4)
     draw_arrow(ax, (18.0, 5.775), (18.0, 5.0), lw=1.5, color=COLORS["rose"])
     ax.text(18.15, 5.4, "no", ha="left", va="center", fontsize=7.5,
             color=COLORS["rose"], style="italic", zorder=4)
+    ax.plot([9.75, 9.75, 8.25], [5.775, 5.5, 5.5], color=COLORS["orange"],
+            lw=1.5, zorder=2)
+    draw_arrow(ax, (8.25, 5.5), (8.25, 5.0), lw=1.5, color=COLORS["orange"])
+    ax.text(9.9, 5.56, "still not one style", ha="left", va="center",
+            fontsize=7.5, color=COLORS["orange"], style="italic", zorder=4)
 
-    draw_box(ax, 9.5, 4.55, 6.4, 0.9, "Top-K Google Fonts shortlist",
-             "ranked open-source candidates · one shortlist per crop",
+    draw_box(ax, 8.25, 4.55, 3.5, 0.9, "Mixed typography",
+             "two typefaces in one crop —\nno single font assigned",
+             fc=COLORS["orange_bg"], ec=COLORS["orange"], tc=COLORS["orange"],
+             fs=10, sub_fs=7.0, lw=1.8)
+    draw_box(ax, 12.7, 4.55, 4.4, 0.9, "Top-K Google Fonts shortlist",
+             "ranked open-source candidates\none shortlist per crop",
              fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
-             fs=10, sub_fs=7.5, lw=1.8)
-    draw_box(ax, 16.75, 4.55, 4.3, 0.9, "Unknown font",
-             "outside the palette, or too deformed\n"
-             "to match — no font is guessed",
+             fs=10, sub_fs=7.0, lw=1.8)
+    draw_box(ax, 16.9, 4.55, 3.4, 0.9, "Unknown font",
+             "outside the palette, or too\ndeformed — no font guessed",
              fc=COLORS["rose_bg"], ec=COLORS["rose"], tc=COLORS["rose"],
              fs=10, sub_fs=7.0, lw=1.8)
 
@@ -202,8 +216,9 @@ def create_figure():
          "by consensus, as the accuracy floor"),
     ]:
         draw_box(ax, cx, 1.55, 5.6, 1.15, t, s, fs=9.5, sub_fs=7.0, **DIM)
-    _dashed_arrow(ax, (9.5, 4.1), (9.5, 3.3), COLORS["muted"], lw=1.3)
-    _dashed_arrow(ax, (16.75, 4.1), (16.75, 3.3), COLORS["muted"], lw=1.3)
+    _dashed_arrow(ax, (8.25, 4.1), (8.25, 3.3), COLORS["muted"], lw=1.3)
+    _dashed_arrow(ax, (12.7, 4.1), (12.7, 3.3), COLORS["muted"], lw=1.3)
+    _dashed_arrow(ax, (16.9, 4.1), (16.9, 3.3), COLORS["muted"], lw=1.3)
 
     ax.text(9.7, 14.62,
             "Conceptual framework of the proposed font-identification system",

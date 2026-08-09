@@ -10,7 +10,7 @@ The project runs from June to December 2026. The schedule follows the increment 
 
 ![Weekly-cell Gantt grid spanning June to December 2026 with four week columns per month, tasks grouped into Writing, Development, and Closeout. Writing shows Chapter 2 and Chapter 3 completed, Chapter 4 in progress at the July 10 marker, and Chapters 5 and 6 planned. Development breaks the four increments into subtasks (palette and rendering, degradation operator, encoder and metric head, training and distillation, open-set and Top-K, evaluation and human panel, backend API, frontend and Docker). Closeout covers revisions and final defense in December](../../../assets/figures/gantt_timeline.png)
 
-As shown in Figure 11, the early months cover the written groundwork (Chapters 2 and 3), the middle months carry the build increments from the synthetic data pipeline through the web application, and the final months are reserved for the results and conclusion chapters and for revision ahead of the defense. The development increments overlap the empirical chapters deliberately, because Chapter 5 reports the evaluation that increment 3 produces.
+As shown in Figure 11, the early months cover the written groundwork (Chapters 2 and 3). The middle months carry the build increments, from the synthetic data pipeline through the web application. The final months are reserved for the results and conclusion chapters and for revision ahead of the defense. The development increments deliberately overlap the empirical chapters, because Chapter 5 reports the evaluation that increment 3 produces.
 
 ### 4.9.2 Responsibilities
 
@@ -30,7 +30,7 @@ The study is carried out by two researchers, both of whom act as researcher and 
 
 ### 4.9.3 Budget and Cost Management
 
-The budget below estimates what it would cost another researcher or organization to replicate this study, not only the out-of-pocket cost to the current team. It therefore includes labor, since replication effort is the largest real cost, alongside compute, utilities, documentation, and contingency. Because the entire software stack is open-source (Section 4.8), the study carries no mandatory license or subscription cost, which is a deliberate outcome of the free-reconstruction design. Table 4 lists the estimate.
+The budget below estimates what it would cost another researcher or organization to replicate this study — not only the out-of-pocket cost to the current team. It therefore includes labor, since replication effort is the largest real cost, alongside compute, utilities, documentation, and contingency. Because the entire software stack is open-source (Section 4.8), the study carries no mandatory license or subscription cost. That is a deliberate outcome of the free-reconstruction design. Table 4 lists the estimate.
 
 **Table 4**
 
