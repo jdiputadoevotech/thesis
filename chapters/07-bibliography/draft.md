@@ -1,6 +1,6 @@
 # Bibliography
 
-*Formatted in APA 7th edition. Entries are grouped by source type (books, journal articles, conference proceedings articles, web articles) and alphabetized by the first author's surname within each group. Source of record: `literature/references.md` (35 rows). Apply a hanging indent (0.5 in) and double spacing when exported.*
+*Formatted in APA 7th edition. Entries are grouped by source type (books, journal articles, conference proceedings articles, web articles) and alphabetized by the first author's surname within each group. Source of record: `literature/references.md` (38 rows). Apply a hanging indent (0.5 in) and double spacing when exported.*
 
 ## Books
 
@@ -38,6 +38,8 @@ Chowdhury, A., Mehrab, K. S., Campolongo, E. G., Rubenstein, D., Stewart, C. V.,
 
 Darcet, T., Oquab, M., Mairal, J., & Bojanowski, P. (2024). Vision transformers need registers. In *International Conference on Learning Representations (ICLR)*. https://arxiv.org/abs/2309.16588
 
+Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., Uszkoreit, J., & Houlsby, N. (2021). An image is worth 16×16 words: Transformers for image recognition at scale. In *International Conference on Learning Representations (ICLR)*. https://arxiv.org/abs/2010.11929
+
 Hofmann, C., Schmid, S., Lehner, B., Klotz, D., & Hochreiter, S. (2024). Energy-based Hopfield boosting for out-of-distribution detection. In *Advances in Neural Information Processing Systems* (Vol. 37). https://proceedings.neurips.cc/paper_files/paper/2024/hash/ee20461718669c6c9c5da478d46d60d9-Abstract-Conference.html
 
 Jiang, B., Yuan, Y., Bai, X., Hao, Z., Yin, A., Hu, Y., Liao, W., Ungar, L., & Taylor, C. J. (2025). ControlText: Unlocking controllable fonts in multilingual text rendering without font annotations. In *Findings of the Association for Computational Linguistics: EMNLP 2025*. https://arxiv.org/abs/2502.10999
@@ -45,6 +47,8 @@ Jiang, B., Yuan, Y., Bai, X., Hao, Z., Yin, A., Hu, Y., Liao, W., Ungar, L., & T
 Kondo, T., Takezaki, S., Haraguchi, D., & Uchida, S. (2024). Font style interpolation with diffusion models. In *Document Analysis and Recognition – ICDAR 2024*. Springer. https://doi.org/10.1007/978-3-031-70536-6_6
 
 Li, Z., Li, X., Fu, X., Zhang, X., Wang, W., Chen, S., & Yang, J. (2024). PromptKD: Unsupervised prompt distillation for vision-language models. In *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*. https://arxiv.org/abs/2403.02781
+
+Liu, Z., Mao, H., Wu, C.-Y., Feichtenhofer, C., Darrell, T., & Xie, S. (2022). A ConvNet for the 2020s. In *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*. https://arxiv.org/abs/2201.03545
 
 Schroff, F., Kalenichenko, D., & Philbin, J. (2015). FaceNet: A unified embedding for face recognition and clustering. In *Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)* (pp. 815–823). https://doi.org/10.1109/CVPR.2015.7298682
 
@@ -55,6 +59,8 @@ Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., Ka
 Wang, Y., Zhang, Q., Guo, Y., & Wang, Y. (2024). Non-negative contrastive learning. In *International Conference on Learning Representations (ICLR)*. https://arxiv.org/abs/2403.12459
 
 Wang, Z., Yang, J., Jin, H., Shechtman, E., Agarwala, A., Brandt, J., & Huang, T. S. (2015). DeepFont: Identify your font from an image. In *Proceedings of the 23rd ACM International Conference on Multimedia* (pp. 451–459). https://doi.org/10.1145/2733373.2806219
+
+Zhai, X., Mustafa, B., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for language image pre-training. In *Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)*. https://arxiv.org/abs/2303.15343
 
 ## Web Articles
 

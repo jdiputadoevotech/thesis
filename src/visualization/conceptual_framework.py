@@ -206,16 +206,16 @@ def create_figure():
 
     # ================= BAND 3 — evaluation =================
     for cx, t, s in [
-        (3.5, "Top-K accuracy",
+        (2.875, "Top-K accuracy",
          "how often the true font appears\nin the shortlist (Top-1, Top-3)"),
-        (9.5, "Re-render check",
-         "re-render the predicted font with the same word,\n"
-         "then score how closely its shape matches the crop"),
-        (16.1, "Human-proxy panel",
-         "three typographers label the same crops\n"
-         "by consensus, as the accuracy floor"),
+        (7.425, "Re-render check",
+         "re-render the predicted font, then\nscore its shape against the crop"),
+        (11.975, "Model comparison",
+         "closed-set baselines and alternative\nbackbones, same recipe and data"),
+        (16.525, "Human-proxy panel",
+         "three typographers label the same\ncrops by consensus (accuracy floor)"),
     ]:
-        draw_box(ax, cx, 1.55, 5.6, 1.15, t, s, fs=9.5, sub_fs=7.0, **DIM)
+        draw_box(ax, cx, 1.55, 4.15, 1.15, t, s, fs=9.5, sub_fs=7.0, **DIM)
     _dashed_arrow(ax, (8.25, 4.1), (8.25, 3.3), COLORS["muted"], lw=1.3)
     _dashed_arrow(ax, (12.7, 4.1), (12.7, 3.3), COLORS["muted"], lw=1.3)
     _dashed_arrow(ax, (16.9, 4.1), (16.9, 3.3), COLORS["muted"], lw=1.3)
