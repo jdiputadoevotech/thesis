@@ -30,7 +30,7 @@ The study is carried out by two researchers, both of whom act as researcher and 
 
 ### 4.9.3 Budget and Cost Management
 
-The budget below estimates what it would cost another researcher or organization to replicate this study — not only the out-of-pocket cost to the current team. It therefore includes labor, since replication effort is the largest real cost, alongside compute, utilities, documentation, and contingency. Because the entire software stack is open-source (Section 4.8), the study carries no mandatory license or subscription cost. That is a deliberate outcome of the free-reconstruction design. Table 4 lists the estimate.
+The budget below estimates what it would cost another researcher or organization to replicate this study, not only the out-of-pocket cost to the current team. It therefore includes labor, since replication effort is the largest real cost, alongside compute, utilities, documentation, and contingency. Because the entire software stack is open-source (Section 4.8), the study carries no mandatory license or subscription cost. That is a deliberate outcome of the free-reconstruction design. Table 4 lists the estimate.
 
 **Table 4**
 

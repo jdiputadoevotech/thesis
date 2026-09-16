@@ -1,6 +1,6 @@
 ## 4.8 Software Development and Tools
 
-The stack is chosen against a few criteria. Every tool is free and open-source, so the system can be replicated at no licensing cost — consistent with the free-reconstruction goal of the study. Each is mature and widely supported, so documentation and community help are available. And each is the standard choice in its layer, which keeps the learning curve low for a two-person team. Because the served system is stateless and persists nothing between requests (Section 4.7.2), no database is used, and the database-connectivity criterion does not apply. Table 2 lists the tools by function, with the version used and an access link; the role each tool plays is discussed below the table.
+The stack is chosen against a few criteria. Every tool is free and open-source, so the system can be replicated at no licensing cost, consistent with the free-reconstruction goal of the study. Each is mature and widely supported, so documentation and community help are available. And each is the standard choice in its layer, which keeps the learning curve low for a two-person team. Because the served system is stateless and persists nothing between requests (Section 4.7.2), no database is used, and the database-connectivity criterion does not apply. Table 2 lists the tools by function, with the version used and an access link; the role each tool plays is discussed below the table.
 
 **Table 2**
 

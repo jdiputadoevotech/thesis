@@ -25,10 +25,9 @@ Each fact, stat, and framing gets **one home section**; later sections reference
 ## Per-section rules
 
 ### Introduction
-- Open broad: generative AI image tools entering the design/typography workflow, and why naming the font matters today.
-- Define key concepts on first use with a short **operational gloss** (typographic hallucination, open-set recognition, metric learning) — this is now the definitions home; defer deep treatment to Ch3.
+- **Adviser rule (2026-08): §1.1 introduces the *chapter*, not the study.** It is a short roadmap: what the chapter contains and in what order (background → problem → objectives → research questions → scope → significance). No study framing, no stats, no definitions here.
+- The broad hook (GenAI tools entering the design workflow, why naming the font matters) opens the **Background** instead, and the key-concept glosses (typographic hallucination, open-set recognition, metric learning) close the Background as the bridge to the Statement of the Problem. Deep treatment still deferred to Ch3.
 - Banned: clichés and empty openers ("Since the dawn of time…", "In today's fast-paced world…").
-- Keep the stats out — they live in Background. Introduction frames; Background evidences.
 
 ### Background
 - Narrow from the field to the specific failure: the evolution of font recognition (classical DeepFont/OCR → catalogue-scaling → frozen-ViT baselines), the frameworks involved, and *why* each fails on hallucinated GenAI text.
