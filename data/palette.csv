@@ -1,0 +1,81 @@
+font_id,family,weight,family_class,popularity,gf_last_modified,ttf_path,sha256
+Roboto-400,Roboto,400,sans-serif,2,2026-02-19,data/fonts/Roboto-400.ttf,dece7c71bbe61710787f0839c722c65e87355dd2eb4a823e6b5488121ff81e4b
+OpenSans-400,Open Sans,400,sans-serif,3,2025-09-16,data/fonts/OpenSans-400.ttf,47ed1cfaa7ffca04a04ab850b2938fd52c09d1b44cfa3e2980878e166b0cbd87
+GoogleSans-400,Google Sans,400,sans-serif,4,2026-07-22,data/fonts/GoogleSans-400.ttf,1db8fe3048d1b15519999c1b0372285ded006bf49e109455df1a09e42876ec64
+Inter-400,Inter,400,sans-serif,5,2025-09-10,data/fonts/Inter-400.ttf,1b08e7fc267a5c7e1d614100f604b83e7e8a0be241f0f288faa2b3ac93a683ba
+Montserrat-400,Montserrat,400,sans-serif,7,2025-09-04,data/fonts/Montserrat-400.ttf,84f3d3275dfb159dd311c61828fd754a82ec31c377120518e2cd3e7d34394e96
+Poppins-400,Poppins,400,sans-serif,8,2025-09-16,data/fonts/Poppins-400.ttf,cdedb1729acac414ed01744a11da7badb86adf13108e7bd3fa161b9323f7fe54
+Lato-400,Lato,400,sans-serif,9,2025-09-16,data/fonts/Lato-400.ttf,f43f1c7780d69792278f04b136c934a0298fc66f2e974bac13dd2e53adc52bde
+RobotoCondensed-400,Roboto Condensed,400,sans-serif,15,2025-09-11,data/fonts/RobotoCondensed-400.ttf,ef9d48725ff2bd72cd569ca50555fb781f99cf8f3a88a3bb3c8a4c85fd574458
+RobotoMono-400,Roboto Mono,400,monospace,16,2026-05-05,data/fonts/RobotoMono-400.ttf,329949c551e04130eeb43580e149a2d548090e71359d05d925329ae123fac5c9
+Arimo-400,Arimo,400,sans-serif,17,2026-05-18,data/fonts/Arimo-400.ttf,e5717ff6c2063b0e596176ddad929b0a98a6d8db694f43a8ba26c99675625b67
+Oswald-400,Oswald,400,sans-serif,19,2025-09-11,data/fonts/Oswald-400.ttf,bd6ff5a83bcdc92d7aac6dbb16e4dd2b0b0320bec6402bb81f5dd9735b500e46
+DMSans-400,DM Sans,400,sans-serif,21,2025-09-11,data/fonts/DMSans-400.ttf,b0ae3e89a7d3ef2b1838bb4b1ceb0b17cc3435af061eee809d76aa623ff116e9
+Raleway-400,Raleway,400,sans-serif,23,2025-09-10,data/fonts/Raleway-400.ttf,943300b002516feaf028c27aceaa2f473f2e1c0229ed913652a406d43277d9ba
+Nunito-400,Nunito,400,sans-serif,24,2025-09-16,data/fonts/Nunito-400.ttf,9ecbdba35fa74f10a1a916c31649b802a12deb9e66c7b1fe4650afcfd4d16971
+NunitoSans-400,Nunito Sans,400,sans-serif,25,2025-09-16,data/fonts/NunitoSans-400.ttf,a699fa825cd47524461c459a54fe3cd51eb13e1e76ba238fe6ea86932979a808
+PlayfairDisplay-400,Playfair Display,400,serif,26,2025-09-11,data/fonts/PlayfairDisplay-400.ttf,1609a54fa3ad1abc8d0037132f73700333241ea0b65672079998e352f151dea7
+RobotoSlab-400,Roboto Slab,400,serif,28,2025-09-08,data/fonts/RobotoSlab-400.ttf,1c33d32c3a4288959f47c6909e8ddface1a7b199d0025e0191392d4d88eb8224
+Rubik-400,Rubik,400,sans-serif,29,2025-09-10,data/fonts/Rubik-400.ttf,cc6a4222027f8e57ff86a50c5ba88f12326d7223bde9bf6531538633ebad3343
+Ubuntu-400,Ubuntu,400,sans-serif,31,2025-09-02,data/fonts/Ubuntu-400.ttf,bfd3c550f0552ddfc6070f6c4955a19dd560527647accd41506b9622d7f1358f
+Manrope-400,Manrope,400,sans-serif,32,2025-09-04,data/fonts/Manrope-400.ttf,a13d9b41b0a471ce58f0e46d377fa3cc76615e4632c3b15eb397caadf7a13f0a
+Outfit-400,Outfit,400,sans-serif,33,2025-09-04,data/fonts/Outfit-400.ttf,6a8c9be856a6b9e09c66615634904616152c9de5e44db343a3ced240479c586a
+Kanit-400,Kanit,400,sans-serif,34,2025-09-11,data/fonts/Kanit-400.ttf,0b101fdc1a77fb29137731819bf164b3e9b4da19b22a7b2295f0e233c53c486d
+ArchivoBlack-400,Archivo Black,400,sans-serif,35,2025-09-11,data/fonts/ArchivoBlack-400.ttf,355b89d43e95edd50a58dad2029689c56027ef19cf9f2f03c9d3605e87ee182e
+Merriweather-400,Merriweather,400,serif,36,2025-09-02,data/fonts/Merriweather-400.ttf,e029d3b71e5bae3877c73f4f2b15af28db16593d49b0aed2a328d37ff7075846
+Lora-400,Lora,400,serif,38,2025-09-11,data/fonts/Lora-400.ttf,1d37d1e34c77be80f0119754ad78df9aad30d5b1c78132a4cbdac0fe567f5d4f
+WorkSans-400,Work Sans,400,sans-serif,39,2025-09-11,data/fonts/WorkSans-400.ttf,a131e7022b34ef1950a9d6bdda16f5d4509cc1fe1af5991a4552febd2a4027e5
+PlusJakartaSans-400,Plus Jakarta Sans,400,sans-serif,40,2025-09-10,data/fonts/PlusJakartaSans-400.ttf,076831b98043f50f829b6c91db3be4a844641f1c95bccff5c886ed87c661a852
+Quicksand-400,Quicksand,400,sans-serif,41,2025-09-02,data/fonts/Quicksand-400.ttf,0977c1d9781e03adfc1b120b3b60b6c4db776b5261e801ec881549cd17894351
+PTSans-400,PT Sans,400,sans-serif,42,2025-09-04,data/fonts/PTSans-400.ttf,fd416bbea21b05983676b0336d56efd9c782e5ff715ce1d1d542cee20cfbca11
+Figtree-400,Figtree,400,sans-serif,43,2025-09-11,data/fonts/Figtree-400.ttf,81f3fc9d8d4e307e5ae0dd43a03d22eb90d50b6cc72241552c460a59b6731b31
+BebasNeue-400,Bebas Neue,400,sans-serif,44,2025-09-16,data/fonts/BebasNeue-400.ttf,939fea723dad24504f40faadc34eeffadfbbee558754f70c3c736e13786b0ab6
+Mulish-400,Mulish,400,sans-serif,46,2025-09-08,data/fonts/Mulish-400.ttf,46ee5f47fed537401cd92c16b666fccd05140bab39a0390a9b90ee1040c31af9
+SourceSans3-400,Source Sans 3,400,sans-serif,47,2025-09-04,data/fonts/SourceSans3-400.ttf,b6f2cc8d9905e97b5cd7a294367bb529814385f299fb23057060394cbd6bbffb
+Archivo-400,Archivo,400,sans-serif,48,2025-09-08,data/fonts/Archivo-400.ttf,01170409e32e22123a354fbaa7dcb5ca5300790bb77c05d569ec8fdc394e78c9
+Barlow-400,Barlow,400,sans-serif,49,2025-09-11,data/fonts/Barlow-400.ttf,a35caa4687f434d66453c1fe423d7074cfa9fd7ab80c19b0780f3862887d2fc9
+BricolageGrotesque-400,Bricolage Grotesque,400,sans-serif,50,2025-09-11,data/fonts/BricolageGrotesque-400.ttf,b56db40c26850f83ba2ebffa1f7faa01e5ee4e55ac63decee1433de520a38483
+Prompt-400,Prompt,400,sans-serif,51,2025-09-02,data/fonts/Prompt-400.ttf,3a78595458f626e22fe9f800df463c80c1d8f3e69ea1b590754de1a3c3c0dc6c
+Inconsolata-400,Inconsolata,400,monospace,52,2025-09-04,data/fonts/Inconsolata-400.ttf,a3101dfafb0f3b82ad95023cd08ed6e5b998f7b374633b940177af5f69e75432
+JetBrainsMono-400,JetBrains Mono,400,monospace,53,2025-09-11,data/fonts/JetBrainsMono-400.ttf,44ce4a84f20d60f24539bd0cef11f79c29e38609e0f8adf18551c9794a5d9dc3
+BlackOpsOne-400,Black Ops One,400,display,58,2025-09-10,data/fonts/BlackOpsOne-400.ttf,bd8a70e63df108745316c6ad277874cbe139bbb90cbcaf705810ecc089fe59f8
+LibreBaskerville-400,Libre Baskerville,400,serif,67,2025-11-20,data/fonts/LibreBaskerville-400.ttf,f5bc4341f15de5e877d8d95b6b14b33e9a3da1f8fef4ed0700ed407f096cffb6
+PTSerif-400,PT Serif,400,serif,68,2025-09-04,data/fonts/PTSerif-400.ttf,6902e32186c45fd344901f936d563fe61dfd8d29133e3d97f7163c86b08ede9c
+CormorantGaramond-400,Cormorant Garamond,400,serif,72,2025-09-08,data/fonts/CormorantGaramond-400.ttf,6d37a86241a25d63f8fe6018b4c083449886b7165c1acb15edd0f574f690ecf7
+SourceCodePro-400,Source Code Pro,400,monospace,73,2025-09-08,data/fonts/SourceCodePro-400.ttf,66a11c481af5bdcdb91a72282bdb0b9bb5992208a72d89e1dd393e5e8255c7a2
+LobsterTwo-400,Lobster Two,400,display,81,2025-09-11,data/fonts/LobsterTwo-400.ttf,4d775b0dcbede4e7363db94430ac600b05c57b75238df184fd9bad1cda36c4cb
+Fraunces-400,Fraunces,400,serif,82,2025-09-10,data/fonts/Fraunces-400.ttf,3eb6cf0a14feb1876cc464fa093af4e0c5b05dc46dec65619c1d95f2a1ab5aa7
+EBGaramond-400,EB Garamond,400,serif,83,2026-06-30,data/fonts/EBGaramond-400.ttf,934aa932b4bc1a75d883f7c3d4d5bbc8278e5e7fcc96d5440bbffd61050cf958
+IBMPlexMono-400,IBM Plex Mono,400,monospace,87,2025-09-16,data/fonts/IBMPlexMono-400.ttf,a7fdc993f9f0387caedba4e42521136fa97e4c0837ae6239bf0413ccf8af00c2
+InstrumentSerif-400,Instrument Serif,400,serif,89,2025-09-04,data/fonts/InstrumentSerif-400.ttf,a99e3db50076202713812ed541feeb23ffeebb61db1fa6b1cf48fe590d37ef18
+Bitter-400,Bitter,400,serif,95,2026-06-30,data/fonts/Bitter-400.ttf,04b9e632f0791325153b80c882bdb6b1f099fdd5de99406e0485aa9a00e5674a
+ChangaOne-400,Changa One,400,display,96,2025-09-10,data/fonts/ChangaOne-400.ttf,d62b7b9ca29496cccbde36f25ac3fbddcffce57fbe6877fbcc6e1ca141acc0ec
+AlfaSlabOne-400,Alfa Slab One,400,display,103,2025-09-04,data/fonts/AlfaSlabOne-400.ttf,0e834ddadca6dc95b5502c01f8911b7a77f50a350ac7400a6e2d9a3bfb1cd02f
+DMSerifDisplay-400,DM Serif Display,400,serif,109,2025-09-11,data/fonts/DMSerifDisplay-400.ttf,c03775f8cc3db88cfea259b231abe13f94e6a3d3cb01c09477a2e42a1f5919e1
+LilitaOne-400,Lilita One,400,display,118,2025-09-10,data/fonts/LilitaOne-400.ttf,26ad0d77404141ff7af714353cdf23c980841829dd270fc26e6c2dfcf654bd6d
+SourceSerif4-400,Source Serif 4,400,serif,128,2025-09-11,data/fonts/SourceSerif4-400.ttf,8ca4d603b02214e2723f2bdf6c83632551942c9b06702e2bdbcf07f0d8714809
+CrimsonText-400,Crimson Text,400,serif,132,2025-05-30,data/fonts/CrimsonText-400.ttf,72c4209c94de3e6ac6f4f2256ae604174102bbed26ec2a14948024cb86f5c10f
+Bungee-400,Bungee,400,display,134,2025-09-16,data/fonts/Bungee-400.ttf,ff0ad5d7496a911460625f9052ea50b05e289065be71a1cb21c71896585224d2
+Newsreader-400,Newsreader,400,serif,137,2025-09-08,data/fonts/Newsreader-400.ttf,b8f5e0a8bdd6a12c722ca5635d9da87e77ccbb2d0172112e34e00c4e55f2cd5a
+Slabo27px-400,Slabo 27px,400,serif,140,2025-09-16,data/fonts/Slabo27px-400.ttf,b328319364e2895cf4e0bfe8b5d2718aad4a54c8642de0b7dd381048d60a03fe
+Cinzel-400,Cinzel,400,serif,141,2025-09-10,data/fonts/Cinzel-400.ttf,a0242f6698ae0d3220a29986a09274f9d1eddb4a24da4e50faf387fd1804eb7b
+Lobster-400,Lobster,400,display,144,2025-09-08,data/fonts/Lobster-400.ttf,dfdc22543e8a5188aa6d774aa2e9a1f3c9cb363dc814ba1e919ac9e379daec03
+Arvo-400,Arvo,400,serif,145,2025-06-02,data/fonts/Arvo-400.ttf,47c25cfa05c6f0e25b8bf235a41747a6006e34a0442285797425da35c2995564
+Comfortaa-400,Comfortaa,400,display,146,2025-09-08,data/fonts/Comfortaa-400.ttf,c5633dc8323c788158d456e461bacc78d251f713e33228527765a1f3fa84ec03
+Domine-400,Domine,400,serif,147,2025-09-11,data/fonts/Domine-400.ttf,b3e23e3697134f27de4818c9a39b203dea668b2ef0cc991c9951a9e621e24f8b
+GravitasOne-400,Gravitas One,400,display,152,2025-09-08,data/fonts/GravitasOne-400.ttf,b3e1124292276e7250a222a85adef89b5ae0eb445472f2d2ee852927e441f185
+DMMono-400,DM Mono,400,monospace,157,2025-09-16,data/fonts/DMMono-400.ttf,c97fcd822f825e9e731867b650a39ee678b609bead29385e320171b573ec0910
+GeistMono-400,Geist Mono,400,monospace,158,2026-06-08,data/fonts/GeistMono-400.ttf,7022da390e9b401ea35b722f8ed2376948e70add10954bc798839b4bfe17ef3f
+BodoniModa-400,Bodoni Moda,400,serif,160,2025-09-16,data/fonts/BodoniModa-400.ttf,7bf8604bdeb63fe00278935c1a7e8595de56dfc053ab43581ca848ffd5ad11ba
+SpaceMono-400,Space Mono,400,monospace,164,2025-06-25,data/fonts/SpaceMono-400.ttf,829aad32ab9525358de2a7ebc718d05a6b335e67421aad5e1e09cd1fa796af4e
+ZillaSlab-400,Zilla Slab,400,serif,171,2025-09-04,data/fonts/ZillaSlab-400.ttf,42b900cc08813c9afbb961639ba4191507a9f97dbfcd046a783ab59808c8e35d
+AbrilFatface-400,Abril Fatface,400,display,174,2025-09-16,data/fonts/AbrilFatface-400.ttf,c426e1328c73a1d1c1c36809ead3353b487ae71d3b387ac8daca2d4b6d9124c0
+IBMPlexSerif-400,IBM Plex Serif,400,serif,179,2025-09-16,data/fonts/IBMPlexSerif-400.ttf,f465fe7b08b7668e2255d26bb85fdd56cfdd5fc86e1f8fd73f48254e3c287a49
+Spectral-400,Spectral,400,serif,183,2025-09-11,data/fonts/Spectral-400.ttf,a25b5c20bf44dacb3e1ed67a461b390ef5057cabc4b300d65fa9fa33e8bd590c
+CrimsonPro-400,Crimson Pro,400,serif,187,2025-09-11,data/fonts/CrimsonPro-400.ttf,d43dfaf98f1cb4ef4052e266538317af16ebe6ea8eed50c03c086f2752682e47
+OleoScript-400,Oleo Script,400,display,199,2025-09-16,data/fonts/OleoScript-400.ttf,42fc704eb21c1369a22d8e98213b7d68e29fc4a8e41e02b795b6b22a133e6bf2
+TitanOne-400,Titan One,400,display,207,2025-09-02,data/fonts/TitanOne-400.ttf,c14c958677babb78649790ac2e998cea5cb940710aeb044e308cd79ee74a95bd
+Baloo2-400,Baloo 2,400,display,213,2025-09-16,data/fonts/Baloo2-400.ttf,1b11c3c65465e3c87a2c1699ecf10fa7a3da9fb7e4ac50a1ae275781ff65eacc
+PressStart2P-400,Press Start 2P,400,display,223,2025-09-16,data/fonts/PressStart2P-400.ttf,7b939b816f8ce185dd8c2c59e85fb05d3dcd5cde0c0b0de4a1651cb5af9c2c2b
+LuckiestGuy-400,Luckiest Guy,400,display,233,2025-09-08,data/fonts/LuckiestGuy-400.ttf,bde64ad70289579762149264eeaad6f2bf19b542eca5d62ca9fb0d9cb04a47b2
+Righteous-400,Righteous,400,display,234,2025-06-02,data/fonts/Righteous-400.ttf,82e2ac84900128219615a1e3a986a1821409e727e2bdb67714b2dcfe4447b946

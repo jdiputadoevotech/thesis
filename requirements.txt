@@ -1,0 +1,5 @@
+# Increment 1: synthetic data pipeline (src/data/). Pinned per Section 4.7.3.
+# Training deps (torch, transformers, peft) are added in Increment 2 and run on Colab.
+numpy==2.2.6
+pillow==12.3.0
+opencv-python-headless==5.0.0
