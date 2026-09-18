@@ -18,3 +18,8 @@ chapters/*/draft.docx
 *.log
 *.out
 chapters/appendices/srs/SRS.docx
+
+# Rendered corpus only — ~540 MB, regenerable from src/data/render_corpus.py.
+# data/fonts/ (the 80 pinned TTFs) and data/raw/ (the Google Fonts index snapshot)
+# are committed on purpose: they are the pin, so no clone ever re-downloads.
+data/corpus/
