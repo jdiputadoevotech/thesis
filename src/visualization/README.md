@@ -21,6 +21,7 @@ order. Figures 1–7 serve **Chapter 3 (Technical Background)**; Figures 8–11 
 | `system_architecture.py` | Figure 9 | Ch4 | Layered architecture — user/React client/FastAPI/PyTorch inference/resources | Matplotlib |
 | `sdlc_model.py` | Figure 10 | Ch4 | Iterative-incremental model — four increments × Analyze/Design/Build/Evaluate | Matplotlib |
 | `gantt_timeline.py` | Figure 11 | Ch4 | Project schedule Gantt — Jun–Dec 2026, done/active/planned | Matplotlib |
+| `embedding_tsne.py` | (Ch5, TBD) | Ch5 | Measured t-SNE of validation crops — frozen DINOv2 vs. trained head, by family class | Matplotlib + scikit-learn |
 
 ## Conventions
 - Every script imports `_style.py` and writes `assets/figures/<name>.png` at 300 dpi with consistent styling.

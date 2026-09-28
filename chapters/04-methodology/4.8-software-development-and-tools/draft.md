@@ -11,11 +11,12 @@ The stack is chosen against a few criteria. Every tool is free and open-source, 
 | Language and model | Python | 3.13 | https://www.python.org |
 | Language and model | PyTorch | 2.6 | https://pytorch.org |
 | Language and model | Hugging Face Transformers | 4.49 | https://github.com/huggingface/transformers |
-| Language and model | Hugging Face Hub | 0.28 | https://huggingface.co |
+| Language and model | Hugging Face Hub | 0.36 | https://huggingface.co |
+| Language and model | PEFT | 0.14 | https://github.com/huggingface/peft |
 | Language and model | NumPy | 2.2 | https://numpy.org |
 | Language and model | scikit-learn | 1.6 | https://scikit-learn.org |
-| Data and rendering | Pillow (PIL) | 11.1 | https://python-pillow.org |
-| Data and rendering | OpenCV | 4.11 | https://opencv.org |
+| Data and rendering | Pillow (PIL) | 12.3 | https://python-pillow.org |
+| Data and rendering | OpenCV | 5.0 | https://opencv.org |
 | Data and rendering | EasyOCR | 1.7 | https://github.com/JaidedAI/EasyOCR |
 | Backend | FastAPI | 0.115 | https://fastapi.tiangolo.com |
 | Backend | Uvicorn | 0.34 | https://www.uvicorn.org |
@@ -26,10 +27,10 @@ The stack is chosen against a few criteria. Every tool is free and open-source, 
 | Deployment | Docker | 27 | https://www.docker.com |
 | Version control | Git | 2.47 | https://git-scm.com |
 | Version control | GitHub | (web service) | https://github.com |
-| Documentation | Matplotlib | 3.10 | https://matplotlib.org |
+| Documentation | Matplotlib | 3.11 | https://matplotlib.org |
 | Documentation | Pandoc | 3.10 | https://pandoc.org |
 | Documentation | Visual Studio Code | 1.98 | https://code.visualstudio.com |
 
-*Note.* Versions are current as of July 2026 and are pinned in the project's dependency lockfiles; a replicator should confirm the latest compatible releases at the time of setup. All tools are open-source and free to use; the hosted collaboration service (GitHub) offers a no-cost tier sufficient for this project.
+*Note.* Versions are current as of September 2026 and are pinned in the project's dependency lockfiles; a replicator should confirm the latest compatible releases at the time of setup. All tools are open-source and free to use; the hosted collaboration service (GitHub) offers a no-cost tier sufficient for this project.
 
-In the language-and-model layer, Python is the primary language for the data pipeline, the model, and the backend, with PyTorch as the deep-learning framework for the encoder, the metric head, and training. Hugging Face Transformers loads the DINOv2 backbone and the baseline classifiers. The Hugging Face Hub pulls pre-trained weights and stores the trained metric head. NumPy carries the array and numerical operations, and scikit-learn supplies the evaluation metrics, the stratified k-fold split, and the confusion matrix. In data and rendering, Pillow renders font specimens into word-crop images, OpenCV applies the elastic warp and the other degradation operations, and EasyOCR performs the off-the-shelf text localization and cropping. The backend exposes inference through FastAPI's `/predict` REST endpoint, served by the Uvicorn ASGI server, with Pydantic validating request and response schemas. The frontend is a React interface for image upload and the results gallery, built by Vite on the Node.js runtime. Docker containerizes the backend for reproducible deployment, and Git and GitHub provide version control and repository hosting. The documentation toolchain uses Matplotlib to generate the thesis figures, Pandoc to export the Markdown chapters to DOCX, and Visual Studio Code as the primary editor.
+In the language-and-model layer, Python is the primary language for the data pipeline, the model, and the backend, with PyTorch as the deep-learning framework for the encoder, the metric head, and training. Hugging Face Transformers loads the DINOv2 backbone and the baseline classifiers. The Hugging Face Hub pulls pre-trained weights and stores the trained metric head, and PEFT supplies the LoRA adapters of the offline teacher model. NumPy carries the array and numerical operations, and scikit-learn supplies the evaluation metrics, the stratified k-fold split, and the confusion matrix. In data and rendering, Pillow renders font specimens into word-crop images, OpenCV applies the elastic warp and the other degradation operations, and EasyOCR performs the off-the-shelf text localization and cropping. The backend exposes inference through FastAPI's `/predict` REST endpoint, served by the Uvicorn ASGI server, with Pydantic validating request and response schemas. The frontend is a React interface for image upload and the results gallery, built by Vite on the Node.js runtime. Docker containerizes the backend for reproducible deployment, and Git and GitHub provide version control and repository hosting. The documentation toolchain uses Matplotlib to generate the thesis figures, Pandoc to export the Markdown chapters to DOCX, and Visual Studio Code as the primary editor.

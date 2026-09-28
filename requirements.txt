@@ -1,5 +1,17 @@
-# Increment 1: synthetic data pipeline (src/data/). Pinned per Section 4.7.3.
-# Training deps (torch, transformers, peft) are added in Increment 2 and run on Colab.
+# Pinned per Section 4.7.3. Increment 1: synthetic data pipeline (src/data/).
+# numpy stays at 2.2.6: the corpus regenerates bit-for-bit only under the same
+# Generator streams, which numpy does not promise across releases.
 numpy==2.2.6
 pillow==12.3.0
-opencv-python-headless==5.0.0
+opencv-python-headless==5.0.0.93
+
+# Increment 2: metric embedding (src/model/), trained locally on CUDA.
+# Install torch FIRST from the CUDA index, or peft pulls a CPU build over it:
+#   pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+#   pip install -r requirements.txt
+torch==2.6.0
+transformers==4.49.0
+huggingface_hub==0.36.2
+peft==0.14.0
+scikit-learn==1.6.1
+matplotlib==3.11.0

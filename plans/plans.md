@@ -29,10 +29,12 @@ These depend on no code. Their lead time, not the build, is the schedule risk.
 
 | Status | Plan / experiment | Notes | Updated |
 |--------|-------------------|-------|---------|
-| ☐ | Pull backbones | `facebook/dinov2-base`, `google/siglip-base-patch16-224`, `google/vit-base-patch16-224`, `facebook/convnext-tiny-224` (~2 GB total). | 2026-09-16 |
-| ☐ | Preprocessing in `forward()` | Square-pad → 224² → grayscale ×3 → ImageNet norm. Verified identical train vs. serve (§4.10.1). | 2026-09-16 |
-| ☐ | Teacher: DINOv2 + LoRA | r=8, α=16. Offline only, discarded after distillation. | 2026-09-16 |
-| ☐ | Student: metric head `f_θ` | Triplet loss on labels + distillation from teacher. Frozen backbone. | 2026-09-16 |
+| ☑ | Pull backbones | Only `facebook/dinov2-base` pulled so far. `src/model/encoder.py` takes `--backbone`, so the other three (SigLIP, ViT, ConvNeXt) are one flag each in Increment 3's comparison. Note: SigLIP/ViT use their own ±1 normalization, not ImageNet. | 2026-09-22 |
+| ☑ | Preprocessing in `forward()` | `Preprocess` in `encoder.py`: square-pad (border-median fill) → 224² bilinear → grayscale ×3 → per-backbone norm. Skew test in `train_head.py --check` passes: served `FontEmbedder` on raw PNGs reproduces the cached path, min cosine 1.00000 over 20 val crops (§4.10.1). | 2026-09-22 |
+| ☑ | Feature cache | `src/model/cache_features.py`. Backbone is frozen and each crop's deformation is fixed, so features are computed once: `data/features/dinov2.npz` (46k × 1536, 146 MB, ~8 min). Head training then costs ~2 min instead of hours. | 2026-09-22 |
+| ☑ | Teacher: DINOv2 + LoRA | `src/model/train_teacher.py`. r=8, α=16 on query+value, dropout 0.1 = 294,912 trainable params (Chen et al.'s stated config; their "~150K" is a miscount — see `references.md` row 36). 5 epochs, micro-batch 16 × 4 accum + fp16 + grad checkpointing on a 4 GB RTX 3050, ~8 min/epoch. Val Top-1 39.7 → **60.2%**, still climbing at epoch 4 — more epochs are the first knob if KD gain looks thin. Keep `--workers` ≤ 2: 4 + 4 worker processes exhausted the Windows pagefile (WinError 1455). | 2026-09-22 |
+| ☑ | Student: metric head `f_θ` | `src/model/train_head.py`. [LayerNorm → 1536→512 → GELU → 512→256, L2-norm], P=32 × K=4, margin 0.2, 60 epochs, ~2 min. **Batch-hard collapsed** (loss pinned at the margin from epoch 0, every crop to one point) — switched to **batch-all** (Hermans et al., 2017; `references.md` row 40, §4.3.2 updated). Val Top-1: frozen baseline 12.4% → triplet-only 38.9% → **+relational KD 40.5%**; Top-3 63.5%, family acc 87.9%. | 2026-09-22 |
+| ☑ | Separability evidence | `reports/incr2/*.json` (committed) + Figure `assets/figures/embedding_tsne.png` from `src/visualization/embedding_tsne.py`: frozen vs. head t-SNE, colored by family. Serif/display/mono separate under the head; families are intermixed without it. | 2026-09-22 |
 
 ## Increment 3 — Open-set decision and evaluation (§4.6.3)
 
