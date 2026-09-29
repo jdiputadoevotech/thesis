@@ -134,8 +134,10 @@ def main():
             best = acc
             save_teacher(t, fonts, args.out)
 
-    default_out = args.out == ROOT / "data/models/teacher"
-    report = ROOT / "reports/incr2/teacher.json" if default_out else args.out / "teacher.json"
+    # Real runs (under data/models/) report beside the other Increment 2 evidence;
+    # smoke runs elsewhere keep their report next to their checkpoint.
+    real = args.out.resolve().is_relative_to((ROOT / "data/models").resolve())
+    report = ROOT / f"reports/incr2/{args.out.name}.json" if real else args.out / "teacher.json"
     report.parent.mkdir(parents=True, exist_ok=True)
     report.write_text(json.dumps({"best_val_top1": best, "epochs": log, "lora": LORA,
                                   "args": {k: str(v) for k, v in vars(args).items()}}, indent=2))

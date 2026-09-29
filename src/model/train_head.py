@@ -25,6 +25,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 import torch
@@ -124,7 +125,7 @@ def fit(X, T, y, train_idx, sel_idx, fam, tier, args, dev):
     Top-1; without (CV folds), train the fixed epoch count and keep the last."""
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
-    head = Head(X.shape[1]).to(dev)
+    head = Head(X.shape[1], args.dim, args.hidden).to(dev)
     opt = torch.optim.AdamW(head.parameters(), lr=args.lr, weight_decay=1e-4)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, args.epochs)
     tr = torch.as_tensor(train_idx, device=dev)
@@ -165,39 +166,50 @@ def evaluate_fast(zt, yt, ze, ye, n_font):
     return ((ze @ prototypes(zt, yt, n_font).T).argmax(1) == ye).float().mean().item()
 
 
-def load(backbone, need_teacher):
+TEACHER_CACHE = ROOT / "data/features/teacher.npz"
+
+
+def load(backbone, need_teacher, teacher_cache=TEACHER_CACHE):
     rows = load_rows()
     ids = [r["image_id"] for r in rows]
     f = np.load(ROOT / f"data/features/{backbone}.npz")
     assert list(f["image_id"]) == ids, "feature cache out of sync with metadata.csv; re-run cache_features.py"
     T = None
     if need_teacher:
-        t = np.load(ROOT / "data/features/teacher.npz")
+        t = np.load(teacher_cache)
         assert list(t["image_id"]) == ids, "teacher cache out of sync; re-run cache_features.py --teacher"
         T = t["feats"]
     return rows, f["feats"], T
 
 
-def main(args):
-    torch.use_deterministic_algorithms(True)
-    dev = "cuda" if torch.cuda.is_available() else "cpu"
-    rows, X, T = load(args.backbone, args.kd > 0)
+def setup(backbone, need_teacher, dev, teacher_cache=TEACHER_CACHE):
+    """Cached features, labels and splits on `dev`; shared with sweep.py."""
+    rows, X, T = load(backbone, need_teacher, teacher_cache)
     fonts = sorted({r["font_id"] for r in rows})
     fi = {f: i for i, f in enumerate(fonts)}
     fam_of = {r["font_id"]: FAMILIES.index(r["family_class"]) for r in rows}
-    fam = torch.tensor([fam_of[f] for f in fonts], device=dev)
-    y = torch.tensor([fi[r["font_id"]] for r in rows], device=dev)
-    tier = [r["tier"] for r in rows]
-    X = torch.as_tensor(X, device=dev).float()
-    T = torch.as_tensor(T, device=dev) if T is not None else torch.zeros(len(rows), 1, device=dev)
     split = np.array([r["split"] for r in rows])
-    train_idx, val_idx = np.flatnonzero(split == "train"), np.flatnonzero(split == "validation")
+    return SimpleNamespace(
+        rows=rows, fonts=fonts, tier=[r["tier"] for r in rows],
+        X=torch.as_tensor(X, device=dev).float(),
+        T=torch.as_tensor(T, device=dev) if T is not None else torch.zeros(len(rows), 1, device=dev),
+        y=torch.tensor([fi[r["font_id"]] for r in rows], device=dev),
+        fam=torch.tensor([fam_of[f] for f in fonts], device=dev),
+        train_idx=np.flatnonzero(split == "train"), val_idx=np.flatnonzero(split == "validation"))
+
+
+def main(args):
+    torch.use_deterministic_algorithms(True)
+    dev = "cuda" if torch.cuda.is_available() else "cpu"
+    d = setup(args.backbone, args.kd > 0, dev, args.teacher_cache)
+    rows, fonts, tier, X, T, y, fam = d.rows, d.fonts, d.tier, d.X, d.T, d.y, d.fam
+    train_idx, val_idx = d.train_idx, d.val_idx
 
     def score(z, tr, ev):
         return evaluate(z[tr], y[tr], z[ev], y[ev], fam, [tier[i] for i in ev])
 
     tag = args.backbone + ("" if args.kd > 0 else "_nokd")
-    hp = {k: v for k, v in vars(args).items() if k not in ("check",)}
+    hp = {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items() if k != "check"}
     out = ROOT / "reports/incr2"
     out.mkdir(parents=True, exist_ok=True)
 
@@ -226,7 +238,8 @@ def main(args):
     (out / f"{tag}.json").write_text(json.dumps(result, indent=2))
     ckpt = ROOT / f"data/models/head_{tag}.pt"
     ckpt.parent.mkdir(parents=True, exist_ok=True)
-    torch.save({"backbone": args.backbone, "d_in": X.shape[1], "state_dict": head.state_dict(),
+    torch.save({"backbone": args.backbone, "d_in": X.shape[1], "dim": args.dim, "hidden": args.hidden,
+                "state_dict": head.state_dict(),
                 "fonts": fonts, "hparams": hp}, ckpt)
     print(json.dumps({"head": result["head"], "frozen_baseline": result["frozen_baseline"]}, indent=2))
 
@@ -270,7 +283,7 @@ def check():
     print("ok")
 
 
-if __name__ == "__main__":
+def parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--backbone", choices=BACKBONES, default="dinov2")
@@ -279,12 +292,19 @@ if __name__ == "__main__":
     ap.add_argument("--p", type=int, default=32, help="fonts per batch")
     ap.add_argument("--k", type=int, default=4, help="crops per font per batch")
     ap.add_argument("--margin", type=float, default=0.2)
+    ap.add_argument("--dim", type=int, default=256, help="embedding dimension")
+    ap.add_argument("--hidden", type=int, default=512)
     ap.add_argument("--mining", choices=["hard", "all"], default="all",
                     help="batch-hard collapsed to a point on this corpus (loss pinned at the margin)")
     ap.add_argument("--kd", type=float, default=1.0, help="KD weight lambda; 0 = triplet only")
     ap.add_argument("--no-kd", dest="kd", action="store_const", const=0.0)
     ap.add_argument("--temp", type=float, default=0.1, help="KD softmax temperature")
+    ap.add_argument("--teacher-cache", type=Path, default=TEACHER_CACHE)
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=2026)
-    a = ap.parse_args()
+    return ap
+
+
+if __name__ == "__main__":
+    a = parser().parse_args()
     check() if a.check else main(a)

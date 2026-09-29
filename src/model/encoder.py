@@ -105,7 +105,7 @@ class FontEmbedder(nn.Module):
     @classmethod
     def load(cls, path):
         ck = torch.load(path, map_location="cpu")
-        head = Head(ck["d_in"])
+        head = Head(ck["d_in"], ck.get("dim", 256), ck.get("hidden", 512))
         head.load_state_dict(ck["state_dict"])
         return cls(ck["backbone"], head).eval()
 
