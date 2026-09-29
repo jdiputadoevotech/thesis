@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Drive training on SVC1 (DCISM's shared GB10 server) from this laptop.
 # Needs an SSH host alias "svc1" in ~/.ssh/config with key auth; no credentials
-# live in this repo. Code travels by git (push the branch first); the gitignored
+# live in this repo. Code travels by git push over SSH; the gitignored
 # data travels once by tar. Jobs run in detached tmux sessions, so they survive
 # the laptop disconnecting.
 #
-#   scripts/svc1.sh sync              clone/update the server checkout to this branch
+#   scripts/svc1.sh sync              push this branch to the server checkout over SSH
 #   scripts/svc1.sh data              corpus + feature caches -> server (gitignored, ~0.8 GB)
 #   scripts/svc1.sh setup             create ~/thesis/.venv (ARM + CUDA 13 torch)
 #   scripts/svc1.sh run NAME CMD...   start CMD in tmux session NAME, logged to logs/NAME.log
@@ -18,13 +18,15 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 REMOTE=thesis   # relative to the server home directory
-URL=$(git remote get-url origin)
 BRANCH=$(git branch --show-current)
 
 case "${1:-}" in
   sync)
-    ssh svc1 "if [ -d $REMOTE/.git ]; then cd $REMOTE && git fetch -q origin && git checkout -q $BRANCH && git pull -q --ff-only;
-              else git clone -q -b $BRANCH $URL $REMOTE && cd $REMOTE; fi && mkdir -p logs && git log --oneline -1" ;;
+    # Pushed from here over SSH, not pulled from GitHub: the server's outbound
+    # internet is blocked at night, inbound SSH is not. Commits only -- commit first.
+    ssh svc1 "[ -d $REMOTE/.git ] || git init -q $REMOTE; cd $REMOTE && git config receive.denyCurrentBranch updateInstead && mkdir -p logs"
+    git push -q "svc1:$REMOTE" "$BRANCH:$BRANCH"
+    ssh svc1 "cd $REMOTE && git checkout -q $BRANCH && git log --oneline -1" ;;
   data)
     tar -czf - data/corpus data/features | ssh svc1 "tar -xzf - -C $REMOTE"
     echo "copied data/corpus and data/features" ;;
