@@ -7,9 +7,10 @@ opencv-python-headless==5.0.0.93
 
 # Increment 2: metric embedding (src/model/), trained locally on CUDA.
 # Install torch FIRST from the CUDA index, or peft pulls a CPU build over it:
-#   pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+#   pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cu124
 #   pip install -r requirements.txt
 torch==2.6.0
+torchvision==0.21.0  # VGG16 for DeepSSIM (Increment 3); same CUDA index as torch
 transformers==4.49.0
 huggingface_hub==0.36.2
 peft==0.14.0

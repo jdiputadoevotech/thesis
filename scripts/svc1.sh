@@ -46,10 +46,10 @@ case "${1:-}" in
     echo "copied $*" ;;
   setup)
     # The pinned torch in requirements.txt is an x86 CUDA 12.4 build; the GB10 is
-    # aarch64 + Blackwell, so torch comes from the CUDA 13 index and the rest from the pins.
+    # aarch64 + Blackwell, so torch and torchvision come from the CUDA 13 index, the rest from the pins.
     ssh svc1 "cd $REMOTE && python3 -m venv .venv && .venv/bin/pip install -q --upgrade pip &&
-      .venv/bin/pip install -q torch --index-url https://download.pytorch.org/whl/cu130 &&
-      grep -v '^torch==' requirements.txt > /tmp/req-\$USER.txt &&
+      .venv/bin/pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cu130 &&
+      grep -v -E '^torch(vision)?==' requirements.txt > /tmp/req-\$USER.txt &&
       .venv/bin/pip install -q -r /tmp/req-\$USER.txt &&
       .venv/bin/python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))'" ;;
   run)
