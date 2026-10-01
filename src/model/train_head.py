@@ -166,7 +166,7 @@ def evaluate_fast(zt, yt, ze, ye, n_font):
     return ((ze @ prototypes(zt, yt, n_font).T).argmax(1) == ye).float().mean().item()
 
 
-TEACHER_CACHE = ROOT / "data/features/teacher.npz"
+TEACHER_CACHE = ROOT / "data/features/teacher10.npz"
 
 
 def load(backbone, need_teacher, teacher_cache=TEACHER_CACHE):
@@ -288,15 +288,15 @@ def parser():
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--backbone", choices=BACKBONES, default="dinov2")
     ap.add_argument("--folds", type=int, default=0, help="stratified k-fold on train+val (Section 4.3.2)")
-    ap.add_argument("--epochs", type=int, default=60)
-    ap.add_argument("--p", type=int, default=32, help="fonts per batch")
-    ap.add_argument("--k", type=int, default=4, help="crops per font per batch")
+    ap.add_argument("--epochs", type=int, default=120)
+    ap.add_argument("--p", type=int, default=16, help="fonts per batch")
+    ap.add_argument("--k", type=int, default=8, help="crops per font per batch")
     ap.add_argument("--margin", type=float, default=0.2)
     ap.add_argument("--dim", type=int, default=256, help="embedding dimension")
     ap.add_argument("--hidden", type=int, default=512)
     ap.add_argument("--mining", choices=["hard", "all"], default="all",
                     help="batch-hard collapsed to a point on this corpus (loss pinned at the margin)")
-    ap.add_argument("--kd", type=float, default=1.0, help="KD weight lambda; 0 = triplet only")
+    ap.add_argument("--kd", type=float, default=0.5, help="KD weight lambda; 0 = triplet only")
     ap.add_argument("--no-kd", dest="kd", action="store_const", const=0.0)
     ap.add_argument("--temp", type=float, default=0.1, help="KD softmax temperature")
     ap.add_argument("--teacher-cache", type=Path, default=TEACHER_CACHE)

@@ -7,7 +7,7 @@ The cached value is exactly features(Preprocess(crop)), the same path
 FontEmbedder.forward() takes at serving time.
 
     .venv/Scripts/python.exe src/model/cache_features.py --backbone dinov2
-    .venv/Scripts/python.exe src/model/cache_features.py --teacher data/models/teacher
+    .venv/Scripts/python.exe src/model/cache_features.py --teacher data/models/teacher10
     .venv/Scripts/python.exe src/model/cache_features.py --backbone dinov2 --limit 256 --out /tmp/f.npz
 """
 
@@ -37,7 +37,7 @@ def main():
         from train_teacher import load_teacher
         teacher = load_teacher(args.teacher).to(dev).eval()
         prep, encode = teacher.prep, teacher.embed
-        out = args.out or ROOT / "data/features/teacher.npz"
+        out = args.out or ROOT / f"data/features/{args.teacher.name}.npz"
     else:
         prep = Preprocess(args.backbone).to(dev)
         model = load_backbone(args.backbone).to(dev)

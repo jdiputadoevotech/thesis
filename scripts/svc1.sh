@@ -47,8 +47,10 @@ case "${1:-}" in
   jobs)
     ssh svc1 "tmux ls 2>/dev/null || echo 'no jobs'; nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader" ;;
   pull)
-    ssh svc1 "cd $REMOTE && tar -czf - reports assets/figures" | tar -xzf -
-    echo "pulled reports/ and assets/figures/" ;;
+    # Never overwrite: an existing local file may be a committed laptop result the
+    # server re-ran under the same name. Rename or delete it to take the server's.
+    ssh svc1 "cd $REMOTE && tar -czf - reports assets/figures" | tar -xzf - --skip-old-files
+    echo "pulled new files from reports/ and assets/figures/ (existing local files kept)" ;;
   *)
     sed -n '2,17p' "$0"; exit 1 ;;
 esac

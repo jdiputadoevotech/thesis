@@ -10,7 +10,7 @@ Fits a 4 GB GPU: micro-batches of 16 with 4-step gradient accumulation
 (equivalent to batch 64 -- CE is per-sample and the ViT uses LayerNorm, not
 BatchNorm), fp16 autocast, gradient checkpointing.
 
-    .venv/Scripts/python.exe src/model/train_teacher.py
+    .venv/Scripts/python.exe src/model/train_teacher.py              # 10 epochs -> data/models/teacher10
     .venv/Scripts/python.exe src/model/train_teacher.py --limit 2000 --epochs 1 --out /tmp/teacher
 """
 
@@ -77,7 +77,7 @@ def accuracy(t, loader, dev):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--epochs", type=int, default=5)
+    ap.add_argument("--epochs", type=int, default=10)  # plateaus by 8-10 (reports/incr2/teacher10.json)
     ap.add_argument("--micro", type=int, default=16)
     ap.add_argument("--accum", type=int, default=4)
     ap.add_argument("--lr", type=float, default=1e-4, help="LoRA lr; the classifier gets 10x")
@@ -86,7 +86,7 @@ def main():
     # Each worker process loads its own CUDA libraries; too many at once exhausts
     # the Windows pagefile (WinError 1455) long before they exhaust the GPU.
     ap.add_argument("--workers", type=int, default=2)
-    ap.add_argument("--out", type=Path, default=ROOT / "data/models/teacher")
+    ap.add_argument("--out", type=Path, default=ROOT / "data/models/teacher10")
     args = ap.parse_args()
 
     random.seed(args.seed); np.random.seed(args.seed); torch.manual_seed(args.seed)
