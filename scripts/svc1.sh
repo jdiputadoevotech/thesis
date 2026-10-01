@@ -31,7 +31,8 @@ case "${1:-}" in
     # Untracked files the push does not touch stay where later jobs can read them.
     ssh svc1 "[ -d $REMOTE/.git ] || git init -q $REMOTE; cd $REMOTE && git config receive.denyCurrentBranch updateInstead && mkdir -p logs"
     "$0" pull
-    ssh svc1 "cd $REMOTE && git ls-files --others --exclude-standard -- reports assets/figures | xargs -r git hash-object --stdin-paths | paste - <(git ls-files --others --exclude-standard -- reports assets/figures)" |
+    ssh svc1 "cd $REMOTE && git ls-files --others --exclude-standard -- reports assets/figures |
+              while read -r f; do echo \"\$(git hash-object \"\$f\") \$f\"; done" |
     while read -r sha path; do
       want=$(git rev-parse -q --verify "HEAD:$path" 2>/dev/null) || continue
       if [ "$sha" = "$want" ]; then ssh -n svc1 "rm '$REMOTE/$path'"
