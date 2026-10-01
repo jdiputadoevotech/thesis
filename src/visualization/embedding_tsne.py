@@ -3,7 +3,7 @@ DINOv2 features vs. the trained metric head, colored by family class.
 
 Unlike Figure 4 (embedding_space.py, a conceptual sketch), every point here is
 a real validation crop. Needs data/features/dinov2.npz and
-data/models/head_dinov2.pt (src/model/cache_features.py, train_head.py).
+data/models/head_dinov2_mid_oe.pt (src/model/cache_features.py, train_head.py).
 
     .venv/Scripts/python.exe src/visualization/embedding_tsne.py
 """
@@ -31,9 +31,9 @@ SEED = 2026
 def create_figure():
     apply_style()
     rows = list(csv.DictReader((ROOT / "data/corpus/metadata.csv").open()))
-    feats = np.load(ROOT / "data/features/dinov2.npz")["feats"]
-    ck = torch.load(ROOT / "data/models/head_dinov2.pt", map_location="cpu")
-    head = Head(ck["d_in"])
+    ck = torch.load(ROOT / "data/models/head_dinov2_mid_oe.pt", map_location="cpu")
+    feats = np.load(ROOT / f"data/features/{ck['backbone']}.npz")["feats"]
+    head = Head(ck["d_in"], ck.get("dim", 256), ck.get("hidden", 512))
     head.load_state_dict(ck["state_dict"])
 
     val = np.flatnonzero([r["split"] == "validation" for r in rows])

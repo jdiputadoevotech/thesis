@@ -11,7 +11,7 @@ unknown-font crops wrongly accepted at that tau: FPR at 95% recall
 Model choice uses the unknown-font *validation* fonts only. The test fonts
 are reserved for Chapter 5 and need --final to be touched.
 
-    .venv/bin/python src/model/open_set.py --head data/models/head_dinov2.pt
+    .venv/bin/python src/model/open_set.py                    # the final head
     .venv/bin/python src/model/open_set.py --head data/models/head_dinov2_mid.pt
     .venv/bin/python src/model/open_set.py --check
 """
@@ -154,7 +154,7 @@ def check():
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
-    ap.add_argument("--head", default="data/models/head_dinov2.pt")
+    ap.add_argument("--head", default="data/models/head_dinov2_mid_oe.pt")
     ap.add_argument("--final", action="store_true", help="score the TEST unknown fonts (Chapter 5 only)")
     ap.add_argument("--out")
     a = ap.parse_args()

@@ -291,10 +291,10 @@ def check():
 
     # Train/serve skew (Section 4.10.1): the served FontEmbedder on raw PNGs
     # must reproduce head(cached feature). Runs once a head has been trained.
-    ckpt = ROOT / "data/models/head_dinov2.pt"
+    ckpt = ROOT / "data/models/head_dinov2_mid_oe.pt"
     if ckpt.exists():
         dev = "cuda" if torch.cuda.is_available() else "cpu"
-        rows, X, _ = load("dinov2", False)
+        rows, X, _ = load(torch.load(ckpt, map_location="cpu")["backbone"], False)
         val = [i for i, r in enumerate(rows) if r["split"] == "validation"][:20]
         emb = FontEmbedder.load(ckpt).to(dev)
         with torch.autocast(dev, dtype=torch.float16, enabled=dev == "cuda"):
@@ -311,12 +311,12 @@ def check():
 def parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
-    ap.add_argument("--backbone", choices=BACKBONES, default="dinov2")
+    ap.add_argument("--backbone", choices=BACKBONES, default="dinov2_mid")  # blocks 3/6/9/12 (reports/incr2/FINDINGS.md)
     ap.add_argument("--folds", type=int, default=0, help="stratified k-fold on train+val (Section 4.3.2)")
     ap.add_argument("--epochs", type=int, default=120)
     ap.add_argument("--p", type=int, default=16, help="fonts per batch")
     ap.add_argument("--k", type=int, default=8, help="crops per font per batch")
-    ap.add_argument("--margin", type=float, default=0.2)
+    ap.add_argument("--margin", type=float, default=0.4)  # 0.4 with outlier exposure (reports/incr3/FINDINGS.md)
     ap.add_argument("--dim", type=int, default=256, help="embedding dimension")
     ap.add_argument("--hidden", type=int, default=512)
     ap.add_argument("--mining", choices=["hard", "all"], default="all",
@@ -325,10 +325,12 @@ def parser():
     ap.add_argument("--no-kd", dest="kd", action="store_const", const=0.0)
     ap.add_argument("--temp", type=float, default=0.1, help="KD softmax temperature")
     ap.add_argument("--teacher-cache", type=Path, default=TEACHER_CACHE)
-    ap.add_argument("--background", nargs="?", const="background", default=None,
+    ap.add_argument("--background", nargs="?", const="background", default="background",
                     help="outlier exposure: background fonts as triplet negatives (Hendrycks et al., 2019); "
                          "optional set name, e.g. background_x3 (default: background)")
-    ap.add_argument("--n-bg", type=int, default=32, help="background crops added to each batch")
+    ap.add_argument("--no-background", dest="background", action="store_const", const=None,
+                    help="train without outlier exposure")
+    ap.add_argument("--n-bg", type=int, default=128, help="background crops added to each batch")
     ap.add_argument("--name", help="report/checkpoint name, overriding the one built from the flags")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=2026)
