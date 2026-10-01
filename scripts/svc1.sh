@@ -24,7 +24,11 @@ case "${1:-}" in
   sync)
     # Pushed from here over SSH, not pulled from GitHub: the server's outbound
     # internet is blocked at night, inbound SSH is not. Commits only -- commit first.
+    # Server-written results may since have been committed here; git would refuse
+    # to overwrite them. Copy anything new back first, then stash (not delete) them.
     ssh svc1 "[ -d $REMOTE/.git ] || git init -q $REMOTE; cd $REMOTE && git config receive.denyCurrentBranch updateInstead && mkdir -p logs"
+    "$0" pull
+    ssh svc1 "cd $REMOTE && git stash push -q -u -m 'svc1 sync' -- reports assets/figures 2>/dev/null || true"
     git push -q "svc1:$REMOTE" "$BRANCH:$BRANCH"
     ssh svc1 "cd $REMOTE && git checkout -q $BRANCH && git log --oneline -1" ;;
   data)
