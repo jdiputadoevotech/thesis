@@ -189,15 +189,16 @@ def load(backbone, need_teacher, teacher_cache=TEACHER_CACHE):
     return rows, f["feats"], T
 
 
-def setup(backbone, need_teacher, dev, teacher_cache=TEACHER_CACHE, background=False):
+def setup(backbone, need_teacher, dev, teacher_cache=TEACHER_CACHE, background=None):
     """Cached features, labels and splits on `dev`; shared with sweep.py.
-    With `background`, the outlier-exposure fonts' features are appended after
-    the palette rows with label -1, and `bg_idx` points at them."""
+    With `background` (a corpus name such as "background" or "background_x3"),
+    the outlier-exposure fonts' features are appended after the palette rows
+    with label -1, and `bg_idx` points at them."""
     rows, X, T = load(backbone, need_teacher, teacher_cache)
     n = len(rows)
     bg_idx = None
     if background:
-        b = np.load(ROOT / f"data/features/{backbone}_background.npz")["feats"]
+        b = np.load(ROOT / f"data/features/{backbone}_{background}.npz")["feats"]
         X = np.concatenate([X, b])
         if T is not None:
             T = np.concatenate([T, np.zeros((len(b), T.shape[1]), T.dtype)])  # KD never reads these
@@ -324,8 +325,9 @@ def parser():
     ap.add_argument("--no-kd", dest="kd", action="store_const", const=0.0)
     ap.add_argument("--temp", type=float, default=0.1, help="KD softmax temperature")
     ap.add_argument("--teacher-cache", type=Path, default=TEACHER_CACHE)
-    ap.add_argument("--background", action="store_true",
-                    help="outlier exposure: background fonts as triplet negatives (Hendrycks et al., 2019)")
+    ap.add_argument("--background", nargs="?", const="background", default=None,
+                    help="outlier exposure: background fonts as triplet negatives (Hendrycks et al., 2019); "
+                         "optional set name, e.g. background_x3 (default: background)")
     ap.add_argument("--n-bg", type=int, default=32, help="background crops added to each batch")
     ap.add_argument("--name", help="report/checkpoint name, overriding the one built from the flags")
     ap.add_argument("--lr", type=float, default=1e-3)

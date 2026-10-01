@@ -11,6 +11,7 @@ admitting near-identical weight variants, so extra weights are opt-in.
     python src/data/build_palette.py            # build with defaults
     python src/data/build_palette.py --unknown  # the held-out unknown fonts (below)
     python src/data/build_palette.py --background  # outlier-exposure fonts (below)
+    python src/data/build_palette.py --background --bg-scale 3  # 3x as many, data/background_x3.csv
     python src/data/build_palette.py --check    # self-check, no network writes
 
 --unknown continues the same ranking past the palette cutoff and writes
@@ -130,10 +131,11 @@ def select_unknown(families):
     return picked
 
 
-def select_background(families):
-    """The next BACKGROUND_QUOTA families per class after palette and unknown."""
+def select_background(families, scale=1):
+    """The next BACKGROUND_QUOTA x scale families per class after palette and
+    unknown. A larger scale extends the same ranking, so it contains scale 1."""
     taken = {r["font_id"] for r in select(families)} | {r["font_id"] for r in select_unknown(families)}
-    wider = select(families, {c: QUOTA[c] + UNKNOWN_QUOTA[c] + BACKGROUND_QUOTA[c] for c in QUOTA})
+    wider = select(families, {c: QUOTA[c] + UNKNOWN_QUOTA[c] + scale * BACKGROUND_QUOTA[c] for c in QUOTA})
     picked = [r for r in wider if r["font_id"] not in taken]
     for r in picked:
         r["split"] = "train"
@@ -163,9 +165,10 @@ def download(row, font_dir):
     return row
 
 
-def build(out_csv, font_dir, cache, mode="palette"):
+def build(out_csv, font_dir, cache, mode="palette", bg_scale=1):
     families = fetch_metadata(cache)
-    rows = {"palette": select, "unknown": select_unknown, "background": select_background}[mode](families)
+    rows = (select_background(families, bg_scale) if mode == "background"
+            else {"palette": select, "unknown": select_unknown}[mode](families))
     for i, row in enumerate(rows, 1):
         download(row, font_dir)
         print(f"[{i}/{len(rows)}] {row['font_id']}", file=sys.stderr)
@@ -214,6 +217,7 @@ if __name__ == "__main__":
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--unknown", action="store_true", help="held-out unknown fonts instead")
     ap.add_argument("--background", action="store_true", help="outlier-exposure fonts instead")
+    ap.add_argument("--bg-scale", type=int, default=1, help="background fonts x this many")
     ap.add_argument("--out", type=Path)
     ap.add_argument("--fonts", type=Path, default=DATA / "fonts")
     ap.add_argument("--cache", type=Path, default=DATA / "raw" / "gf_metadata.json")
@@ -222,7 +226,8 @@ if __name__ == "__main__":
         check()
     else:
         mode = "unknown" if args.unknown else "background" if args.background else "palette"
-        out = args.out or DATA / f"{mode}.csv"
-        rows = build(out, args.fonts, args.cache, mode)
+        suffix = f"_x{args.bg_scale}" if mode == "background" and args.bg_scale > 1 else ""
+        out = args.out or DATA / f"{mode}{suffix}.csv"
+        rows = build(out, args.fonts, args.cache, mode, args.bg_scale)
         args.out = out
         print(f"{len(rows)} fonts -> {args.out}")

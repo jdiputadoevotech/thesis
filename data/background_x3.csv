@@ -1,0 +1,121 @@
+font_id,family,weight,family_class,popularity,gf_last_modified,split,ttf_path,sha256
+TitilliumWeb-400,Titillium Web,400,sans-serif,66,2025-09-10,train,data/fonts/TitilliumWeb-400.ttf,c5722c5d8e6d69a520af1f0de180017a14209bd36cab538f2a340d30540c63dd
+Heebo-400,Heebo,400,sans-serif,69,2025-09-10,train,data/fonts/Heebo-400.ttf,c3e828690d20e344b2a0c9bcd3d64b21d62d65d465c21dd6117dd33fb5fe2532
+FjallaOne-400,Fjalla One,400,sans-serif,75,2025-09-16,train,data/fonts/FjallaOne-400.ttf,ec886264b469ac0299bbfbf05b6f8310c446b1331bb263f7bc2d7479874692ad
+GoogleSansFlex-400,Google Sans Flex,400,sans-serif,76,2026-07-30,train,data/fonts/GoogleSansFlex-400.ttf,1a5608fc557dca87bbe97ccba8974a5ac99fc87346a8745fc83d5ea06486f99b
+LibreFranklin-400,Libre Franklin,400,sans-serif,77,2025-09-08,train,data/fonts/LibreFranklin-400.ttf,b03fb188d88811436d8b7d7b2b4964921a2c4416f0c042c7ecdb443dcd6e999d
+BarlowCondensed-400,Barlow Condensed,400,sans-serif,79,2025-09-08,train,data/fonts/BarlowCondensed-400.ttf,c82d65280835cb3cd1b499863cf68cae8c6193c45ffae9495d28d01f749a9ae2
+PublicSans-400,Public Sans,400,sans-serif,84,2025-09-16,train,data/fonts/PublicSans-400.ttf,d8a092f98db3ae7c7f01e73f8f23aaaec97f16c325765042ae5a052f4d8de546
+InterTight-400,Inter Tight,400,sans-serif,85,2025-09-16,train,data/fonts/InterTight-400.ttf,27350bc95b961b9b4e1a80d872f49e903fe727f290f6b2a079e67ceb1685fb1f
+Anton-400,Anton,400,sans-serif,86,2025-09-16,train,data/fonts/Anton-400.ttf,fd9301f2837c99df2be07cc7f0be66e9470f5354d8fcf1606027c67fcd637a53
+JosefinSans-400,Josefin Sans,400,sans-serif,88,2025-09-04,train,data/fonts/JosefinSans-400.ttf,51db65928e13442537cf58237592cb49aad1ac5e24345e11283d7ed5723e6793
+Sora-400,Sora,400,sans-serif,91,2025-09-08,train,data/fonts/Sora-400.ttf,1b547e90e4c49aa12e9a35ca8acc91732e188aa9fdbe08d2299ea4d4cae72145
+Lexend-400,Lexend,400,sans-serif,92,2025-09-08,train,data/fonts/Lexend-400.ttf,89d2152dafc3b2033dc61ca9c85695ab86dbe17f534732ae092c060023d7e4a3
+Cairo-400,Cairo,400,sans-serif,94,2025-09-16,train,data/fonts/Cairo-400.ttf,7ecb9b6a465072bce7b0e2a6d2d0355add8151fa9f8f342b516b57b26a2914c6
+Assistant-400,Assistant,400,sans-serif,97,2025-09-08,train,data/fonts/Assistant-400.ttf,7db29a71f35e1b3cd9168e69ecba50d2f9f1fddee3e4e9dd727166234c15d3cb
+SchibstedGrotesk-400,Schibsted Grotesk,400,sans-serif,98,2025-09-04,train,data/fonts/SchibstedGrotesk-400.ttf,357651a7214aa7f518688f3f0deefff8432890825336a75df64185fc3103c965
+RobotoFlex-400,Roboto Flex,400,sans-serif,100,2025-09-04,train,data/fonts/RobotoFlex-400.ttf,f1ad5ed3131510cc8fb647844b857ec29c2aa92f963b48e4f6725cc7e26d6d48
+Cabin-400,Cabin,400,sans-serif,101,2025-09-11,train,data/fonts/Cabin-400.ttf,00ab1bdf700378ee0c0cd80d9c4d8c51eb9a61b8d56933629ca8691af541ec64
+Urbanist-400,Urbanist,400,sans-serif,102,2025-09-16,train,data/fonts/Urbanist-400.ttf,599ec73b0a0388ba35a861b6f40bb77f9874b77c13f6499b15ad734f5715505c
+NanumGothic-400,Nanum Gothic,400,sans-serif,105,2025-05-30,train,data/fonts/NanumGothic-400.ttf,370dbd31aa8abd8f8c057f7d41a71d38f2e71f070fa50a8cc20fecef88a9baab
+Mukta-400,Mukta,400,sans-serif,107,2025-09-08,train,data/fonts/Mukta-400.ttf,0f15e7baff0baf25b4ed6185ac42dd80b38c28e85052e79ac62ed3b9ac7157a9
+Dosis-400,Dosis,400,sans-serif,111,2025-09-11,train,data/fonts/Dosis-400.ttf,4776178c1f285d17b83d4cc1c25bdeea1830dd8f9517f3cb6368706b62aee0aa
+HindSiliguri-400,Hind Siliguri,400,sans-serif,112,2025-09-16,train,data/fonts/HindSiliguri-400.ttf,4b4718bda2202ddabf239510c005d550e39ec5252986b5607e2337c69a8a75e1
+Geist-400,Geist,400,sans-serif,113,2026-05-13,train,data/fonts/Geist-400.ttf,ccce59465ae5c61930ada5453834f60500fbd95084d85db63e0e65fad0125455
+RedHatDisplay-400,Red Hat Display,400,sans-serif,114,2025-09-10,train,data/fonts/RedHatDisplay-400.ttf,b24a2cc56cc574be191f8c8e552bd15c6f1fb525aa0665081e1bfdbe8ce261ae
+Rajdhani-400,Rajdhani,400,sans-serif,116,2025-09-16,train,data/fonts/Rajdhani-400.ttf,fd30002d951c14f9ca6322601720b73ef4a9877167a241ab9498cc9039c596e9
+Fredoka-400,Fredoka,400,sans-serif,117,2025-09-11,train,data/fonts/Fredoka-400.ttf,7fe52d17e4c5c80ec74c9b26cb635d593e72cfc30cc189dab7a0babece57e153
+Exo2-400,Exo 2,400,sans-serif,119,2025-09-02,train,data/fonts/Exo2-400.ttf,da4afb13d2fdc3c5a92ca1f68ea2c76d1fa465bbad986780eea396539dcad2d9
+InstrumentSans-400,Instrument Sans,400,sans-serif,120,2025-09-04,train,data/fonts/InstrumentSans-400.ttf,01689ad055025ff1891607b077513c9389f73360d471dcffa036e326af179b00
+Orbitron-400,Orbitron,400,sans-serif,122,2025-09-04,train,data/fonts/Orbitron-400.ttf,59c2bc6487139f1b8c5754e0cc98ea431ab4c1c1ee142d9d2433ecabe444b59a
+Hind-400,Hind,400,sans-serif,123,2025-09-04,train,data/fonts/Hind-400.ttf,f947664ff88db42e7b7dbcc5cf76f20de7e2fb46d16f50d0ac1ae3b46ac22f10
+MPLUSRounded1c-400,M PLUS Rounded 1c,400,sans-serif,124,2026-06-08,train,data/fonts/MPLUSRounded1c-400.ttf,86f9847b02207adec9963476146b606c302b56906cb41336e7f759346c3e35b3
+Overpass-400,Overpass,400,sans-serif,127,2025-09-02,train,data/fonts/Overpass-400.ttf,bf262ab6f1e241f1942963655b32f5dadbf309e4be8930607f5cbf20ce8a7863
+Oxygen-400,Oxygen,400,sans-serif,129,2025-09-04,train,data/fonts/Oxygen-400.ttf,8eb12af7c555ddc2f90cece6a14fc31f2ca15518f172f734bc350285fe4f7f3d
+MerriweatherSans-400,Merriweather Sans,400,sans-serif,130,2025-09-16,train,data/fonts/MerriweatherSans-400.ttf,cacc2c62debe95dae95802ee076fb0e134ef7b4e85765fc7bb51513c7bb1a130
+Ramabhadra-400,Ramabhadra,400,sans-serif,133,2025-09-16,train,data/fonts/Ramabhadra-400.ttf,ca2fc2649bc9aa5f712c2d91a6a4fe89d326c46e217d073211c6afecabd79514
+AnekTelugu-400,Anek Telugu,400,sans-serif,136,2025-09-08,train,data/fonts/AnekTelugu-400.ttf,14807f6e13ab32edac6765645d1be877cc4fc10751ffb565cf9df1bda771f765
+Tajawal-400,Tajawal,400,sans-serif,138,2025-09-08,train,data/fonts/Tajawal-400.ttf,ce4e98e477f2a36cc7a28bee546f736d67090afaa32073ceef1b7b4cdd076f21
+BarlowSemiCondensed-400,Barlow Semi Condensed,400,sans-serif,139,2025-09-16,train,data/fonts/BarlowSemiCondensed-400.ttf,9ff9499736c5fad7db00815aafc939b3df67bdee87ce62fb04257fe167c151fd
+PTSansNarrow-400,PT Sans Narrow,400,sans-serif,142,2025-09-04,train,data/fonts/PTSansNarrow-400.ttf,9142474df124a37dbac593ae17ae50ee3beec0ea25bdb4e31404ac2637d3e3ed
+HankenGrotesk-400,Hanken Grotesk,400,sans-serif,150,2025-09-02,train,data/fonts/HankenGrotesk-400.ttf,451376abefae9121f5dd0372d26865e7654b1041b9fdacdf57c6bd5cbf691da0
+Teko-400,Teko,400,sans-serif,151,2025-09-16,train,data/fonts/Teko-400.ttf,111cb8a4203f62dd7b672299dce955597b8f8cd15f66f8de1bc240950be06e7d
+Asap-400,Asap,400,sans-serif,153,2025-09-04,train,data/fonts/Asap-400.ttf,dab49217373c8ce2b44c04901136dbc6e220d819ade35ccc5528b71451dff8c2
+Abel-400,Abel,400,sans-serif,154,2025-05-30,train,data/fonts/Abel-400.ttf,093228fe43f67196e7ef40dca4e4815c258ca8dd13356ecad14f8f4d8f08b636
+MavenPro-400,Maven Pro,400,sans-serif,155,2025-09-02,train,data/fonts/MavenPro-400.ttf,0ddcc1a305d092a905fb0f4aa5b98decf73fecc7f0017c404094e64574e321f1
+Questrial-400,Questrial,400,sans-serif,161,2025-09-11,train,data/fonts/Questrial-400.ttf,079b4c19873476fecc96fe97235dfabd375ec8471e110838e24d321c1f7b663d
+MPLUS1p-400,M PLUS 1p,400,sans-serif,162,2026-01-06,train,data/fonts/MPLUS1p-400.ttf,e0a6455bb9446e25223583e1b63f8933bb48336716ef6ad82e47691d59298a7c
+ChakraPetch-400,Chakra Petch,400,sans-serif,163,2025-09-16,train,data/fonts/ChakraPetch-400.ttf,a5466b946c7decc8021748dcde8b25b8a5325539a341ba9fb59307815b28da5d
+LexendDeca-400,Lexend Deca,400,sans-serif,165,2025-09-16,train,data/fonts/LexendDeca-400.ttf,4be3cea8b9bd9b97d36df5252fc2b732e214268aa838df086f79ab300d294abe
+Faustina-400,Faustina,400,serif,211,2025-09-04,train,data/fonts/Faustina-400.ttf,d52552f7a0320a648f454558a1f19185daf680cddc70193b531234b328e9ce4b
+Vollkorn-400,Vollkorn,400,serif,212,2025-09-11,train,data/fonts/Vollkorn-400.ttf,656470470dcf13b9c9a4b5d29603c73784329bfe104e7b2294c128909e161795
+Amiri-400,Amiri,400,serif,215,2025-08-26,train,data/fonts/Amiri-400.ttf,7f19c4a5dc77b0ef435b430d750759170def15d6e3801006e0704dadc7f220e3
+AndadaPro-400,Andada Pro,400,serif,229,2026-06-30,train,data/fonts/AndadaPro-400.ttf,fa536f870a73ae3eec3b85940ce9408a1cfc5d07c5dd1abda5a77f822b88e8b7
+Literata-400,Literata,400,serif,230,2025-09-11,train,data/fonts/Literata-400.ttf,1d6eafdc620333fcc3d573c115fc62ea78d0965d1f72a8f549fc9660fef556b3
+Cardo-400,Cardo,400,serif,237,2025-09-08,train,data/fonts/Cardo-400.ttf,2b86847db9b2737b09281cb404487b2d2c0c003d8db41b94abdac07d683d42ca
+DMSerifText-400,DM Serif Text,400,serif,241,2025-09-02,train,data/fonts/DMSerifText-400.ttf,3b61a706af30ea29818e0c4795e26e7935a296001e076aa62e15be738c2b6809
+Tinos-400,Tinos,400,serif,242,2026-05-19,train,data/fonts/Tinos-400.ttf,e30f146a85623eff54453d733e5e5102fee69f07584d8ea074175a9732028be6
+BreeSerif-400,Bree Serif,400,serif,243,2025-09-04,train,data/fonts/BreeSerif-400.ttf,2e9f0fccac3e40242c7a5fd13229c129af51e969930e627b06c556e8304bec89
+Playfair-400,Playfair,400,serif,249,2025-09-10,train,data/fonts/Playfair-400.ttf,1294a56f8da74c4390d648c0ac9cb2bda63ecf6ffcb73547685b934edf38584a
+Baskervville-400,Baskervville,400,serif,251,2025-09-11,train,data/fonts/Baskervville-400.ttf,c9aa0baaae5610231c3ba1ba89469411d77a9d98d8cd967e9ad204deab78d004
+Aleo-400,Aleo,400,serif,252,2025-09-16,train,data/fonts/Aleo-400.ttf,6fcdaf13e194e96a199431a1cb04ed43afc565b9cd958fb78848cbd9e4687553
+ShipporiMincho-400,Shippori Mincho,400,serif,253,2025-09-04,train,data/fonts/ShipporiMincho-400.ttf,9a360402da3d962ebf905ee771f738394e3656403c31fcb13e862e50ff7b0755
+Prata-400,Prata,400,serif,257,2025-09-16,train,data/fonts/Prata-400.ttf,6bab61b8b8df3f5a24df69c742f6495060b36aec686f37e534ff91a3bffe40ad
+Alegreya-400,Alegreya,400,serif,262,2026-06-30,train,data/fonts/Alegreya-400.ttf,2f355df26680f857b950e338995b2945df5d5345dd4334fd61c60600d666fbb6
+AnticSlab-400,Antic Slab,400,serif,266,2025-09-10,train,data/fonts/AnticSlab-400.ttf,1f5b51109fce14dcb8723c5eba6d3d6ad4649d7eea0ed0ef710652b91a27b95c
+GoogleSansCode-400,Google Sans Code,400,monospace,271,2026-04-14,train,data/fonts/GoogleSansCode-400.ttf,3c84b7523b1a74cb9653e0b5d2b5b82fe60ba8bd6d1b92d236baa05d4a9f9081
+LibreCaslonText-400,Libre Caslon Text,400,serif,277,2025-05-30,train,data/fonts/LibreCaslonText-400.ttf,689d2a36e4ad834c0638f9eb659bfd29456deb94ca23b58795d4ec83ceb7ae5c
+VT323-400,VT323,400,monospace,282,2025-09-16,train,data/fonts/VT323-400.ttf,954e44d25e0ccd643f4ef15e75d56d3d76590d3c2b1e42b71b13d5df740a51a6
+OldStandardTT-400,Old Standard TT,400,serif,283,2025-09-11,train,data/fonts/OldStandardTT-400.ttf,cf759c9617e8d9a74ccc3fcdc8670a25d1e016e6e4cf55c378e79f70bf45520b
+PatuaOne-400,Patua One,400,display,284,2025-09-04,train,data/fonts/PatuaOne-400.ttf,31778a9d3fddf0ea2511b451e852d43570786816ef88da0c1a150dd68f61b6ed
+FugazOne-400,Fugaz One,400,display,285,2025-09-16,train,data/fonts/FugazOne-400.ttf,2032aa829b5c8b8876a7420cce1d0da2741b5210cc83068d88d4388ec18ed3a5
+Audiowide-400,Audiowide,400,display,289,2025-09-16,train,data/fonts/Audiowide-400.ttf,c42a74135f7f527e69a16826220cece45ec376776cfacdfd6cfd750053215146
+SawarabiMincho-400,Sawarabi Mincho,400,serif,291,2025-09-10,train,data/fonts/SawarabiMincho-400.ttf,2831f8c94452d44214c9ff3ebf6b60b1213de5bd2038857f25be6d79d841be58
+NoticiaText-400,Noticia Text,400,serif,296,2025-09-10,train,data/fonts/NoticiaText-400.ttf,bd5e8cb5bf92d198db9149bf7d19fc7bc4c10576b6ac04f42dda72946e670cf5
+CreteRound-400,Crete Round,400,serif,297,2025-09-08,train,data/fonts/CreteRound-400.ttf,7c3ac606ce5cfc98b8650aa39ad34ef914ff4d050b5f18907d07eb2cf8668d0e
+STIXTwoText-400,STIX Two Text,400,serif,300,2025-09-04,train,data/fonts/STIXTwoText-400.ttf,9e76a14a5163216108729b01b7fcc2e8e0b8a5cf271058c1547b9b2463aa51a5
+Quattrocento-400,Quattrocento,400,serif,302,2025-09-04,train,data/fonts/Quattrocento-400.ttf,18a013e4e41389b8a8aa2fd895ac9e7abb94b2b818ccd197ea5221402620da6a
+PTMono-400,PT Mono,400,monospace,305,2025-09-08,train,data/fonts/PTMono-400.ttf,db7134f3be63a56f9648aa775cc8980dfd2a28d4eed38cfbf46b118b098eb270
+ShareTechMono-400,Share Tech Mono,400,monospace,306,2025-09-16,train,data/fonts/ShareTechMono-400.ttf,5f6b57538a1a35469a038dc3073003cebc4c101ad7b3c219e9555a3b3c0a81d2
+ChelseaMarket-400,Chelsea Market,400,display,308,2025-09-16,train,data/fonts/ChelseaMarket-400.ttf,33a94b5e99a94ea1167f277c4e1284f62235f978c6323d177d68a4d7640ba3f4
+Oxanium-400,Oxanium,400,display,311,2025-09-10,train,data/fonts/Oxanium-400.ttf,b19bd4918b692acbe4837e269a5a2854746d490578024ed92831f8f37abbf453
+Martel-400,Martel,400,serif,312,2025-09-04,train,data/fonts/Martel-400.ttf,3575317e005288dab84cd2d5112d68eb829c317b4400de21df8556703500edd7
+PassionOne-400,Passion One,400,display,318,2025-09-10,train,data/fonts/PassionOne-400.ttf,ad041d576a4aade257cd9c1224e9712a8aac31915a88129b1e04323a17955a47
+ZenOldMincho-400,Zen Old Mincho,400,serif,325,2025-09-02,train,data/fonts/ZenOldMincho-400.ttf,43f53fe7e3411475c9867ca889fccc9e950f1ef896618857a0cfc903f1377aea
+Rokkitt-400,Rokkitt,400,serif,331,2025-09-11,train,data/fonts/Rokkitt-400.ttf,1637416502454bf095a97a766721fa791f4d412c2900a9522dba6b36b0840237
+Neuton-400,Neuton,400,serif,332,2025-09-16,train,data/fonts/Neuton-400.ttf,316bd1caa0a429cf45eee42a929448b38a591da38e33f4c1396c2d6b0060b5a7
+Unna-400,Unna,400,serif,334,2025-09-11,train,data/fonts/Unna-400.ttf,0a854090f4ac66cd7ec1a6e990c63fac8a9ea2509c54e1f2ca87ee5e1b003e42
+JosefinSlab-400,Josefin Slab,400,serif,341,2025-09-16,train,data/fonts/JosefinSlab-400.ttf,4e8b71bd0fab4c1820a0f312032aa3c40140b153066412ef95880604a29fbc16
+GildaDisplay-400,Gilda Display,400,serif,344,2025-09-10,train,data/fonts/GildaDisplay-400.ttf,ee1c6ab3c8a735157d040202f5b7d086e18fab60898c742b42b271c6aaa7295e
+PlayfairDisplaySC-400,Playfair Display SC,400,serif,349,2025-09-11,train,data/fonts/PlayfairDisplaySC-400.ttf,2a3f257a6f638596f7b3676b3db204bf83b543566af14163d89cc90f6a83afc0
+Eczar-400,Eczar,400,serif,351,2025-09-16,train,data/fonts/Eczar-400.ttf,588aea44b6e1a90e08b82c169f82f90cade53e64f8089177c38026f75be13249
+Gabarito-400,Gabarito,400,display,355,2025-09-04,train,data/fonts/Gabarito-400.ttf,a936de73165607d73d690ca6861a7b1c79cf67b6e5bd590a7b4bdedd60662cd8
+Forum-400,Forum,400,display,358,2025-09-04,train,data/fonts/Forum-400.ttf,0ae21f320a7bae60712908271b15e8bd21f24347a903e246cae8ac5d75a476fc
+PoiretOne-400,Poiret One,400,display,359,2025-09-11,train,data/fonts/PoiretOne-400.ttf,fc5144677287becb9843b88ac9f232a3fa4f48b05ced123608b8695d0aab1cf5
+Lustria-400,Lustria,400,serif,361,2025-09-11,train,data/fonts/Lustria-400.ttf,341145afec55158bab1d9e86cde337919f9c78eabc018812e570e93a5a0394b2
+RammettoOne-400,Rammetto One,400,display,363,2025-09-16,train,data/fonts/RammettoOne-400.ttf,7dff9c7e1dd394d595b74746f376447abe9ef7ce54c5e38d922d96abc132d16d
+DelaGothicOne-400,Dela Gothic One,400,display,365,2025-09-16,train,data/fonts/DelaGothicOne-400.ttf,e0aafdb03049609bf3a9cffd339449198d3b5432dcb722ad59e3a0ad59ce0d2b
+CutiveMono-400,Cutive Mono,400,monospace,368,2025-09-11,train,data/fonts/CutiveMono-400.ttf,ae841eae265ce1919f60e1b9f0adb08b4ab7d7722777bffb48e2b1e953d69671
+Playball-400,Playball,400,display,369,2025-09-02,train,data/fonts/Playball-400.ttf,1e1d9bd6f8bbd3aeb973eb95f22ba706e31b2aecae5dc9e699979cc0acc886b9
+YesevaOne-400,Yeseva One,400,display,374,2025-09-16,train,data/fonts/YesevaOne-400.ttf,0a7c998947de95a89eaa6f00066e4c0dc4faefbbcfced589d43d53d37e1f421c
+ConcertOne-400,Concert One,400,display,375,2025-09-11,train,data/fonts/ConcertOne-400.ttf,f3d0f6ac8be1703571a6c0bfc60dff157c4c2d49765ff04ade55ed7c35d38d0d
+AbhayaLibre-400,Abhaya Libre,400,serif,376,2025-09-16,train,data/fonts/AbhayaLibre-400.ttf,60bd34845341cfa177f8a94dbc0f98bfe72dd6ed2e9a200cc9decaf9269d5658
+Chango-400,Chango,400,display,382,2025-09-04,train,data/fonts/Chango-400.ttf,31efd5c22c5e21515fed91b959ddc4d4cf430728388ca14baa09b6b4e68ad893
+Gelasio-400,Gelasio,400,serif,385,2025-09-04,train,data/fonts/Gelasio-400.ttf,7884ef501e51508afee5a77b754325d21940cefaceea86cd679bf446295f088a
+Monoton-400,Monoton,400,display,386,2025-09-16,train,data/fonts/Monoton-400.ttf,c7ace162e95aa75817aad0963d23009190cd0a3a7cf80bf376d4de8f5200b376
+Lusitana-400,Lusitana,400,serif,387,2025-09-08,train,data/fonts/Lusitana-400.ttf,5cf01e854c735763272fa987df9de56488d3eecbc1fb5ff3554619f03562f59d
+Eater-400,Eater,400,display,391,2025-09-16,train,data/fonts/Eater-400.ttf,9c4bdc82324270945a37a875f16e2c66169260d5fa72d016f4d5dd2c6ddb5667
+Goldman-400,Goldman,400,display,394,2025-09-11,train,data/fonts/Goldman-400.ttf,3c73352d9ab40dc592fd5f2fc91dd55e686f8b8c48b67ffb74c5e0ff184f3b0b
+CinzelDecorative-400,Cinzel Decorative,400,display,396,2025-09-08,train,data/fonts/CinzelDecorative-400.ttf,4c2d5e205f0898d558f7c348a459743d00a3a9bcb89ce584acb153fdd7567614
+AnonymousPro-400,Anonymous Pro,400,monospace,397,2025-09-08,train,data/fonts/AnonymousPro-400.ttf,f72d8d47b8ece412443a54321bcabecf3c0b92ee79e7221b9bf3cae2f195760b
+UnicaOne-400,Unica One,400,display,399,2025-09-08,train,data/fonts/UnicaOne-400.ttf,6ef1b40e88ae6c82230f4ec05c40741d4c020f1fb155100032b31c96bcf747c0
+Staatliches-400,Staatliches,400,display,401,2025-09-04,train,data/fonts/Staatliches-400.ttf,0adb782fbca6fbf676753701097026d0a6f54a5ea9952ea6fef0189a6d332dd2
+UbuntuMono-400,Ubuntu Mono,400,monospace,408,2025-09-02,train,data/fonts/UbuntuMono-400.ttf,9babd69591719e9b625ca68cac61457126c349f262d2d57a2b6eab293ab9e306
+FiraMono-400,Fira Mono,400,monospace,411,2025-09-16,train,data/fonts/FiraMono-400.ttf,da844d7e07243308a5b668a89bf194693e440bc6a31f6f5c37d29542f914ceca
+AveriaSerifLibre-400,Averia Serif Libre,400,display,436,2025-06-02,train,data/fonts/AveriaSerifLibre-400.ttf,eb8ba665721a22b6c78a3aef008732972642efe91f4f38951d57a07d9215f7e1
+ComicRelief-400,Comic Relief,400,display,441,2025-04-23,train,data/fonts/ComicRelief-400.ttf,64293c3487e414bfac52cb5b2f64d14266dd96e605a032c6b7d42d9140850f6e
+Cousine-400,Cousine,400,monospace,446,2026-06-30,train,data/fonts/Cousine-400.ttf,5bf551795cdae6f1c6e0d07a27b2df68d10542cd588eaea0758134f4154ed1fb
+Calistoga-400,Calistoga,400,display,447,2025-09-16,train,data/fonts/Calistoga-400.ttf,c2e55da5a75550f64244d21e29677e7e7eefd65413475d5011de583f9b884f5c
+OverpassMono-400,Overpass Mono,400,monospace,546,2025-09-08,train,data/fonts/OverpassMono-400.ttf,6f28336016ade6fdd1a7e3220588742c373dd5366d116473c442268ac6f57e1a
+FragmentMono-400,Fragment Mono,400,monospace,580,2025-09-08,train,data/fonts/FragmentMono-400.ttf,b0fd072ccd55acf0930dbb3d150cf24b2ff1e588ffb938f882a7fdffbd7c0efc
+RedHatMono-400,Red Hat Mono,400,monospace,598,2025-09-10,train,data/fonts/RedHatMono-400.ttf,8bbd57c68b7d4614cce315cf15381964bfe0f0447a1cca935caba6c3282537f7
