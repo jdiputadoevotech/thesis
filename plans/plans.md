@@ -22,8 +22,8 @@ These depend on no code. Their lead time, not the build, is the schedule risk.
 | ☑ | Fixed word list | `src/data/words.txt`, ~400 common English words, shared across all fonts (§4.3.1). Word count per crop 70/20/10 for 1/2/3 words; case lower/Title/UPPER. | 2026-09-18 |
 | ☑ | Renderer | `src/data/render_corpus.py`. Pillow glyph-by-glyph at 192 px em → tight ink crop → longest side 224. Colors sampled RGB with contrast ≥ 80, stored as luminance (forward() grayscales anyway; 3× smaller). Alignment jitter, ~20% wrap. ~12 KB/crop → ~540 MB for 46k. 8 cores: ~18 min full run. | 2026-09-18 |
 | ☑ | Degradation operator `D` | In `render_corpus.py`, applied once at render time (see §4.3.2 edit). Kerning: per-gap jitter + tracking on pair-aware advances. Warp: smoothed random displacement field via `cv2.remap`. Blur on the ink mask, noise after downsample. Four severity tiers (pristine 15% / mild 30% / moderate 30% / severe 25%), each θ drawn independently within the tier. Severe capped at θ = 0.90 after inspecting a 40-crop severe sheet: above it glyphs are unrecoverable to a human, and labeled mush in validation only loosens τ (raises FPR@95TPR). Knobs if retuning: `WARP_AMP`, `BLUR_SIGMA`, `NOISE_SIGMA`, `TIERS`. | 2026-09-18 |
-| ◐ | Corpus + metadata | Smoke-tested (80 fonts × 8, all TTFs load). **Full render runs off Matt's laptop** (Colab or the data-side machine, per §4.9.2): `python src/data/render_corpus.py` → `data/corpus/` + `metadata.csv` (Table 1 columns + `tier`, the stratification key; 70/15/15 by `(font_id, tier)`). Deterministic, so wherever it runs yields the same bytes given `palette.csv` + the pinned TTFs. | 2026-09-18 |
-| ☐ | Mixed-font stressor set | Two palette fonts per line at controlled ratios; the only labeled ground truth for the homogeneity check (§4.10.2). | 2026-09-16 |
+| ☑ | Corpus + metadata | `data/corpus/` + `metadata.csv`: 46,000 crops (80 × 575), Table 1 columns + `tier`, 70/15/15 by `(font_id, tier)`. Deterministic: spot-checked crops re-render byte-identical. | 2026-10-01 |
+| ☑ | Mixed-font stressor set | `src/data/render_mixed.py` → `data/corpus_mixed/` (4,000 crops). Two palette fonts per crop: by whole word (40%), mid-word at 25/50/75% (40%), or interleaved per character (20%), then operator D. Records each character's font (`char_fonts`) and the A→B boundary as a fraction of crop width (none for interleave). 50/50 validation/test by index. Labeled ground truth for the homogeneity check. | 2026-10-01 |
 
 ## Increment 2 — Metric embedding (§4.6.3)
 
@@ -40,6 +40,8 @@ These depend on no code. Their lead time, not the build, is the schedule risk.
 
 | Status | Plan / experiment | Notes | Updated |
 |--------|-------------------|-------|---------|
+| ☑ | Unknown-font set | Gap found 2026-10-01: §4.10.2 measured FPR on "out-of-palette crops" but no synthetic set had any. `build_palette.py --unknown` → `data/unknown.csv`: the next 20 fonts below the palette cutoff (8/6/4/2), symbol faces excluded. Split by font: 10 validation (model choice), 10 test (Ch5). `data/corpus_unknown/`, 11,500 crops. Ch4 §4.3.1 + §4.10.2 updated. | 2026-10-01 |
+| ☐ | Last-layer vs multi-layer head, open-set | **First Increment 3 run.** Both heads were chosen on closed-set Top-1 only (Increment 2). Compare FPR@95% recall on the unknown-font *validation* fonts before adopting blocks 3/6/9/12 as the default. Features cached on SVC1: `{dinov2,dinov2_mid}_{unknown,mixed}.npz`. | 2026-10-01 |
 | ☐ | Prototypes + calibrate τ | Per-font centroid over training crops; τ at 95% recall on validation (§4.4.2 step 8). | 2026-09-16 |
 | ☐ | Homogeneity check | Column-pooled patch tokens, 2-cluster dispersion cutoff, single contiguous split, mixed-typography verdict. | 2026-09-16 |
 | ☐ | Metrics | Top-1/Top-3, FPR@95%TPR, structural re-render distance, conformal coverage, centroid severity index, confusion matrix by family. | 2026-09-16 |
