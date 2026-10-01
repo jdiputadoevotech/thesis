@@ -35,6 +35,10 @@ The gain costs about 1 point of known-font Top-1. Pushing harder (256 crops per 
 
 **8. FPR is a noisy measure once outlier exposure is on.** Without it, FPR varies by ±0.2 points across seeds; with it, by ±1.3–2.4. It averages over only 10 unknown fonts, each of which swings between ~30% and ~98% acceptance. Single-run FPR differences of a few points are not evidence; Chapter 5 should report the mean over seeds.
 
+**9. The homogeneity check as designed in Section 4.4.2 does not work.** It pools DINOv2 block-12 patch tokens by grid column, splits the column profiles into two clusters, and flags the crop when the clusters are farther apart than a cutoff set at 5% false alarm on single-font validation crops (`src/model/homogeneity.py`, `homogeneity.json`). On the mixed-font stressor set (validation half), it flags only 2.4% of mid-word mixes, 4.5% of whole-word mixes and 2.4% of interleaved crops: no better than its 4.8% false-alarm rate on single-font crops. Finding empty columns by CLS attention instead of ink pixels is no better (1.0–3.2%). Probable cause: a column's tokens mostly encode *which letter* sits there, so letter-to-letter variation inside one font swamps the font-to-font difference the check looks for.
+
+**10. The trained font embedding does separate the halves of a two-font crop.** Probe on 300 single-font and 300 mixed validation crops (whole-word and mid-word mixes): cut each crop in two, embed both halves with the final head, and take their cosine distance. Cutting at the middle gives AUROC 0.811 and detects 48.7% of mixed crops at 5% false alarm; cutting at the true boundary gives AUROC 0.932 and 78.0% (the ceiling for a perfect cut position). A working check can therefore search a few cut positions with the embedding the head was trained for, at the price of extra forward passes per crop, which Section 4.4.2 currently says the check does not need. (Probe only; not yet a script or a report file.)
+
 ## Files
 
 | File | Contents |
@@ -44,3 +48,4 @@ The gain costs about 1 point of known-font Top-1. Pushing harder (256 crops per 
 | `open_set_oe_bg*.json` | Outlier-exposure sweep (40 background fonts); `open_set_oe_bg32.json` is the first, 32-crop run |
 | `open_set_oe_x3_*.json` | 120 background fonts |
 | `open_set_*_s1.json`, `open_set_*_s2.json` | Extra seeds for the three setups in finding 5 |
+| `homogeneity.json` | Patch-column homogeneity check, both empty-column masks (finding 9) |
