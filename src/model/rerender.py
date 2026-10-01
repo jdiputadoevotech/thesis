@@ -123,8 +123,10 @@ class DeepSSIM:
 
 
 def compare(crop_ink, ref_ink, deep):
+    # Both metrics compare the crop with the re-render at the crop's size: the raw
+    # re-render is ~10x larger (EM = 192 px), a scale gap VGG features do not absorb.
     ref = cv2.resize(ref_ink, crop_ink.shape[::-1], interpolation=cv2.INTER_AREA)
-    gx, gy = deep.gram(crop_ink), deep.gram(ref_ink)
+    gx, gy = deep.gram(crop_ink), deep.gram(ref)
     return {"ssim": ssim(crop_ink, ref), "mse": float(((crop_ink - ref) ** 2).mean()),
             "dssim": deep.score(gx, gy, 4), "dssim_lite": deep.score(gx, gy)}
 
@@ -196,6 +198,15 @@ def check():
     b = rerender("data/fonts/AbrilFatface-400.ttf", ["Hamburg"], "left")
     same, other = compare(a, a, deep), compare(a, b, deep)
     assert all(same[m] > other[m] for m in ("ssim", "dssim", "dssim_lite")), (same, other)
+    # A crop and the clean re-render of its own font and layout must score near 1.
+    import render_corpus as rc
+    row_font = ImageFont.truetype(str(ROOT / "data/fonts/Roboto-400.ttf"), EM)
+    img, _ = rc.render_one(row_font, 4)
+    while _["tier"] != "pristine":
+        img, _ = rc.render_one(row_font, _["seed"] + 1)
+    text, lines, align = layout(_["seed"])
+    own = compare(ink_map(img), rerender("data/fonts/Roboto-400.ttf", lines, align), deep)
+    assert own["ssim"] > 0.8 and own["dssim_lite"] > 0.8 and own["dssim"] > 0.8, own
     thin = np.zeros((14, 220), np.float32); thin[4:10, 10:200] = 1  # a 14-px-tall crop must not crash VGG
     assert deep.gram(thin).shape == (512, 512)
     print("ok", {m: round(other[m], 3) for m in other})
