@@ -18,7 +18,8 @@ matter. Four scores, higher = more similar except MSE:
 Our implementation choices where the arXiv v1 paper is silent: features are
 taken after conv5_1's ReLU; the Gram matrix is divided by the feature map's
 h*w so images of different sizes compare; 4x4 windows do not overlap;
-xi = 1e-6; ImageNet normalization on the ink map replicated to 3 channels.
+xi = 1e-6; images thinner than 64 px are scaled up (keeping aspect) so
+VGG's pooling does not reduce them to nothing; ImageNet normalization on the ink map replicated to 3 channels.
 The paper's "attention calibration" step is named but not specified in v1,
 so it is not implemented.
 
@@ -51,6 +52,7 @@ from render_corpus import EM, TIERS, TIER_WEIGHTS, crop_to_ink, sample_text, typ
 from encoder import Head, read_crop  # noqa: E402
 
 XI = 1e-6
+MIN_SIDE = 64  # VGG16 halves the image 4 times before conv5_1; thinner inputs are scaled up
 IMAGENET = (torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1), torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
 
 
@@ -97,7 +99,10 @@ class DeepSSIM:
 
     @torch.no_grad()
     def gram(self, ink):
-        x = torch.as_tensor(ink, device=self.dev)[None, None].expand(1, 3, -1, -1)
+        x = torch.as_tensor(ink, device=self.dev)[None, None]
+        if min(x.shape[-2:]) < MIN_SIDE:  # a thin word crop would pool to nothing in VGG
+            x = F.interpolate(x, scale_factor=MIN_SIDE / min(x.shape[-2:]), mode="bilinear", align_corners=False)
+        x = x.expand(1, 3, -1, -1)
         x = (x - IMAGENET[0].to(self.dev)) / IMAGENET[1].to(self.dev)
         f = self.net(x)[0].flatten(1)                                    # (512, h*w)
         return (f @ f.T) / f.shape[1]                                    # (512, 512)
@@ -191,6 +196,8 @@ def check():
     b = rerender("data/fonts/AbrilFatface-400.ttf", ["Hamburg"], "left")
     same, other = compare(a, a, deep), compare(a, b, deep)
     assert all(same[m] > other[m] for m in ("ssim", "dssim", "dssim_lite")), (same, other)
+    thin = np.zeros((14, 220), np.float32); thin[4:10, 10:200] = 1  # a 14-px-tall crop must not crash VGG
+    assert deep.gram(thin).shape == (512, 512)
     print("ok", {m: round(other[m], 3) for m in other})
 
 

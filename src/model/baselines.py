@@ -161,12 +161,17 @@ def main(args):
 
     st = Storia()
     own = sorted(set(st.classes))
-    assert set(palette) <= set(own), set(palette) - set(own)
-    p_known, p_unknown = run(st, known), run(st, unknown)
+    # Storia's catalogue predates some palette fonts; score only the ones it knows,
+    # and score our head on the same crops.
+    st_pal = [f for f in palette if f in own]
+    known_st = [r for r in known if family_of_font_id(r["font_id"]) in st_pal]
+    p_known, p_unknown = run(st, known_st), run(st, unknown)
     report["storia"] = {
         "catalogue_families": len(own),
-        "known_own_catalogue": score(p_known, st, known, own),
-        "known_palette_only": score(p_known, st, known, palette),
+        "palette_families_missing": sorted(set(palette) - set(own)),
+        "known_own_catalogue": score(p_known, st, known_st, own),
+        "known_palette_only": score(p_known, st, known_st, st_pal),
+        "ours_same_crops": head_scores(known_st, st_pal, args),
         "unknown_own_catalogue": score(p_unknown, st, unknown, own),
     }
     print("storia", json.dumps(report["storia"]))
