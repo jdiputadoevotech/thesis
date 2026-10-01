@@ -1,0 +1,261 @@
+{
+  "head": "data/models/head_oe_bg32_m04.pt",
+  "backbone": "dinov2_mid",
+  "unknown_split": "validation",
+  "recall_target": 0.95,
+  "tau": 0.763435423374176,
+  "fpr_at_95": 0.836,
+  "auroc": 0.6799927305254936,
+  "known": {
+    "n": 6902,
+    "top1": 0.5039119095914227,
+    "top3": 0.7210953346855984,
+    "accepted": 0.9498696030136192,
+    "top1_when_accepted": 0.5201342281879194,
+    "accepted_by_tier": {
+      "mild": 0.9843597262952102,
+      "moderate": 0.9762135922330097,
+      "pristine": 0.9731285988483686,
+      "severe": 0.8648802736602053
+    }
+  },
+  "unknown": {
+    "n": 5750,
+    "fonts": [
+      "Creepster-400",
+      "FiraCode-400",
+      "FiraSans-400",
+      "IBMPlexSans-400",
+      "Marcellus-400",
+      "NanumMyeongjo-400",
+      "RobotoSerif-400",
+      "Rowdies-400",
+      "Saira-400",
+      "ShareTech-400"
+    ],
+    "accepted_by_tier": {
+      "mild": 0.802757793764988,
+      "moderate": 0.9119638826185101,
+      "pristine": 0.7756696428571429,
+      "severe": 0.8182461103253182
+    },
+    "accepted_by_family": {
+      "sans-serif": 0.7808695652173913,
+      "serif": 0.8892753623188406,
+      "display": 0.8269565217391305,
+      "monospace": 0.9147826086956522
+    }
+  },
+  "per_unknown_font": {
+    "Creepster-400": {
+      "family": "display",
+      "accepted": 0.6678260869565218,
+      "mistaken_for": [
+        {
+          "font": "BebasNeue-400",
+          "family": "sans-serif",
+          "n": 206
+        },
+        {
+          "font": "LilitaOne-400",
+          "family": "display",
+          "n": 128
+        },
+        {
+          "font": "LuckiestGuy-400",
+          "family": "display",
+          "n": 26
+        }
+      ]
+    },
+    "FiraCode-400": {
+      "family": "monospace",
+      "accepted": 0.9147826086956522,
+      "mistaken_for": [
+        {
+          "font": "IBMPlexMono-400",
+          "family": "monospace",
+          "n": 109
+        },
+        {
+          "font": "JetBrainsMono-400",
+          "family": "monospace",
+          "n": 73
+        },
+        {
+          "font": "SourceCodePro-400",
+          "family": "monospace",
+          "n": 57
+        }
+      ]
+    },
+    "FiraSans-400": {
+      "family": "sans-serif",
+      "accepted": 0.888695652173913,
+      "mistaken_for": [
+        {
+          "font": "Roboto-400",
+          "family": "sans-serif",
+          "n": 98
+        },
+        {
+          "font": "RobotoCondensed-400",
+          "family": "sans-serif",
+          "n": 72
+        },
+        {
+          "font": "Ubuntu-400",
+          "family": "sans-serif",
+          "n": 59
+        }
+      ]
+    },
+    "IBMPlexSans-400": {
+      "family": "sans-serif",
+      "accepted": 0.9269565217391305,
+      "mistaken_for": [
+        {
+          "font": "OpenSans-400",
+          "family": "sans-serif",
+          "n": 60
+        },
+        {
+          "font": "PTSans-400",
+          "family": "sans-serif",
+          "n": 57
+        },
+        {
+          "font": "WorkSans-400",
+          "family": "sans-serif",
+          "n": 50
+        }
+      ]
+    },
+    "Marcellus-400": {
+      "family": "serif",
+      "accepted": 0.7460869565217392,
+      "mistaken_for": [
+        {
+          "font": "Lora-400",
+          "family": "serif",
+          "n": 172
+        },
+        {
+          "font": "Cinzel-400",
+          "family": "serif",
+          "n": 75
+        },
+        {
+          "font": "PlayfairDisplay-400",
+          "family": "serif",
+          "n": 50
+        }
+      ]
+    },
+    "NanumMyeongjo-400": {
+      "family": "serif",
+      "accepted": 0.9756521739130435,
+      "mistaken_for": [
+        {
+          "font": "Cinzel-400",
+          "family": "serif",
+          "n": 331
+        },
+        {
+          "font": "EBGaramond-400",
+          "family": "serif",
+          "n": 129
+        },
+        {
+          "font": "CormorantGaramond-400",
+          "family": "serif",
+          "n": 37
+        }
+      ]
+    },
+    "RobotoSerif-400": {
+      "family": "serif",
+      "accepted": 0.9460869565217391,
+      "mistaken_for": [
+        {
+          "font": "Bitter-400",
+          "family": "serif",
+          "n": 164
+        },
+        {
+          "font": "SourceSerif4-400",
+          "family": "serif",
+          "n": 110
+        },
+        {
+          "font": "IBMPlexSerif-400",
+          "family": "serif",
+          "n": 85
+        }
+      ]
+    },
+    "Rowdies-400": {
+      "family": "display",
+      "accepted": 0.9860869565217392,
+      "mistaken_for": [
+        {
+          "font": "ArchivoBlack-400",
+          "family": "sans-serif",
+          "n": 378
+        },
+        {
+          "font": "Righteous-400",
+          "family": "display",
+          "n": 66
+        },
+        {
+          "font": "LilitaOne-400",
+          "family": "display",
+          "n": 57
+        }
+      ]
+    },
+    "Saira-400": {
+      "family": "sans-serif",
+      "accepted": 0.6521739130434783,
+      "mistaken_for": [
+        {
+          "font": "Baloo2-400",
+          "family": "display",
+          "n": 115
+        },
+        {
+          "font": "PTSans-400",
+          "family": "sans-serif",
+          "n": 50
+        },
+        {
+          "font": "OpenSans-400",
+          "family": "sans-serif",
+          "n": 40
+        }
+      ]
+    },
+    "ShareTech-400": {
+      "family": "sans-serif",
+      "accepted": 0.6556521739130434,
+      "mistaken_for": [
+        {
+          "font": "RobotoCondensed-400",
+          "family": "sans-serif",
+          "n": 121
+        },
+        {
+          "font": "Oswald-400",
+          "family": "sans-serif",
+          "n": 83
+        },
+        {
+          "font": "JetBrainsMono-400",
+          "family": "monospace",
+          "n": 59
+        }
+      ]
+    }
+  }
+}

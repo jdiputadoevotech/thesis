@@ -24,11 +24,19 @@ case "${1:-}" in
   sync)
     # Pushed from here over SSH, not pulled from GitHub: the server's outbound
     # internet is blocked at night, inbound SSH is not. Commits only -- commit first.
-    # Server-written results may since have been committed here; git would refuse
-    # to overwrite them. Copy anything new back first, then stash (not delete) them.
+    # Server-written results may since have been committed here; git refuses to
+    # overwrite an untracked file. Copy anything new back first. Then, only for
+    # untracked server files the push would overwrite: identical to the committed
+    # version -> remove (the checkout restores it); different -> stash, with a warning.
+    # Untracked files the push does not touch stay where later jobs can read them.
     ssh svc1 "[ -d $REMOTE/.git ] || git init -q $REMOTE; cd $REMOTE && git config receive.denyCurrentBranch updateInstead && mkdir -p logs"
     "$0" pull
-    ssh svc1 "cd $REMOTE && git stash push -q -u -m 'svc1 sync' -- reports assets/figures 2>/dev/null || true"
+    ssh svc1 "cd $REMOTE && git ls-files --others --exclude-standard -- reports assets/figures | xargs -r git hash-object --stdin-paths | paste - <(git ls-files --others --exclude-standard -- reports assets/figures)" |
+    while read -r sha path; do
+      want=$(git rev-parse -q --verify "HEAD:$path" 2>/dev/null) || continue
+      if [ "$sha" = "$want" ]; then ssh -n svc1 "rm '$REMOTE/$path'"
+      else ssh -n svc1 "cd $REMOTE && git stash push -q -u -m 'svc1 sync: $path' -- '$path'"; echo "warning: server's $path differs from the commit; stashed on the server"; fi
+    done
     git push -q "svc1:$REMOTE" "$BRANCH:$BRANCH"
     ssh svc1 "cd $REMOTE && git checkout -q $BRANCH && git log --oneline -1" ;;
   data)
