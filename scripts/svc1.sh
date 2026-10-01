@@ -54,6 +54,11 @@ case "${1:-}" in
       .venv/bin/python -c 'import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))'" ;;
   run)
     name=$2; shift 2
+    # Never start a job on code other than what is committed here.
+    here=$(git rev-parse HEAD); there=$(ssh svc1 "cd $REMOTE && git rev-parse HEAD")
+    if [ "$here" != "$there" ]; then
+      echo "refusing to run: server is at ${there:0:7}, laptop at ${here:0:7} -- run sync first" >&2; exit 1
+    fi
     ssh svc1 "cd $REMOTE && tmux new-session -d -s $name \"$* 2>&1 | tee logs/$name.log\""
     echo "started '$name'; watch with: scripts/svc1.sh log $name" ;;
   log)
