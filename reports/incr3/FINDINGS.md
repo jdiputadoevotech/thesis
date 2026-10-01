@@ -40,6 +40,7 @@ The gain costs about 1 point of known-font Top-1. Pushing harder (256 crops per 
 | File | Contents |
 |---|---|
 | `open_set_dinov2.json`, `open_set_dinov2_mid.json` | Plain heads: last-layer and multi-layer |
-| `open_set_dinov2_mid_oe.json`, `open_set_oe_bg*.json` | Outlier-exposure sweep (40 background fonts) |
+| `open_set_dinov2_mid_oe.json` | **The final model** (128 background crops, margin 0.4; identical to `open_set_oe_bg128_m04.json`) |
+| `open_set_oe_bg*.json` | Outlier-exposure sweep (40 background fonts); `open_set_oe_bg32.json` is the first, 32-crop run |
 | `open_set_oe_x3_*.json` | 120 background fonts |
 | `open_set_*_s1.json`, `open_set_*_s2.json` | Extra seeds for the three setups in finding 5 |

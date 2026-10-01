@@ -178,7 +178,9 @@ def main(args):
             "mistaken_for": [{"font": f, "family": fam_of[f], "n": n} for f, n in named],
         }
 
-    out = ROOT / args.out if args.out else ROOT / f"reports/incr3/open_set_{backbone}{'_final' if args.final else ''}.json"
+    # Named after the head, not the backbone: two heads can share a backbone.
+    name = Path(args.head).stem.removeprefix("head_")
+    out = ROOT / args.out if args.out else ROOT / f"reports/incr3/open_set_{name}{'_final' if args.final else ''}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2))
     print(json.dumps({k: result[k] for k in ("backbone", "tau", "fpr_at_95", "auroc")}
