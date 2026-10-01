@@ -23,6 +23,8 @@ chapters/appendices/srs/SRS.docx
 # data/fonts/ (the 80 pinned TTFs) and data/raw/ (the Google Fonts index snapshot)
 # are committed on purpose: they are the pin, so no clone ever re-downloads.
 data/corpus/
+data/corpus_unknown/
+data/corpus_mixed/
 
 # Increment 2 — cached backbone features (~140 MB/backbone) and trained weights,
 # regenerable from src/model/. reports/incr2/*.json (the metrics) is committed.

@@ -9,7 +9,17 @@ per family by default -- Chen et al. (2026) dropped to 40.2% family accuracy by
 admitting near-identical weight variants, so extra weights are opt-in.
 
     python src/data/build_palette.py            # build with defaults
+    python src/data/build_palette.py --unknown  # the held-out unknown fonts (below)
     python src/data/build_palette.py --check    # self-check, no network writes
+
+--unknown continues the same ranking past the palette cutoff and writes
+data/unknown.csv: fonts the model never trains on, which the open-set
+rejection (FPR at 95% recall, Section 4.10.2) is measured against. Taking
+the next-ranked faces of each class makes them the hardest plausible
+negatives: popular, in-family look-alikes of palette fonts. Each class is
+split by font, alternating down the ranking, into a validation half (for
+choosing between models) and a test half (for Chapter 5), so no unknown font
+used to pick a model is also used to report it.
 """
 
 import argparse
@@ -39,6 +49,10 @@ CLASSES = {
 # Quota mirrors real-world usage while guaranteeing every class is populated.
 QUOTA = {"sans-serif": 32, "serif": 24, "display": 16, "monospace": 8}
 
+# Held-out unknown fonts: a quarter of the palette quota, so every class keeps
+# at least one validation and one test font.
+UNKNOWN_QUOTA = {"sans-serif": 8, "serif": 6, "display": 4, "monospace": 2}
+
 WEIGHTS = ["400"]  # ponytail: one weight per family; add "700" here if the
 # confusion matrix shows the model has headroom for weight discrimination.
 
@@ -50,7 +64,7 @@ def fetch_metadata(cache: Path):
         with urllib.request.urlopen(METADATA_URL) as r:
             cache.write_bytes(r.read())
     # The endpoint prefixes an XSSI guard before the JSON body.
-    return json.loads(cache.read_text().lstrip(")]}'\n"))["familyMetadataList"]
+    return json.loads(cache.read_text(encoding="utf-8").lstrip(")]}'\n"))["familyMetadataList"]
 
 
 def eligible(fam):
@@ -61,6 +75,9 @@ def eligible(fam):
         fam["category"] in CLASSES
         and fam.get("isOpenSource")
         and not fam.get("isNoto")  # a script-coverage project, not a design palette
+        # Barcode and icon faces render glyphs as symbols, not letters; as unknown
+        # fonts they would be rejected trivially and inflate the rejection score.
+        and "Symbols" not in fam.get("classifications", [])
         and "latin" in fam.get("subsets", [])
     )
 
@@ -90,6 +107,19 @@ def select(families, quota=QUOTA, weights=WEIGHTS):
     return picked
 
 
+def select_unknown(families):
+    """The next UNKNOWN_QUOTA families per class after the palette, each tagged
+    with a validation or test split, alternating down the popularity ranking."""
+    palette = {r["font_id"] for r in select(families)}
+    wider = select(families, {c: QUOTA[c] + UNKNOWN_QUOTA[c] for c in QUOTA})
+    assert palette <= {r["font_id"] for r in wider}, "palette not a prefix of the wider ranking"
+    picked = [r for r in wider if r["font_id"] not in palette]
+    for cls in UNKNOWN_QUOTA:
+        for i, r in enumerate(r for r in picked if r["family_class"] == cls):
+            r["split"] = "validation" if i % 2 == 0 else "test"
+    return picked
+
+
 def resolve_ttf(family, weight):
     """The CSS2 API hands back a versioned .ttf URL -- that version is the pin."""
     url = CSS_URL.format(family=urllib.parse.quote(family), weight=weight)
@@ -108,13 +138,14 @@ def download(row, font_dir):
     if not path.exists():
         with urllib.request.urlopen(resolve_ttf(row["family"], row["weight"])) as r:
             path.write_bytes(r.read())
-    row["ttf_path"] = str(path.relative_to(ROOT))
+    row["ttf_path"] = path.relative_to(ROOT).as_posix()  # posix: the CSV is read on Linux too
     row["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
     return row
 
 
-def build(out_csv, font_dir, cache):
-    rows = select(fetch_metadata(cache))
+def build(out_csv, font_dir, cache, unknown=False):
+    families = fetch_metadata(cache)
+    rows = select_unknown(families) if unknown else select(families)
     for i, row in enumerate(rows, 1):
         download(row, font_dir)
         print(f"[{i}/{len(rows)}] {row['font_id']}", file=sys.stderr)
@@ -146,18 +177,27 @@ def check():
     assert len(got) == sum(QUOTA.values()) == 80, len(got)
     assert not any(r["family"] in ("NotoX", "CJKOnly") for r in got), "filter leaked"
     assert len({r["font_id"] for r in got}) == len(got), "font_id collision"
+    unk = select_unknown(fake)
+    assert {c: sum(1 for r in unk if r["family_class"] == c) for c in QUOTA} == UNKNOWN_QUOTA
+    assert not {r["font_id"] for r in unk} & {r["font_id"] for r in got}, "unknown overlaps palette"
+    for c in QUOTA:
+        splits = [r["split"] for r in unk if r["family_class"] == c]
+        assert splits.count("validation") == splits.count("test"), (c, splits)
     print("ok:", counts)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
-    ap.add_argument("--out", type=Path, default=DATA / "palette.csv")
+    ap.add_argument("--unknown", action="store_true", help="held-out unknown fonts instead")
+    ap.add_argument("--out", type=Path)
     ap.add_argument("--fonts", type=Path, default=DATA / "fonts")
     ap.add_argument("--cache", type=Path, default=DATA / "raw" / "gf_metadata.json")
     args = ap.parse_args()
     if args.check:
         check()
     else:
-        rows = build(args.out, args.fonts, args.cache)
+        out = args.out or DATA / ("unknown.csv" if args.unknown else "palette.csv")
+        rows = build(out, args.fonts, args.cache, args.unknown)
+        args.out = out
         print(f"{len(rows)} fonts -> {args.out}")

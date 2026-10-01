@@ -14,6 +14,10 @@ so training and serving share one preprocessing path (Section 4.3.2).
     .venv/bin/python src/data/render_corpus.py                      # full corpus
     .venv/bin/python src/data/render_corpus.py --per-font 5 --out /tmp/smoke
     .venv/bin/python src/data/render_corpus.py --check
+    .venv/bin/python src/data/render_corpus.py --palette data/unknown.csv --out data/corpus_unknown
+
+A font list with its own `split` column (data/unknown.csv) is split by font,
+not per crop: an unknown font must sit wholly in validation or wholly in test.
 """
 
 import argparse
@@ -202,7 +206,12 @@ def build(palette, out, per_font, master, workers):
         for i, batch in enumerate(pool.imap_unordered(render_font, jobs), 1):
             rows.extend(batch)
             print(f"[{i}/{len(fonts)}] {batch[0]['font_id']}", file=sys.stderr)
-    rows = assign_splits(rows, master)
+    if "split" in fonts[0]:
+        by_font = {f["font_id"]: f["split"] for f in fonts}
+        for r in rows:
+            r["split"] = by_font[r["font_id"]]
+    else:
+        rows = assign_splits(rows, master)
     rows.sort(key=lambda r: r["image_id"])
     with (out / "metadata.csv").open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS)

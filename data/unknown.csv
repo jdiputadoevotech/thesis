@@ -1,0 +1,21 @@
+font_id,family,weight,family_class,popularity,gf_last_modified,split,ttf_path,sha256
+IBMPlexSans-400,IBM Plex Sans,400,sans-serif,54,2025-09-08,validation,data/fonts/IBMPlexSans-400.ttf,6dbe082463cf749cfa057d45c3048c90f4df031496498e5b5bdfd0b6babb9d16
+Jost-400,Jost,400,sans-serif,56,2025-09-10,test,data/fonts/Jost-400.ttf,c3143e923ed1ca7bdf27f96c351fbafaebcbd3cf3f4c2d30d03e6c7f98e73d7a
+Saira-400,Saira,400,sans-serif,57,2025-11-18,validation,data/fonts/Saira-400.ttf,933a6bcc6b58e4d9840f37216ab10fd6cb13e61e4db88fa88680b5e0158cd815
+Karla-400,Karla,400,sans-serif,60,2025-09-11,test,data/fonts/Karla-400.ttf,312f8ebaede0db3bb202ee6b116cbe0d467e109b69b93b1e8ff869fc76a210d1
+FiraSans-400,Fira Sans,400,sans-serif,61,2025-09-11,validation,data/fonts/FiraSans-400.ttf,848a44b912bc756fe5b1be7a0a82e58b38da321ce29970d69d38dd864790c8c5
+SpaceGrotesk-400,Space Grotesk,400,sans-serif,62,2025-09-04,test,data/fonts/SpaceGrotesk-400.ttf,ec926d5065eaca49a48f96e312bbae0bbc5733c24215cf5dfabbdccee926fef7
+ShareTech-400,Share Tech,400,sans-serif,64,2025-09-11,validation,data/fonts/ShareTech-400.ttf,244995de7664002c21ba4c6df31fb42c9bfed61a7c777d2f187551df163b302d
+SmoochSans-400,Smooch Sans,400,sans-serif,65,2025-09-10,test,data/fonts/SmoochSans-400.ttf,087ab5d7661b21e73d4d7e534e215cfadd8cb08ba31ff8b1a2255027c2dcefcb
+Marcellus-400,Marcellus,400,serif,188,2025-09-11,validation,data/fonts/Marcellus-400.ttf,2f6fa616f76102d81c4a935c3a8cd547a8db9de679ad9fda9cfd42f16e7f0743
+Cormorant-400,Cormorant,400,serif,191,2025-09-04,test,data/fonts/Cormorant-400.ttf,55e68134d1481798fe19ca114b414a9ad181a54576e1aef9ffa2862245fdbc5c
+RobotoSerif-400,Roboto Serif,400,serif,194,2026-04-14,validation,data/fonts/RobotoSerif-400.ttf,fd178393f87a057f93617c45115fd35f79a6dcf2166b6a77ffbea50638d64c0d
+Sanchez-400,Sanchez,400,serif,195,2025-09-08,test,data/fonts/Sanchez-400.ttf,b3d8f622515266488cdbfa05bfffb98995f8a1071c1892e4e5b73f9492439f9c
+NanumMyeongjo-400,Nanum Myeongjo,400,serif,202,2025-09-10,validation,data/fonts/NanumMyeongjo-400.ttf,d3109373f86b59a4b36c542b38d0c095cd45167c1aa51540f4b409e257b42e6f
+FrankRuhlLibre-400,Frank Ruhl Libre,400,serif,206,2025-09-10,test,data/fonts/FrankRuhlLibre-400.ttf,89478e290c257456eb61d846bea77ab06d944f09c7f84000c4fd8cdedde6845a
+FiraCode-400,Fira Code,400,monospace,214,2025-09-16,validation,data/fonts/FiraCode-400.ttf,edc273e94e72c8ee4279c8406f65373d96c518e3fea9cc3f121fed51283e0e70
+CourierPrime-400,Courier Prime,400,monospace,222,2025-09-11,test,data/fonts/CourierPrime-400.ttf,b03b41606b4469bd908aaa83146ba19d34cbeab1ce11fac0074d0d8fe9eba6cc
+Rowdies-400,Rowdies,400,display,261,2025-09-04,validation,data/fonts/Rowdies-400.ttf,adc68322386dc7ec5242f522c6083e81eb305458e9ea57517dcf0757c363a70d
+Bangers-400,Bangers,400,display,267,2025-09-08,test,data/fonts/Bangers-400.ttf,a5ad3f06658ecd92705c3499cf000ff5b0c0c6f49641f7b3a6531dcee4bdb4c0
+Creepster-400,Creepster,400,display,269,2025-05-30,validation,data/fonts/Creepster-400.ttf,f7ab5cc03cc3fb46c78414739b8469c1e344a46afe41f33f5d6649456d9d2a1f
+SpecialElite-400,Special Elite,400,display,279,2025-09-08,test,data/fonts/SpecialElite-400.ttf,9f59e3a0e1c0008f2ef97b1c94e5d96c43748bbc92993570d1133454a484254c

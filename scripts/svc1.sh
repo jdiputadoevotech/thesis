@@ -6,7 +6,7 @@
 # the laptop disconnecting.
 #
 #   scripts/svc1.sh sync              push this branch to the server checkout over SSH
-#   scripts/svc1.sh data              corpus + feature caches -> server (gitignored, ~0.8 GB)
+#   scripts/svc1.sh data [PATH...]    gitignored data -> server (default: corpus + feature caches, ~0.8 GB)
 #   scripts/svc1.sh setup             create ~/thesis/.venv (ARM + CUDA 13 torch)
 #   scripts/svc1.sh run NAME CMD...   start CMD in tmux session NAME, logged to logs/NAME.log
 #   scripts/svc1.sh log NAME          follow a job's log (Ctrl+C stops watching, not the job)
@@ -28,8 +28,9 @@ case "${1:-}" in
     git push -q "svc1:$REMOTE" "$BRANCH:$BRANCH"
     ssh svc1 "cd $REMOTE && git checkout -q $BRANCH && git log --oneline -1" ;;
   data)
-    tar -czf - data/corpus data/features | ssh svc1 "tar -xzf - -C $REMOTE"
-    echo "copied data/corpus and data/features" ;;
+    shift; [ $# -gt 0 ] || set -- data/corpus data/features
+    tar -czf - "$@" | ssh svc1 "tar -xzf - -C $REMOTE"
+    echo "copied $*" ;;
   setup)
     # The pinned torch in requirements.txt is an x86 CUDA 12.4 build; the GB10 is
     # aarch64 + Blackwell, so torch comes from the CUDA 13 index and the rest from the pins.
