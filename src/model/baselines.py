@@ -82,7 +82,8 @@ class Storia:
         return a.transpose(2, 0, 1).astype(np.float32)
 
     def probs(self, imgs):
-        logits = self.sess.run(None, {"input": np.stack([self.prep(i) for i in imgs])})[0]
+        # The exported ONNX graph fixes the batch dimension at 1.
+        logits = np.concatenate([self.sess.run(None, {"input": self.prep(i)[None]})[0] for i in imgs])
         return torch.softmax(torch.as_tensor(logits), 1).numpy()
 
 
