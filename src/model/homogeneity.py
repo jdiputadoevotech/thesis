@@ -1,4 +1,20 @@
-"""Homogeneity check: does a crop's patch grid agree on one typeface?
+"""Homogeneity check: is a crop set in one typeface, or two?
+
+Two methods. `columns` is the design Section 4.4.2 first specified; it does
+not work (reports/incr3/FINDINGS.md, finding 9) and is kept as the record of
+that result. `search` is its replacement:
+
+  search  cut the crop at each of CUTS (fractions of its width), embed the
+          left and right pieces with the trained font head, and take the
+          cosine distance between them. The crop is flagged when the largest
+          distance clears a cutoff (5% false alarm on single-font validation
+          crops); the cut with that distance is the boundary. Each piece costs
+          one encoder pass, so the check is 2 x len(CUTS) extra passes per crop.
+          It looks only for one left/right boundary: an interleaved crop has
+          no single cut that separates its fonts, so its detection is measured
+          but not expected.
+
+The `columns` method, as first designed:
 
 Section 4.4.2. A 224x224 crop reaches DINOv2 as a 16 x 16 grid of patch
 tokens. Empty patches (padding, gaps) are left out, the rest are pooled by
@@ -20,8 +36,9 @@ ink pixels in the prepared crop. DINOv2 without registers is known to park
 high-attention artifact tokens on empty background (Darcet et al., 2024),
 which can make the attention mask unreliable.
 
-    .venv/bin/python src/model/homogeneity.py cache       # patch profiles, ~10 min on SVC1
-    .venv/bin/python src/model/homogeneity.py evaluate    # validation halves only
+    .venv/bin/python src/model/homogeneity.py cache       # columns: patch profiles, ~10 min on SVC1
+    .venv/bin/python src/model/homogeneity.py evaluate    # columns: validation halves only
+    .venv/bin/python src/model/homogeneity.py search      # search: distances + evaluation
     .venv/bin/python src/model/homogeneity.py --check
 """
 
@@ -33,6 +50,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from sklearn.cluster import KMeans
+from sklearn.metrics import roc_auc_score
 
 from encoder import BACKBONES, ROOT, SIZE, Crops, Preprocess, collate, load_rows
 
@@ -42,6 +60,8 @@ INK = 0.15           # |pixel - background| above this (0-1 scale) counts as ink
 MIN_COLS = 4         # fewer ink columns than this: too short to split, treated as one typeface
 FALSE_ALARM = 0.05   # share of single-font crops allowed above the cutoff
 CACHE = ROOT / "data/features/homogeneity.npz"
+CUTS = np.round(np.arange(0.2, 0.81, 0.1), 2)   # candidate cut positions, fraction of crop width
+MIN_PIECE = 1 / 8                                # no piece narrower than this share of the crop
 
 
 def profiles(model, prep, imgs):
@@ -185,6 +205,75 @@ def evaluate(args):
     print(f"-> {out}")
 
 
+def cut_distances(emb, imgs, dev, cuts=CUTS):
+    """(n_crops, len(cuts)) cosine distances between the font embeddings of the
+    left and right pieces of each crop, cut at each fraction of its width."""
+    pieces = []
+    for img in imgs:
+        w = img.shape[1]
+        for f in cuts:
+            c = int(np.clip(round(w * f), max(1, round(w * MIN_PIECE)), w - max(1, round(w * MIN_PIECE))))
+            pieces += [img[:, :c], img[:, c:]]
+    with torch.no_grad(), torch.autocast(dev, dtype=torch.float16, enabled=dev == "cuda"):
+        z = emb(pieces).float()
+    return (1 - (z[0::2] * z[1::2]).sum(1)).view(len(imgs), len(cuts)).cpu().numpy()
+
+
+def search(args):
+    from encoder import FontEmbedder, read_crop
+    dev = "cuda" if torch.cuda.is_available() else "cpu"
+    emb = FontEmbedder.load(ROOT / args.head).to(dev)
+    split = "test" if args.final else "validation"
+    single = [r for r in load_rows() if r["split"] in ("validation", split)]
+    mixed = [r for r in load_rows(ROOT / "data/corpus_mixed") if r["split"] == split]
+
+    def run(rows, name, bs=16):
+        out = []
+        for i in range(0, len(rows), bs):
+            out.append(cut_distances(emb, [read_crop(r) for r in rows[i:i + bs]], dev))
+            if (i // bs) % 100 == 0:
+                print(f"{name} {i}/{len(rows)}", file=sys.stderr)
+        return np.concatenate(out)
+
+    s_d, m_d = run(single, "single"), run(mixed, "mixed")
+    s_max = s_d.max(1)
+    # Calibrate on half of the single-font validation crops; false alarm on the other
+    # half, or on the test partition with --final.
+    val = np.flatnonzero([r["split"] == "validation" for r in single])
+    cal = np.random.default_rng(0).permutation(val)[: len(val) // 2]
+    held = (np.setdiff1d(val, cal) if not args.final
+            else np.flatnonzero([r["split"] == "test" for r in single]))
+    cutoff = float(np.quantile(s_max[cal], 1 - FALSE_ALARM))
+
+    m_max, m_arg = m_d.max(1), m_d.argmax(1)
+    flagged = m_max >= cutoff
+    report = {"method": "search", "split": split, "head": args.head, "cuts": CUTS.tolist(),
+              "passes_per_crop": 2 * len(CUTS), "cutoff": cutoff,
+              "single_false_alarm": float((s_max[held] >= cutoff).mean()),
+              "auroc_mixed_vs_single": float(roc_auc_score(
+                  np.r_[np.zeros(len(held)), np.ones(len(m_max))], np.r_[s_max[held], m_max])),
+              "by_mix": {}}
+    for mix in sorted({r["mix"] for r in mixed}):
+        idx = np.array([j for j, r in enumerate(mixed) if r["mix"] == mix])
+        same = np.array([mixed[j]["family_a"] == mixed[j]["family_b"] for j in idx])
+        tier = np.array([mixed[j]["tier"] for j in idx])
+        res = {"n": len(idx), "detected": float(flagged[idx].mean()),
+               "detected_same_family": float(flagged[idx][same].mean()),
+               "detected_cross_family": float(flagged[idx][~same].mean()),
+               "detected_by_tier": {t: float(flagged[idx][tier == t].mean()) for t in sorted(set(tier))}}
+        hit = [j for j in idx if flagged[j] and mixed[j]["boundary_frac"]]
+        if hit:
+            err = np.array([abs(CUTS[m_arg[j]] - float(mixed[j]["boundary_frac"])) for j in hit])
+            res["boundary_error_median"] = float(np.median(err))
+            res["boundary_within_10pct"] = float((err <= 0.10).mean())
+        report["by_mix"][mix] = res
+    out = ROOT / f"reports/incr3/homogeneity_search{'_final' if args.final else ''}.json"
+    out.write_text(json.dumps(report, indent=2))
+    print(json.dumps({k: report[k] for k in ("cutoff", "single_false_alarm", "auroc_mixed_vs_single")}),
+          {m: (round(v["detected"], 3), v.get("boundary_error_median")) for m, v in report["by_mix"].items()})
+    print(f"-> {out}")
+
+
 def check():
     rng = np.random.default_rng(0)
     a, b = rng.normal(size=64), rng.normal(size=64)
@@ -206,12 +295,23 @@ def check():
     # Padding undone: a wide crop fills the width, so column 8 of 16 is its middle.
     assert abs(crop_fraction(8, 224, 56) - 0.5) < 1e-9
     assert abs(crop_fraction(4, 112, 224) - 0.0) < 1e-9   # tall crop: column 4 is its left edge
+    # search: a fake embedder that "sees" font by pixel value finds the boundary cut.
+    class Fake:
+        def __call__(self, pieces):
+            return F.normalize(torch.stack([torch.tensor([float((p < 100).float().mean()), float((p >= 100).float().mean())])
+                                            for p in pieces]), dim=-1)
+    img = torch.zeros((20, 100), dtype=torch.uint8); img[:, 40:] = 200    # font A left 40%, font B right
+    d = cut_distances(Fake(), [img], "cpu")[0]
+    assert CUTS[d.argmax()] == 0.4, (CUTS, d)
+    flat = torch.zeros((20, 100), dtype=torch.uint8)
+    assert cut_distances(Fake(), [flat], "cpu").max() < 1e-6
     print("ok")
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("step", nargs="?", choices=["cache", "evaluate"])
+    ap.add_argument("step", nargs="?", choices=["cache", "evaluate", "search"])
+    ap.add_argument("--head", default="data/models/head_dinov2_mid_oe.pt")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--final", action="store_true", help="report on the TEST halves (Chapter 5 only)")
     ap.add_argument("--workers", type=int, default=4)
@@ -222,5 +322,7 @@ if __name__ == "__main__":
         cache(a)
     elif a.step == "evaluate":
         evaluate(a)
+    elif a.step == "search":
+        search(a)
     else:
         ap.print_help()
