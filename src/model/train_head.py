@@ -226,7 +226,7 @@ def main(args):
     def score(z, tr, ev):
         return evaluate(z[tr], y[tr], z[ev], y[ev], fam, [tier[i] for i in ev])
 
-    tag = args.backbone + ("" if args.kd > 0 else "_nokd") + ("_oe" if args.background else "")
+    tag = args.name or args.backbone + ("" if args.kd > 0 else "_nokd") + ("_oe" if args.background else "")
     hp = {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items() if k != "check"}
     out = ROOT / "reports/incr2"
     out.mkdir(parents=True, exist_ok=True)
@@ -327,6 +327,7 @@ def parser():
     ap.add_argument("--background", action="store_true",
                     help="outlier exposure: background fonts as triplet negatives (Hendrycks et al., 2019)")
     ap.add_argument("--n-bg", type=int, default=32, help="background crops added to each batch")
+    ap.add_argument("--name", help="report/checkpoint name, overriding the one built from the flags")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=2026)
     return ap
