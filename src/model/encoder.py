@@ -29,7 +29,15 @@ BACKBONES = {
     "siglip": ("google/siglip-base-patch16-224", ((0.5,) * 3, (0.5,) * 3)),
     "vit": ("google/vit-base-patch16-224", ((0.5,) * 3, (0.5,) * 3)),
     "convnext": ("facebook/convnext-tiny-224", IMAGENET),
+    "dinov2_last4": ("facebook/dinov2-base", IMAGENET),
+    "dinov2_mid": ("facebook/dinov2-base", IMAGENET),
 }
+
+# Multi-layer variants of the same frozen DINOv2: which of its 12 blocks feed
+# the head. last4 mirrors DINOv2's own linear evaluation (Oquab et al., 2024);
+# mid spreads across depth, on the premise that letterform style sits in
+# middle layers rather than the semantic last one.
+LAYERS = {"dinov2_last4": (9, 10, 11, 12), "dinov2_mid": (3, 6, 9, 12)}
 
 
 class Preprocess(nn.Module):
@@ -70,7 +78,13 @@ def load_backbone(name):
 
 def features(name, model, x):
     """[CLS || mean patch] for the ViTs (SigLIP has no CLS: its pooled token
-    stands in), pooled map for ConvNeXt, which has no patch tokens."""
+    stands in), pooled map for ConvNeXt, which has no patch tokens. Multi-layer
+    variants concatenate that summary per layer, each through the final
+    LayerNorm so every layer sits on the scale the last one is read at."""
+    if name in LAYERS:
+        hs = model(pixel_values=x, output_hidden_states=True).hidden_states
+        return torch.cat([torch.cat([h[:, 0], h[:, 1:].mean(1)], 1)
+                          for h in (model.layernorm(hs[i]) for i in LAYERS[name])], 1)
     out = model(pixel_values=x)
     if name == "convnext":
         return out.pooler_output
