@@ -25,6 +25,7 @@ chapters/appendices/srs/SRS.docx
 data/corpus/
 data/corpus_unknown/
 data/corpus_mixed/
+data/corpus_background/
 
 # Increment 2 — cached backbone features (~140 MB/backbone) and trained weights,
 # regenerable from src/model/. reports/incr2/*.json (the metrics) is committed.

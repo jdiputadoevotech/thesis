@@ -53,11 +53,14 @@ def batch_hard_triplet(z, y, margin):
 def batch_all_triplet(z, y, margin):
     """Every valid (anchor, positive, negative) in the batch, averaged over the
     ones that still violate the margin (Hermans et al., 2017). Harder to
-    collapse than batch-hard when the hardest pairs are mostly noise."""
+    collapse than batch-hard when the hardest pairs are mostly noise.
+    Label -1 marks an outlier-exposure background font: never an anchor or a
+    positive, only a negative every palette crop must be farther from."""
     d = (2 - 2 * z @ z.T).clamp_min(0)
     same = y[:, None] == y[None, :]
     eye = torch.eye(len(y), dtype=torch.bool, device=z.device)
-    valid = (same & ~eye)[:, :, None] & ~same[:, None, :]
+    known = (y >= 0)[:, None]
+    valid = (same & ~eye & known)[:, :, None] & ~same[:, None, :]
     loss = F.relu(d[:, :, None] - d[:, None, :] + margin) * valid
     return loss.sum() / ((loss > 1e-12).sum() + 1e-12)
 
@@ -120,7 +123,7 @@ def evaluate(zt, yt, ze, ye, fam, tier):
 
 # --- training ---
 
-def fit(X, T, y, train_idx, sel_idx, fam, tier, args, dev):
+def fit(X, T, y, train_idx, sel_idx, fam, tier, args, dev, bg_idx=None):
     """Train one head. With sel_idx, keep the epoch with the best selection
     Top-1; without (CV folds), train the fixed epoch count and keep the last."""
     torch.manual_seed(args.seed)
@@ -135,10 +138,14 @@ def fit(X, T, y, train_idx, sel_idx, fam, tier, args, dev):
         tot = defaultdict(float)
         nb = 0
         for b in pk_batches(y.cpu().numpy(), train_idx, args.p, args.k, rng):
+            nk = len(b)
+            if bg_idx is not None:
+                b = np.concatenate([b, rng.choice(bg_idx, size=args.n_bg, replace=False)])
             b = torch.as_tensor(b, device=dev)
             z = head(X[b])
             trip = TRIPLET[args.mining](z, y[b], args.margin)
-            kd = relational_kd(z, T[b], args.temp) if args.kd > 0 else torch.zeros((), device=dev)
+            kd = (relational_kd(z[:nk], T[b[:nk]], args.temp) if args.kd > 0
+                  else torch.zeros((), device=dev))
             loss = trip + args.kd * kd
             opt.zero_grad(set_to_none=True)
             loss.backward()
@@ -182,9 +189,19 @@ def load(backbone, need_teacher, teacher_cache=TEACHER_CACHE):
     return rows, f["feats"], T
 
 
-def setup(backbone, need_teacher, dev, teacher_cache=TEACHER_CACHE):
-    """Cached features, labels and splits on `dev`; shared with sweep.py."""
+def setup(backbone, need_teacher, dev, teacher_cache=TEACHER_CACHE, background=False):
+    """Cached features, labels and splits on `dev`; shared with sweep.py.
+    With `background`, the outlier-exposure fonts' features are appended after
+    the palette rows with label -1, and `bg_idx` points at them."""
     rows, X, T = load(backbone, need_teacher, teacher_cache)
+    n = len(rows)
+    bg_idx = None
+    if background:
+        b = np.load(ROOT / f"data/features/{backbone}_background.npz")["feats"]
+        X = np.concatenate([X, b])
+        if T is not None:
+            T = np.concatenate([T, np.zeros((len(b), T.shape[1]), T.dtype)])  # KD never reads these
+        bg_idx = np.arange(n, n + len(b))
     fonts = sorted({r["font_id"] for r in rows})
     fi = {f: i for i, f in enumerate(fonts)}
     fam_of = {r["font_id"]: FAMILIES.index(r["family_class"]) for r in rows}
@@ -192,8 +209,9 @@ def setup(backbone, need_teacher, dev, teacher_cache=TEACHER_CACHE):
     return SimpleNamespace(
         rows=rows, fonts=fonts, tier=[r["tier"] for r in rows],
         X=torch.as_tensor(X, device=dev).float(),
-        T=torch.as_tensor(T, device=dev) if T is not None else torch.zeros(len(rows), 1, device=dev),
-        y=torch.tensor([fi[r["font_id"]] for r in rows], device=dev),
+        T=torch.as_tensor(T, device=dev) if T is not None else torch.zeros(len(X), 1, device=dev),
+        y=torch.tensor([fi[r["font_id"]] for r in rows] + [-1] * (len(X) - n), device=dev),
+        bg_idx=bg_idx,
         fam=torch.tensor([fam_of[f] for f in fonts], device=dev),
         train_idx=np.flatnonzero(split == "train"), val_idx=np.flatnonzero(split == "validation"))
 
@@ -201,14 +219,14 @@ def setup(backbone, need_teacher, dev, teacher_cache=TEACHER_CACHE):
 def main(args):
     torch.use_deterministic_algorithms(True)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    d = setup(args.backbone, args.kd > 0, dev, args.teacher_cache)
+    d = setup(args.backbone, args.kd > 0, dev, args.teacher_cache, args.background)
     rows, fonts, tier, X, T, y, fam = d.rows, d.fonts, d.tier, d.X, d.T, d.y, d.fam
     train_idx, val_idx = d.train_idx, d.val_idx
 
     def score(z, tr, ev):
         return evaluate(z[tr], y[tr], z[ev], y[ev], fam, [tier[i] for i in ev])
 
-    tag = args.backbone + ("" if args.kd > 0 else "_nokd")
+    tag = args.backbone + ("" if args.kd > 0 else "_nokd") + ("_oe" if args.background else "")
     hp = {k: str(v) if isinstance(v, Path) else v for k, v in vars(args).items() if k != "check"}
     out = ROOT / "reports/incr2"
     out.mkdir(parents=True, exist_ok=True)
@@ -220,7 +238,7 @@ def main(args):
         for k, (a, b) in enumerate(StratifiedKFold(args.folds, shuffle=True, random_state=args.seed)
                                    .split(pool, strata)):
             print(f"fold {k + 1}/{args.folds}", file=sys.stderr)
-            head, _ = fit(X, T, y, pool[a], None, fam, tier, args, dev)
+            head, _ = fit(X, T, y, pool[a], None, fam, tier, args, dev, d.bg_idx)
             with torch.no_grad():
                 folds.append(score(head(X), pool[a], pool[b]))
         keys = folds[0].keys()
@@ -230,7 +248,7 @@ def main(args):
         print(json.dumps({k: f"{v['mean']:.4f} +/- {v['std']:.4f}" for k, v in summary.items()}, indent=2))
         return
 
-    head, log = fit(X, T, y, train_idx, val_idx, fam, tier, args, dev)
+    head, log = fit(X, T, y, train_idx, val_idx, fam, tier, args, dev, d.bg_idx)
     with torch.no_grad():
         result = {"head": score(head(X), train_idx, val_idx),
                   "frozen_baseline": score(F.normalize(X, dim=-1), train_idx, val_idx),
@@ -253,6 +271,12 @@ def check():
     assert batch_hard_triplet(z, y, 0.2).item() == 0.0
     assert batch_hard_triplet(z, y.roll(1), 0.2).item() > 0.0
     assert batch_all_triplet(z, y, 0.2).item() == 0.0 and batch_all_triplet(z, y.roll(1), 0.2).item() > 0.0
+    # A background crop far from both clusters adds no violation; one sitting on a
+    # cluster does. Two background crops together never form a positive pair.
+    far = F.normalize(torch.tensor([[-1.0, -1.0]]), dim=-1)
+    near = c[:1]
+    assert batch_all_triplet(torch.cat([z, far, far]), torch.cat([y, torch.tensor([-1, -1])]), 0.2).item() == 0.0
+    assert batch_all_triplet(torch.cat([z, near]), torch.cat([y, torch.tensor([-1])]), 0.2).item() > 0.0
     t = torch.randn(8, 16)
     assert abs(relational_kd(F.normalize(t, dim=-1), t, 0.1).item()) < 1e-6, "KD not 0 when student = teacher"
     assert relational_kd(z, t, 0.1).item() > 0.0
@@ -300,6 +324,9 @@ def parser():
     ap.add_argument("--no-kd", dest="kd", action="store_const", const=0.0)
     ap.add_argument("--temp", type=float, default=0.1, help="KD softmax temperature")
     ap.add_argument("--teacher-cache", type=Path, default=TEACHER_CACHE)
+    ap.add_argument("--background", action="store_true",
+                    help="outlier exposure: background fonts as triplet negatives (Hendrycks et al., 2019)")
+    ap.add_argument("--n-bg", type=int, default=32, help="background crops added to each batch")
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=2026)
     return ap
