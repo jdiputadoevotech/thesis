@@ -40,6 +40,7 @@ which can make the attention mask unreliable.
     .venv/bin/python src/model/homogeneity.py evaluate    # columns: validation halves only
     .venv/bin/python src/model/homogeneity.py search      # search: cache distances at every grid cut
     .venv/bin/python src/model/homogeneity.py tune        # search: compare variants on that cache
+    .venv/bin/python src/model/homogeneity.py search --final && ... final   # frozen variant on the TEST halves
     .venv/bin/python src/model/homogeneity.py --check
 """
 
@@ -330,6 +331,60 @@ def tune(args):
     print(f"-> {out}")
 
 
+# The variant chosen on validation data (reports/incr3/homogeneity_tune.json,
+# FINDINGS 11b). Frozen: the test half is scored with exactly these settings.
+CHOSEN = {"lo": 0.35, "hi": 0.65, "min_aspect": 1.25, "per_cut_z": True}
+
+
+def final(args):
+    """Score the frozen variant on the TEST halves. The standardization and the
+    cutoff come from the validation cache (its calibration half), exactly as
+    tune() set them; nothing is re-fit on test data."""
+    v = np.load(str(SEARCH_CACHE).format(""))
+    t = np.load(str(SEARCH_CACHE).format("_final"))
+    assert np.array_equal(v["grid"], t["grid"])
+    grid = v["grid"]
+    n = len(v["single_d"])
+    cal = np.random.default_rng(0).permutation(n)[: n // 2]
+    stats = (v["single_d"][cal].mean(0), v["single_d"][cal].std(0) + 1e-6) if CHOSEN["per_cut_z"] else None
+    score = lambda d, hw: variant_scores(d, hw, grid, CHOSEN["lo"], CHOSEN["hi"], CHOSEN["min_aspect"], stats)
+    cal_sc, _ = score(v["single_d"][cal], v["single_hw"][cal])
+    cutoff = float(np.quantile(np.where(np.isfinite(cal_sc), cal_sc, -np.inf), 1 - FALSE_ALARM))
+
+    s_sc, _ = score(t["single_d"], t["single_hw"])
+    m_sc, m_arg = score(t["mixed_d"], t["mixed_hw"])
+    mixed = {r["image_id"]: r for r in load_rows(ROOT / "data/corpus_mixed")}
+    rows = [mixed[i] for i in t["mixed_ids"]]
+    assert all(r["split"] == "test" for r in rows)
+    mix = np.array([r["mix"] for r in rows])
+    tier = np.array([r["tier"] for r in rows])
+    same = np.array([r["family_a"] == r["family_b"] for r in rows])
+    contiguous = mix != "interleave"
+    true_b = np.array([float(r["boundary_frac"]) if r["boundary_frac"] else np.nan for r in rows])
+    flag = m_sc >= cutoff
+    hit = flag & contiguous
+    err = np.abs(grid[m_arg] - true_b)
+    clean = lambda a: np.where(np.isfinite(a), a, -1e9)
+    report = {
+        "split": "test", "variant": CHOSEN, "cutoff_from_validation": cutoff,
+        "n_single": len(s_sc), "n_mixed": len(rows),
+        "false_alarm": float((s_sc >= cutoff).mean()),
+        "auroc_contiguous": float(roc_auc_score(np.r_[np.zeros(len(s_sc)), np.ones(contiguous.sum())],
+                                                np.r_[clean(s_sc), clean(m_sc[contiguous])])),
+        "detected": {m: float(flag[mix == m].mean()) for m in ("word", "char", "interleave")},
+        "detected_contiguous": float(flag[contiguous].mean()),
+        "detected_contiguous_by_tier": {k: float(flag[contiguous & (tier == k)].mean())
+                                        for k in ("pristine", "mild", "moderate", "severe")},
+        "detected_contiguous_same_family": float(flag[contiguous & same].mean()),
+        "detected_contiguous_cross_family": float(flag[contiguous & ~same].mean()),
+        "boundary_error_median": float(np.nanmedian(err[hit])),
+        "boundary_within_10pct": float((err[hit] <= 0.10).mean()),
+    }
+    out = ROOT / "reports/incr3/homogeneity_final.json"
+    out.write_text(json.dumps(report, indent=2))
+    print(json.dumps(report, indent=2))
+
+
 def check():
     rng = np.random.default_rng(0)
     a, b = rng.normal(size=64), rng.normal(size=64)
@@ -366,7 +421,7 @@ def check():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("step", nargs="?", choices=["cache", "evaluate", "search", "tune"])
+    ap.add_argument("step", nargs="?", choices=["cache", "evaluate", "search", "tune", "final"])
     ap.add_argument("--head", default="data/models/head_dinov2_mid_oe.pt")
     ap.add_argument("--batch", type=int, default=8, help="crops per GPU batch (x 34 pieces); lower it if the GPU runs out of memory")
     ap.add_argument("--check", action="store_true")
@@ -383,5 +438,7 @@ if __name__ == "__main__":
         search(a)
     elif a.step == "tune":
         tune(a)
+    elif a.step == "final":
+        final(a)
     else:
         ap.print_help()

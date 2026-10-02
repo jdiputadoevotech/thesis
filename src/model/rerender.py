@@ -147,7 +147,7 @@ def main(args):
     y = torch.tensor([fi[r["font_id"]] for r in rows])
     split = np.array([r["split"] for r in rows])
     protos = prototypes(z[split == "train"], y[split == "train"], len(fonts))
-    val = np.flatnonzero(split == "validation")
+    val = np.flatnonzero(split == ("test" if args.final else "validation"))
     val = np.sort(np.random.default_rng(0).choice(val, size=min(args.n, len(val)), replace=False))
     _, pred, _ = decide(z[val], protos)
 
@@ -167,7 +167,7 @@ def main(args):
     metrics = ("ssim", "mse", "dssim", "dssim_lite")
     correct = np.array([o["correct"] for o in out])
     tier = np.array([o["tier"] for o in out])
-    report = {"head": args.head, "n": len(out), "top1": float(correct.mean()), "verification_auroc": {},
+    report = {"head": args.head, "split": "test" if args.final else "validation", "n": len(out), "top1": float(correct.mean()), "verification_auroc": {},
               "true_font_by_tier": {}, "correct_vs_wrong_mean": {}}
     for m in metrics:
         sign = -1 if m == "mse" else 1
@@ -176,7 +176,7 @@ def main(args):
         report["verification_auroc"][m] = float(roc_auc_score(correct, sign * sp))
         report["correct_vs_wrong_mean"][m] = {"correct": float(sp[correct].mean()), "wrong": float(sp[~correct].mean())}
         report["true_font_by_tier"][m] = {t: float(st[tier == t].mean()) for t in TIERS}
-    path = ROOT / "reports/incr3/rerender.json"
+    path = ROOT / f"reports/incr3/rerender{'_final' if args.final else ''}.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(report, indent=2))
     print(json.dumps({k: report[k] for k in ("n", "top1", "verification_auroc", "true_font_by_tier")}, indent=2))
@@ -216,6 +216,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--head", default="data/models/head_dinov2_mid_oe.pt")
-    ap.add_argument("--n", type=int, default=3000, help="validation crops to score")
+    ap.add_argument("--n", type=int, default=3000, help="crops to score")
+    ap.add_argument("--final", action="store_true", help="score TEST crops (Chapter 5 only)")
     a = ap.parse_args()
     check() if a.check else main(a)
