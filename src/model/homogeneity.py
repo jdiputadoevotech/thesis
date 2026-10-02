@@ -237,25 +237,26 @@ def search(args):
     single = [single[i] for i in sorted(np.random.default_rng(0).choice(len(single), N_SINGLE, replace=False))]
     mixed = [r for r in load_rows(ROOT / "data/corpus_mixed") if r["split"] == split]
 
-    def run(rows, name, bs=8):
-        # Each set is saved as soon as it finishes and reused on a rerun: the shared
-        # server reboots without warning, and this pass takes the better part of an hour.
+    def run(rows, name, bs=8, every=25):
+        # Progress is saved every `every` batches and resumed on a rerun: the shared
+        # server rebooted every ~40 min on 2 Oct, shorter than one set takes.
         part = Path(str(SEARCH_CACHE).format(f"_{name}{'_final' if args.final else ''}_part"))
+        ids = [r["image_id"] for r in rows]
+        out, sizes = [], []
         if part.exists():
             z = np.load(part)
-            if list(z["ids"]) == [r["image_id"] for r in rows]:
-                print(f"{name}: reusing {part.name}", file=sys.stderr)
-                return z["d"], z["hw"]
-        out, sizes = [], []
-        for i in range(0, len(rows), bs):
+            if list(z["ids"]) == ids[: len(z["ids"])]:
+                out, sizes = [z["d"]], [tuple(x) for x in z["hw"]]
+                print(f"{name}: resuming at {len(z['ids'])}/{len(rows)}", file=sys.stderr)
+        done = len(sizes)
+        for k, i in enumerate(range(done, len(rows), bs)):
             imgs = [read_crop(r) for r in rows[i:i + bs]]
             out.append(cut_distances(emb, imgs, dev, GRID_CUTS))
             sizes += [img.shape[:2] for img in imgs]
-            if (i // bs) % 100 == 0:
-                print(f"{name} {i}/{len(rows)}", file=sys.stderr)
-        d, hw = np.concatenate(out), np.array(sizes)
-        np.savez(part, ids=[r["image_id"] for r in rows], d=d, hw=hw)
-        return d, hw
+            if k % every == every - 1 or i + bs >= len(rows):
+                np.savez(part, ids=ids[: len(sizes)], d=np.concatenate(out), hw=np.array(sizes))
+                print(f"{name} {len(sizes)}/{len(rows)} saved", file=sys.stderr)
+        return np.concatenate(out), np.array(sizes)
 
     s_d, s_hw = run(single, "single")
     m_d, m_hw = run(mixed, "mixed")
