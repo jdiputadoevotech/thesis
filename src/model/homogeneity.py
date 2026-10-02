@@ -38,7 +38,8 @@ which can make the attention mask unreliable.
 
     .venv/bin/python src/model/homogeneity.py cache       # columns: patch profiles, ~10 min on SVC1
     .venv/bin/python src/model/homogeneity.py evaluate    # columns: validation halves only
-    .venv/bin/python src/model/homogeneity.py search      # search: distances + evaluation
+    .venv/bin/python src/model/homogeneity.py search      # search: cache distances at every grid cut
+    .venv/bin/python src/model/homogeneity.py tune        # search: compare variants on that cache
     .venv/bin/python src/model/homogeneity.py --check
 """
 
@@ -219,58 +220,101 @@ def cut_distances(emb, imgs, dev, cuts=CUTS):
     return (1 - (z[0::2] * z[1::2]).sum(1)).view(len(imgs), len(cuts)).cpu().numpy()
 
 
+GRID_CUTS = np.round(np.arange(0.10, 0.91, 0.05), 2)   # cut grid cached once; variants pick from it
+SEARCH_CACHE = ROOT / "data/features/homogeneity_cuts{}.npz"
+N_SINGLE = 3000                                          # single-font crops sampled for calibration
+
+
 def search(args):
+    """Cache the left/right distance at every grid cut for single-font and mixed
+    crops (validation, or test with --final), with each crop's size."""
     from encoder import FontEmbedder, read_crop
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     emb = FontEmbedder.load(ROOT / args.head).to(dev)
     split = "test" if args.final else "validation"
-    single = [r for r in load_rows() if r["split"] in ("validation", split)]
+    single = [r for r in load_rows() if r["split"] == split]
+    single = [single[i] for i in sorted(np.random.default_rng(0).choice(len(single), N_SINGLE, replace=False))]
     mixed = [r for r in load_rows(ROOT / "data/corpus_mixed") if r["split"] == split]
 
-    def run(rows, name, bs=16):
-        out = []
+    def run(rows, name, bs=8):
+        out, sizes = [], []
         for i in range(0, len(rows), bs):
-            out.append(cut_distances(emb, [read_crop(r) for r in rows[i:i + bs]], dev))
+            imgs = [read_crop(r) for r in rows[i:i + bs]]
+            out.append(cut_distances(emb, imgs, dev, GRID_CUTS))
+            sizes += [img.shape[:2] for img in imgs]
             if (i // bs) % 100 == 0:
                 print(f"{name} {i}/{len(rows)}", file=sys.stderr)
-        return np.concatenate(out)
+        return np.concatenate(out), np.array(sizes)
 
-    s_d, m_d = run(single, "single"), run(mixed, "mixed")
-    s_max = s_d.max(1)
-    # Calibrate on half of the single-font validation crops; false alarm on the other
-    # half, or on the test partition with --final.
-    val = np.flatnonzero([r["split"] == "validation" for r in single])
-    cal = np.random.default_rng(0).permutation(val)[: len(val) // 2]
-    held = (np.setdiff1d(val, cal) if not args.final
-            else np.flatnonzero([r["split"] == "test" for r in single]))
-    cutoff = float(np.quantile(s_max[cal], 1 - FALSE_ALARM))
+    s_d, s_hw = run(single, "single")
+    m_d, m_hw = run(mixed, "mixed")
+    np.savez(str(SEARCH_CACHE).format("_final" if args.final else ""), grid=GRID_CUTS,
+             single_ids=[r["image_id"] for r in single], single_d=s_d, single_hw=s_hw,
+             mixed_ids=[r["image_id"] for r in mixed], mixed_d=m_d, mixed_hw=m_hw)
+    print("cached", s_d.shape, m_d.shape)
 
-    m_max, m_arg = m_d.max(1), m_d.argmax(1)
-    flagged = m_max >= cutoff
-    report = {"method": "search", "split": split, "head": args.head, "cuts": CUTS.tolist(),
-              "passes_per_crop": 2 * len(CUTS), "cutoff": cutoff,
-              "single_false_alarm": float((s_max[held] >= cutoff).mean()),
-              "auroc_mixed_vs_single": float(roc_auc_score(
-                  np.r_[np.zeros(len(held)), np.ones(len(m_max))], np.r_[s_max[held], m_max])),
-              "by_mix": {}}
-    for mix in sorted({r["mix"] for r in mixed}):
-        idx = np.array([j for j, r in enumerate(mixed) if r["mix"] == mix])
-        same = np.array([mixed[j]["family_a"] == mixed[j]["family_b"] for j in idx])
-        tier = np.array([mixed[j]["tier"] for j in idx])
-        res = {"n": len(idx), "detected": float(flagged[idx].mean()),
-               "detected_same_family": float(flagged[idx][same].mean()),
-               "detected_cross_family": float(flagged[idx][~same].mean()),
-               "detected_by_tier": {t: float(flagged[idx][tier == t].mean()) for t in sorted(set(tier))}}
-        hit = [j for j in idx if flagged[j] and mixed[j]["boundary_frac"]]
-        if hit:
-            err = np.array([abs(CUTS[m_arg[j]] - float(mixed[j]["boundary_frac"])) for j in hit])
-            res["boundary_error_median"] = float(np.median(err))
-            res["boundary_within_10pct"] = float((err <= 0.10).mean())
-        report["by_mix"][mix] = res
-    out = ROOT / f"reports/incr3/homogeneity_search{'_final' if args.final else ''}.json"
-    out.write_text(json.dumps(report, indent=2))
-    print(json.dumps({k: report[k] for k in ("cutoff", "single_false_alarm", "auroc_mixed_vs_single")}),
-          {m: (round(v["detected"], 3), v.get("boundary_error_median")) for m, v in report["by_mix"].items()})
+
+def variant_scores(d, hw, grid, lo, hi, min_aspect, stats=None):
+    """Per crop: the best cut's score and index. A cut is allowed if it lies in
+    [lo, hi] and both pieces are at least min_aspect wide relative to the crop
+    height. With stats=(mean, sd) per grid cut, distances are z-scored per cut
+    first, so a cut position that is noisy on single-font crops counts for less."""
+    h, w = hw[:, :1].astype(float), hw[:, 1:].astype(float)
+    ok = (grid >= lo) & (grid <= hi)
+    ok = ok[None, :] & (grid[None, :] * w / h >= min_aspect) & ((1 - grid[None, :]) * w / h >= min_aspect)
+    z = d if stats is None else (d - stats[0]) / stats[1]
+    z = np.where(ok, z, -np.inf)
+    return z.max(1), z.argmax(1)
+
+
+def tune(args):
+    """Compare search variants on the validation cache. Chosen by the detection
+    of contiguous (word + mid-word) mixes at 5% false alarm."""
+    c = np.load(str(SEARCH_CACHE).format(""))
+    grid = c["grid"]
+    mixed = {r["image_id"]: r for r in load_rows(ROOT / "data/corpus_mixed")}
+    m_rows = [mixed[i] for i in c["mixed_ids"]]
+    mix = np.array([r["mix"] for r in m_rows])
+    contiguous = mix != "interleave"
+    true_b = np.array([float(r["boundary_frac"]) if r["boundary_frac"] else np.nan for r in m_rows])
+    n = len(c["single_d"])
+    cal = np.random.default_rng(0).permutation(n)[: n // 2]
+    held = np.setdiff1d(np.arange(n), cal)
+    stats = (c["single_d"][cal].mean(0), c["single_d"][cal].std(0) + 1e-6)
+
+    results = []
+    for lo, hi in ((0.5, 0.5), (0.35, 0.65), (0.3, 0.7), (0.2, 0.8), (0.1, 0.9)):
+        for min_aspect in (0.0, 0.75, 1.25):
+            for norm_ in (False, True):
+                st = stats if norm_ else None
+                s_sc, _ = variant_scores(c["single_d"], c["single_hw"], grid, lo, hi, min_aspect, st)
+                m_sc, m_arg = variant_scores(c["mixed_d"], c["mixed_hw"], grid, lo, hi, min_aspect, st)
+                fin = np.isfinite(s_sc[cal])
+                if fin.mean() < 0.5:   # the variant leaves most crops with no allowed cut
+                    continue
+                cutoff = float(np.quantile(np.where(fin, s_sc[cal], -np.inf), 1 - FALSE_ALARM))
+                flag = m_sc >= cutoff
+                err = np.abs(grid[m_arg] - true_b)
+                hit = flag & contiguous
+                sh = np.where(np.isfinite(s_sc[held]), s_sc[held], -1e9)
+                mc = np.where(np.isfinite(m_sc[contiguous]), m_sc[contiguous], -1e9)
+                results.append({
+                    "cuts": [lo, hi], "min_aspect": min_aspect, "per_cut_z": norm_, "cutoff": cutoff,
+                    "false_alarm": float((s_sc[held] >= cutoff).mean()),
+                    "auroc_contiguous": float(roc_auc_score(np.r_[np.zeros(len(sh)), np.ones(len(mc))], np.r_[sh, mc])),
+                    "detected_word": float(flag[mix == "word"].mean()),
+                    "detected_char": float(flag[mix == "char"].mean()),
+                    "detected_interleave": float(flag[mix == "interleave"].mean()),
+                    "detected_contiguous": float(flag[contiguous].mean()),
+                    "boundary_error_median": float(np.nanmedian(err[hit])) if hit.any() else None,
+                    "boundary_within_10pct": float((err[hit] <= 0.10).mean()) if hit.any() else None,
+                })
+    results.sort(key=lambda r: -r["detected_contiguous"])
+    out = ROOT / "reports/incr3/homogeneity_tune.json"
+    out.write_text(json.dumps({"grid": grid.tolist(), "n_single": n, "n_mixed": len(m_rows),
+                               "variants": results}, indent=2))
+    for r in results[:8]:
+        print({k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items() if k != "cutoff"})
     print(f"-> {out}")
 
 
@@ -310,7 +354,7 @@ def check():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("step", nargs="?", choices=["cache", "evaluate", "search"])
+    ap.add_argument("step", nargs="?", choices=["cache", "evaluate", "search", "tune"])
     ap.add_argument("--head", default="data/models/head_dinov2_mid_oe.pt")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--final", action="store_true", help="report on the TEST halves (Chapter 5 only)")
@@ -324,5 +368,7 @@ if __name__ == "__main__":
         evaluate(a)
     elif a.step == "search":
         search(a)
+    elif a.step == "tune":
+        tune(a)
     else:
         ap.print_help()
