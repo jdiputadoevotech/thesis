@@ -44,6 +44,7 @@ which can make the attention mask unreliable.
 """
 
 import argparse
+from pathlib import Path
 import json
 import sys
 
@@ -237,6 +238,14 @@ def search(args):
     mixed = [r for r in load_rows(ROOT / "data/corpus_mixed") if r["split"] == split]
 
     def run(rows, name, bs=8):
+        # Each set is saved as soon as it finishes and reused on a rerun: the shared
+        # server reboots without warning, and this pass takes the better part of an hour.
+        part = Path(str(SEARCH_CACHE).format(f"_{name}{'_final' if args.final else ''}_part"))
+        if part.exists():
+            z = np.load(part)
+            if list(z["ids"]) == [r["image_id"] for r in rows]:
+                print(f"{name}: reusing {part.name}", file=sys.stderr)
+                return z["d"], z["hw"]
         out, sizes = [], []
         for i in range(0, len(rows), bs):
             imgs = [read_crop(r) for r in rows[i:i + bs]]
@@ -244,7 +253,9 @@ def search(args):
             sizes += [img.shape[:2] for img in imgs]
             if (i // bs) % 100 == 0:
                 print(f"{name} {i}/{len(rows)}", file=sys.stderr)
-        return np.concatenate(out), np.array(sizes)
+        d, hw = np.concatenate(out), np.array(sizes)
+        np.savez(part, ids=[r["image_id"] for r in rows], d=d, hw=hw)
+        return d, hw
 
     s_d, s_hw = run(single, "single")
     m_d, m_hw = run(mixed, "mixed")
