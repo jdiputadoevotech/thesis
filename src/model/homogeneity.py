@@ -258,8 +258,8 @@ def search(args):
                 print(f"{name} {len(sizes)}/{len(rows)} saved", file=sys.stderr)
         return np.concatenate(out), np.array(sizes)
 
-    s_d, s_hw = run(single, "single")
-    m_d, m_hw = run(mixed, "mixed")
+    s_d, s_hw = run(single, "single", args.batch)
+    m_d, m_hw = run(mixed, "mixed", args.batch)
     np.savez(str(SEARCH_CACHE).format("_final" if args.final else ""), grid=GRID_CUTS,
              single_ids=[r["image_id"] for r in single], single_d=s_d, single_hw=s_hw,
              mixed_ids=[r["image_id"] for r in mixed], mixed_d=m_d, mixed_hw=m_hw)
@@ -368,6 +368,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("step", nargs="?", choices=["cache", "evaluate", "search", "tune"])
     ap.add_argument("--head", default="data/models/head_dinov2_mid_oe.pt")
+    ap.add_argument("--batch", type=int, default=8, help="crops per GPU batch (x 34 pieces); lower it if the GPU runs out of memory")
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--final", action="store_true", help="report on the TEST halves (Chapter 5 only)")
     ap.add_argument("--workers", type=int, default=4)
