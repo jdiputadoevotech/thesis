@@ -72,6 +72,35 @@ Read with care:
 - Storia's catalogue lacks three palette fonts (Google Sans, Geist Mono, Ubuntu), which are excluded from its rows.
 - Neither baseline can say "unknown": on unknown fonts its FPR is 100% by construction. Storia's catalogue contains all 20 unknown fonts, but it names them correctly only 7.7% of the time.
 
+## Final test results (for Chapter 5)
+
+Run once, on 2 Oct 2026, after every design choice above was frozen. They cover the test partition of the main corpus, the 10 held-back unknown fonts, and the test half of the mixed-font set, none of which informed any choice. **No tuning follows these numbers.**
+
+**Where they were computed:** the laptop (RTX 3050, torch 2.6.0+cu124), with the model weights trained on SVC1, because SVC1's disk had failed. The features were recomputed on the laptop.
+
+**Sanity check:** the laptop's validation numbers match SVC1's to within 0.07 points (`open_set_laptop_validation.json`: Top-1 50.14% vs 50.16%, FPR@95 74.56% vs 74.63%, AUROC 0.7083 vs 0.7083).
+
+| Measure | Validation | **Test** | File |
+|---|---|---|---|
+| Top-1 / Top-3, 80 fonts | 50.2% / 71.3% | **50.2% / 72.2%** | `open_set_dinov2_mid_oe_final.json` |
+| Family accuracy | 89.7% | **89.7%** | |
+| Severity index Π | 0.103 | **0.103** | |
+| Unknown fonts accepted at 95% recall (FPR@95) | 74.6% | **75.6%** | |
+| AUROC, known vs unknown | 0.708 | **0.687** | |
+| Conformal coverage at α = 0.10 (mean set size) | 89.6% (9.6) | **89.9% (9.6)** | |
+| Conformal coverage at α = 0.05 (mean set size) | 94.8% (13.7) | **94.9% (13.4)** | |
+| Homogeneity: two-font crops detected (contiguous) / false alarm | 43.5% / 3.8% | **45.7% / 5.4%** | `homogeneity_final.json` |
+| Homogeneity: AUROC / boundary within 10% | 0.814 / 59.5% | **0.819 / 59.1%** | |
+| Re-render verification AUROC: SSIM / DeepSSIM | 0.716 / 0.670 | **0.710 / 0.664** | `rerender_final.json` |
+| Storia-AI / ours, 77 shared fonts (Top-1) | 20.9% / 51.4% | **21.2% / 51.4%** | `baselines_final.json` |
+| Chen et al. / Storia-AI / ours, 17 shared fonts (Top-1) | 15.2% / 27.3% / 56.2% | **14.9% / 27.9% / 57.8%** | |
+
+**Notes on the test results:**
+- Test Top-1 by tier: pristine 65.9%, mild 65.6%, moderate 49.0%, severe 28.9% (77 shared fonts). The baselines collapse with deformation (Storia-AI 46.2% pristine → 2.5% severe).
+- Rejection depends heavily on which unknown fonts are held out. Of the 10 test fonts, the display faces Bangers (17% accepted) and Smooch Sans (19%) are mostly rejected. Cormorant (99%), Frank Ruhl Libre (97%), Courier Prime (95%) and Sanchez (95%) are almost always accepted. Unknown serif and monospace fonts are accepted 95–97% of the time, display fonts 41.5%.
+- The homogeneity check detects whole-word mixes (52.6%) better than mid-word ones (38.5%), and cross-family pairs (52.0%) better than same-family pairs (30.7%). Detection drops to 29.0% at severe deformation.
+- The false-alarm rate on test single-font crops came out at 5.4%, against the 5% the validation cutoff targeted.
+
 ## Files
 
 | File | Contents |
