@@ -39,6 +39,37 @@ The gain costs about 1 point of known-font Top-1. Pushing harder (256 crops per 
 
 **10. The trained font embedding does separate the halves of a two-font crop.** Probe on 300 single-font and 300 mixed validation crops (whole-word and mid-word mixes): cut each crop in two, embed both halves with the final head, and take their cosine distance. Cutting at the middle gives AUROC 0.811 and detects 48.7% of mixed crops at 5% false alarm; cutting at the true boundary gives AUROC 0.932 and 78.0% (the ceiling for a perfect cut position). A working check can therefore search a few cut positions with the embedding the head was trained for, at the price of extra forward passes per crop, which Section 4.4.2 currently says the check does not need. (Probe only; not yet a script or a report file.)
 
+**11. The first cut-search homogeneity check underperforms the probe.** Taking the largest left/right distance over cuts at 20–80% of the width (`homogeneity_search.json`) gives AUROC 0.669 and detects 24.4% of whole-word mixes, 12.8% of mid-word mixes and 10.7% of interleaved crops at 5.3% false alarm; median boundary error 0.17–0.20 of the crop width. The middle-cut probe of finding 10 did better (AUROC 0.811). The likely cause: cuts near the edges leave a piece one or two letters wide, whose embedding is noisy, and the maximum over cuts picks those noisy distances up even on single-font crops (cutoff 0.93). Not yet tuned.
+
+**12. DeepSSIM is no better than classic SSIM at checking a prediction.** Re-rendering the predicted font in the crop's exact layout (`src/model/rerender.py`, `rerender.json`, 3,000 validation crops): the score separates correct from wrong predictions with AUROC 0.716 (SSIM), 0.689 (MSE), 0.670 (DeepSSIM), 0.669 (DeepSSIM-Lite). Re-rendering the *true* font, by tier (pristine / mild / moderate / severe):
+
+| | Pristine | Mild | Moderate | Severe |
+|---|---|---|---|---|
+| SSIM | 0.943 | 0.265 | 0.060 | 0.023 |
+| DeepSSIM | 0.888 | 0.478 | 0.205 | 0.088 |
+| DeepSSIM-Lite | 0.962 | 0.665 | 0.215 | 0.039 |
+
+DeepSSIM holds up better than pixel SSIM under mild deformation but collapses too at moderate and severe. This is our implementation from the arXiv v1 equations; the paper's attention calibration is unspecified there and not implemented (choices listed in the script's docstring), so the result describes this implementation, not necessarily the authors' code.
+
+**13. Both closed-set baselines fall far behind on this corpus, most of all under deformation.** Each run with its own released weights and preprocessing (`src/model/baselines.py`, `baselines.json`), folded to font families, on the same validation crops as our head:
+
+| Same crops | Top-1 | Top-3 | Pristine | Mild | Moderate | Severe |
+|---|---|---|---|---|---|---|
+| *77 palette fonts Storia knows (6,645 crops)* | | | | | | |
+| Storia-AI (Jiang et al., 2025) | 20.9% | 31.6% | 48.1% | 33.6% | 9.6% | 3.1% |
+| Our head | 51.4% | 72.8% | 66.5% | 66.2% | 47.6% | 29.9% |
+| *17 palette fonts Chen et al. know (1,469 crops)* | | | | | | |
+| Chen et al. (2026), v2 weights | 15.2% | 31.7% | 16.1% | 20.0% | 14.9% | 9.8% |
+| Storia-AI | 27.3% | 45.0% | 57.8% | 40.6% | 15.4% | 7.9% |
+| Our head | 56.2% | 81.3% | 67.3% | 70.8% | 56.2% | 33.2% |
+
+Read with care:
+- Both baselines are asked only to choose among the palette fonts they know, the same closed-set question our head answers. On their own full catalogues they score lower still (Storia 6.9% over 1,677 families, Chen 11.2% over 32).
+- Storia is competitive on pristine crops (48–58%) and collapses with deformation (3–8% severe), which is the failure mode the thesis targets.
+- Chen et al.'s model is weak even on pristine crops (16.1%), although it uses its own deployed preprocessing (`handler.py`) verbatim. A sanity check on clean, full-size renders also gave mixed answers, and was sensitive to text polarity (better white-on-black). Its model card states "~86% on test set". So it does not transfer well to renders that are not its own; this is a statement about these weights on this corpus, not about the paper's benchmark.
+- Storia's catalogue lacks three palette fonts (Google Sans, Geist Mono, Ubuntu), which are excluded from its rows.
+- Neither baseline can say "unknown": on unknown fonts its FPR is 100% by construction. Storia's catalogue contains all 20 unknown fonts, but it names them correctly only 7.7% of the time.
+
 ## Files
 
 | File | Contents |
@@ -49,3 +80,6 @@ The gain costs about 1 point of known-font Top-1. Pushing harder (256 crops per 
 | `open_set_oe_x3_*.json` | 120 background fonts |
 | `open_set_*_s1.json`, `open_set_*_s2.json` | Extra seeds for the three setups in finding 5 |
 | `homogeneity.json` | Patch-column homogeneity check, both empty-column masks (finding 9) |
+| `homogeneity_search.json` | First cut-search homogeneity check (finding 11) |
+| `rerender.json` | Re-render check: SSIM, MSE, DeepSSIM, DeepSSIM-Lite (finding 12) |
+| `baselines.json` | Storia-AI and Chen et al. against our head (finding 13) |
