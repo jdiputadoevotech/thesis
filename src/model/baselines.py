@@ -5,9 +5,11 @@
           reference embedding). Preprocessing copied from its train.py:
           cut to <= 1024 px, resize the long side to the model size, pad white.
   chen    Chen et al. (2026), DINOv2 + LoRA merged, 394 weight variants of 32
-          families (dchen0/font_classifier_v4). Preprocessing copied from its
-          font_classifier_with_preprocessing.py: pad black to square,
-          bilinear 224, ImageNet normalization.
+          families (dchen0/font_classifier_v4). Preprocessing is its
+          handler.py transform, the deployed inference path, verbatim: RGB,
+          pad black to square, torchvision Resize(224) (antialiased),
+          ImageNet normalization. Labels look like `DMSans-Italic_Medium_Italic`;
+          the family is the text before the first `_`, then before the first `-`.
 
 Both name fonts at the family level here: a variant's score is folded into
 its family by the maximum. Each is scored two ways:
@@ -91,22 +93,22 @@ class Chen:
     def __init__(self, dev):
         from transformers import Dinov2ForImageClassification
         self.model = Dinov2ForImageClassification.from_pretrained("dchen0/font_classifier_v4").to(dev).eval()
+        import torchvision.transforms as T
         labels = self.model.config.id2label
-        self.classes = [norm(labels[i].split("_")[0]) for i in range(len(labels))]
+        self.classes = [norm(labels[i].split("_")[0].split("-")[0]) for i in range(len(labels))]
         self.dev = dev
-        self.mean = torch.tensor([0.485, 0.456, 0.406], device=dev).view(1, 3, 1, 1)
-        self.std = torch.tensor([0.229, 0.224, 0.225], device=dev).view(1, 3, 1, 1)
+
+        def pad_to_square(img):  # handler.py, verbatim
+            w, h = img.size
+            s = max(w, h)
+            pw, ph = (s - w) // 2, (s - h) // 2
+            return T.Pad((pw, ph, s - w - pw, s - h - ph), fill=0)(img)
+        self.tf = T.Compose([T.Lambda(lambda i: i.convert("RGB")), pad_to_square, T.Resize(224), T.ToTensor(),
+                             T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
     @torch.no_grad()
     def probs(self, imgs):
-        batch = []
-        for img in imgs:
-            x = torch.as_tensor(np.array(img.convert("RGB")), device=self.dev).permute(2, 0, 1)[None].float() / 255
-            h, w = x.shape[-2:]
-            s = max(h, w)
-            x = F.pad(x, ((s - w) // 2, s - w - (s - w) // 2, (s - h) // 2, s - h - (s - h) // 2), value=0)
-            batch.append(F.interpolate(x, size=(224, 224), mode="bilinear", align_corners=False))
-        x = (torch.cat(batch) - self.mean) / self.std
+        x = torch.stack([self.tf(i) for i in imgs]).to(self.dev)
         return torch.softmax(self.model(pixel_values=x).logits, 1).cpu().numpy()
 
 
@@ -120,11 +122,18 @@ def run(model, rows, bs=32):
     return np.concatenate(out)
 
 
+def by_tier(s, truth, rows):
+    tier = np.array([r["tier"] for r in rows])
+    return {t: topk(s[tier == t], truth[tier == t], 1) for t in ("pristine", "mild", "moderate", "severe")
+            if (tier == t).any()}
+
+
 def score(probs, model, rows, families):
     s = fold(probs, model.classes, families)
     idx = {f: j for j, f in enumerate(families)}
     truth = np.array([idx[family_of_font_id(r["font_id"])] for r in rows])
-    return {"n": len(rows), "top1": topk(s, truth, 1), "top3": topk(s, truth, 3)}
+    return {"n": len(rows), "top1": topk(s, truth, 1), "top3": topk(s, truth, 3),
+            "top1_by_tier": by_tier(s, truth, rows)}
 
 
 def head_scores(rows_subset, families, args):
@@ -145,7 +154,8 @@ def head_scores(rows_subset, families, args):
     sims = (zs @ protos[keep].T).numpy()
     kfam = [family_of_font_id(ck["fonts"][i]) for i in keep]
     truth = np.array([kfam.index(family_of_font_id(r["font_id"])) for r in rows_subset])
-    return {"n": len(rows_subset), "top1": topk(sims, truth, 1), "top3": topk(sims, truth, 3)}
+    return {"n": len(rows_subset), "top1": topk(sims, truth, 1), "top3": topk(sims, truth, 3),
+            "top1_by_tier": by_tier(sims, truth, rows_subset)}
 
 
 def main(args):
