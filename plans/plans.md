@@ -41,12 +41,12 @@ These depend on no code. Their lead time, not the build, is the schedule risk.
 | Status | Plan / experiment | Notes | Updated |
 |--------|-------------------|-------|---------|
 | ☑ | Unknown-font set | Gap found 2026-10-01: §4.10.2 measured FPR on "out-of-palette crops" but no synthetic set had any. `build_palette.py --unknown` → `data/unknown.csv`: the next 20 fonts below the palette cutoff (8/6/4/2), symbol faces excluded. Split by font: 10 validation (model choice), 10 test (Ch5). `data/corpus_unknown/`, 11,500 crops. Ch4 §4.3.1 + §4.10.2 updated. | 2026-10-01 |
-| ☐ | Last-layer vs multi-layer head, open-set | **First Increment 3 run.** Both heads were chosen on closed-set Top-1 only (Increment 2). Compare FPR@95% recall on the unknown-font *validation* fonts before adopting blocks 3/6/9/12 as the default. Features cached on SVC1: `{dinov2,dinov2_mid}_{unknown,mixed}.npz`. | 2026-10-01 |
-| ☐ | Prototypes + calibrate τ | Per-font centroid over training crops; τ at 95% recall on validation (§4.4.2 step 8). | 2026-09-16 |
-| ☐ | Homogeneity check | Column-pooled patch tokens, 2-cluster dispersion cutoff, single contiguous split, mixed-typography verdict. | 2026-09-16 |
-| ☐ | Metrics | Top-1/Top-3, FPR@95%TPR, structural re-render distance, conformal coverage, centroid severity index, confusion matrix by family. | 2026-09-16 |
-| ☐ | Backbone comparison | Table 5 candidates, same corpus and calibration recipe. Per-crop CPU/GPU latency on the deployment machine. | 2026-09-16 |
-| ☐ | Baseline comparison | Storia-AI + Chen et al. DINOv2-LoRA on the same real-generative crops. | 2026-09-16 |
+| ☑ | Last-layer vs multi-layer head, open-set | Multi-layer wins on the open-set measure too: FPR@95 87.1% vs 92.2%, AUROC 0.654 vs 0.614 (validation). Adopted, then outlier exposure added (40 background fonts, 128/batch, margin 0.4): FPR 75.3 ± 2.4% over 3 seeds. `reports/incr3/FINDINGS.md` 1–8. | 2026-10-04 |
+| ☑ | Prototypes + calibrate τ | `src/model/open_set.py`: per-font mean training embedding; τ at 95% recall on known validation crops; `--final` scores test with that τ. | 2026-10-04 |
+| ☑ | Homogeneity check | The patch-column design failed (chance-level). Replaced by a cut search with the font embedding (`src/model/homogeneity.py`, cuts 35–65%, pieces ≥ 1.25× crop height, per-cut z): test 45.7% of contiguous two-font crops at 5.4% false alarm. §4.4.2 rewritten. | 2026-10-04 |
+| ☑ | Metrics | Top-1/Top-3, FPR@95, AUROC, family confusion, severity Π (Chen et al. definition), split-conformal Top-K (`open_set.py`); re-render SSIM / DeepSSIM (`rerender.py`). **Final test numbers frozen 2026-10-02** (FINDINGS, "Final test results"). | 2026-10-04 |
+| ◐ | Backbone comparison | Table 5 candidates, same recipe (outlier exposure + KD, tuned head), last-layer features for all four so only the backbone changes; plus per-crop CPU/GPU latency on the laptop (the demo machine). Running on the laptop (SVC1 disk failed). | 2026-10-04 |
+| ◐ | Baseline comparison | **Synthetic done** (test: ours 51.4% vs Storia-AI 21.2% on 77 fonts; ours 57.8% vs Chen et al. 14.9% on 17). **Real-generative crops still open:** blocked on the panel-labeled set. | 2026-10-04 |
 
 ## Increment 4 — Web application (§4.6.3)
 
