@@ -101,6 +101,30 @@ Run once, on 2 Oct 2026, after every design choice above was frozen. They cover 
 - The homogeneity check detects whole-word mixes (52.6%) better than mid-word ones (38.5%), and cross-family pairs (52.0%) better than same-family pairs (30.7%). Detection drops to 29.0% at severe deformation.
 - The false-alarm rate on test single-font crops came out at 5.4%, against the 5% the validation cutoff targeted.
 
+## Backbone comparison (Table 5)
+
+All four candidates use the final recipe: outlier exposure, distillation, and the tuned head settings. To keep "only the backbone changes", every backbone is read the same way: the last layer's summary (class or pooled token plus mean patch token; ConvNeXt's pooled map). The multi-layer reading exists only for DINOv2, so the final model is listed separately. Run on the laptop on 4 Oct 2026, with no tuning per backbone. Files: `open_set_bb_*.json` (validation), `open_set_bb_*_final.json` (test), `latency.json`.
+
+| Backbone | Val Top-1 | **Test Top-1** | Test Top-3 | Test family | Test FPR@95 | Test AUROC | Backbone params | GPU ms / crop | CPU ms / crop |
+|---|---|---|---|---|---|---|---|---|---|
+| DINOv2 ViT-B/14 | 42.5% | **41.0%** | 65.1% | 87.3% | 80.3% | 0.661 | 86.6 M | 28.7 | 300 |
+| Supervised ViT-B/16 | 33.2% | 32.7% | 54.4% | 83.3% | 86.3% | 0.627 | 86.4 M | 18.7 | 238 |
+| ConvNeXt-T | 34.2% | 33.8% | 55.3% | 84.1% | 88.8% | 0.620 | 27.8 M | 13.8 | 98 |
+| SigLIP ViT-B/16 (vision tower) | 27.2% | 26.0% | 46.6% | 81.0% | 91.7% | 0.605 | 92.9 M | 19.5 | 269 |
+| *DINOv2, blocks 3/6/9/12 (final model)* | *50.2%* | *50.2%* | *72.2%* | *89.7%* | *75.6%* | *0.687* | *86.6 M* | *26.3* | *332* |
+
+Latency is the median per crop over 50 crops (GPU) and 20 crops (CPU), one crop at a time, after warm-up. Machine: RTX 3050 Laptop GPU, Intel CPU with 14 threads, torch 2.6.0.
+
+- **DINOv2 is best on every accuracy and rejection measure.** That confirms the choice on measured evidence, as Section 4.10.2 promised.
+- **Self-supervised pretraining helps.** DINOv2 and the supervised ViT share one architecture, and DINOv2 leads by 8.3 points of test Top-1 and 6 points of FPR. Table 5's note anticipated this pairing as the test of self-supervised pretraining.
+- **SigLIP, the vision-language encoder, is last.** Its image-text pretraining carries less letterform detail.
+- **ConvNeXt is the speed floor.** It is about 2x faster on GPU and 3x faster on CPU, at a 7-point Top-1 cost. The new homogeneity check no longer needs patch tokens, so ConvNeXt was a full candidate here.
+- **Against the speed target** (SRS REQ-5.1-1: ≤ 5 regions in ~10 s on the demo laptop, CPU acceptable):
+  - One embedding of the final model costs 26 ms on GPU and 332 ms on CPU.
+  - The homogeneity check adds 14 more passes per crop, so a crop needs 15 passes: about 0.4 s on GPU, but about **5 s on CPU**.
+  - Five regions then take about 2 s on GPU and about **25 s on CPU**, which misses the target before text localization is even counted.
+  - **The demo needs the GPU, or the check needs fewer cuts on CPU.** That is a decision for Increment 4.
+
 ## Files
 
 | File | Contents |

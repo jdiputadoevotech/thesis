@@ -1,0 +1,41 @@
+{
+  "machine": {
+    "cpu": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+    "torch": "2.6.0+cu124",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "cpu_threads": 14
+  },
+  "n": 50,
+  "heads": {
+    "data/models/head_bb_dinov2.pt": {
+      "backbone": "dinov2",
+      "backbone_params_m": 86.6,
+      "gpu_ms": 28.73410000029253,
+      "cpu_ms": 299.6236500002851
+    },
+    "data/models/head_bb_siglip.pt": {
+      "backbone": "siglip",
+      "backbone_params_m": 92.9,
+      "gpu_ms": 19.494449999911012,
+      "cpu_ms": 269.21690000108356
+    },
+    "data/models/head_bb_vit.pt": {
+      "backbone": "vit",
+      "backbone_params_m": 86.4,
+      "gpu_ms": 18.69985000030283,
+      "cpu_ms": 237.82780000055936
+    },
+    "data/models/head_bb_convnext.pt": {
+      "backbone": "convnext",
+      "backbone_params_m": 27.8,
+      "gpu_ms": 13.811099999657017,
+      "cpu_ms": 98.10265000032814
+    },
+    "data/models/head_dinov2_mid_oe.pt": {
+      "backbone": "dinov2_mid",
+      "backbone_params_m": 86.6,
+      "gpu_ms": 26.253250000081607,
+      "cpu_ms": 331.65229999940493
+    }
+  }
+}
