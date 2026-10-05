@@ -16,3 +16,9 @@ huggingface_hub==0.36.2
 peft==0.14.0
 scikit-learn==1.6.1
 matplotlib==3.11.0
+
+# Increment 3: closed-set baselines (src/model/baselines.py) and the real-crop
+# localizer (src/model/real.py). EasyOCR is also Increment 4's served localizer.
+onnxruntime==1.30.0
+pyyaml==6.0.3
+easyocr==1.7.2

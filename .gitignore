@@ -32,3 +32,10 @@ data/corpus_background_x3/
 # regenerable from src/model/. reports/incr2/*.json (the metrics) is committed.
 data/features/
 data/models/
+
+# Real-generative evaluation set (src/model/real.py). Images and crops are large;
+# predictions.csv stays out of this public repo so raters cannot see it before labelling.
+data/real/images/
+data/real/crops/
+data/real/sheet_*.png
+data/real/predictions.csv

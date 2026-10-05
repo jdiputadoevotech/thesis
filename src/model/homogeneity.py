@@ -336,13 +336,11 @@ def tune(args):
 CHOSEN = {"lo": 0.35, "hi": 0.65, "min_aspect": 1.25, "per_cut_z": True}
 
 
-def final(args):
-    """Score the frozen variant on the TEST halves. The standardization and the
-    cutoff come from the validation cache (its calibration half), exactly as
-    tune() set them; nothing is re-fit on test data."""
+def calibrated():
+    """The frozen variant, ready to apply: (grid, score(d, hw) -> (score, argmax),
+    cutoff), with standardization and cutoff from the validation cache's
+    calibration half. Shared by final() and src/model/real.py."""
     v = np.load(str(SEARCH_CACHE).format(""))
-    t = np.load(str(SEARCH_CACHE).format("_final"))
-    assert np.array_equal(v["grid"], t["grid"])
     grid = v["grid"]
     n = len(v["single_d"])
     cal = np.random.default_rng(0).permutation(n)[: n // 2]
@@ -350,6 +348,16 @@ def final(args):
     score = lambda d, hw: variant_scores(d, hw, grid, CHOSEN["lo"], CHOSEN["hi"], CHOSEN["min_aspect"], stats)
     cal_sc, _ = score(v["single_d"][cal], v["single_hw"][cal])
     cutoff = float(np.quantile(np.where(np.isfinite(cal_sc), cal_sc, -np.inf), 1 - FALSE_ALARM))
+    return grid, score, cutoff
+
+
+def final(args):
+    """Score the frozen variant on the TEST halves. The standardization and the
+    cutoff come from the validation cache (its calibration half), exactly as
+    tune() set them; nothing is re-fit on test data."""
+    t = np.load(str(SEARCH_CACHE).format("_final"))
+    grid, score, cutoff = calibrated()
+    assert np.array_equal(grid, t["grid"])
 
     s_sc, _ = score(t["single_d"], t["single_hw"])
     m_sc, m_arg = score(t["mixed_d"], t["mixed_hw"])
