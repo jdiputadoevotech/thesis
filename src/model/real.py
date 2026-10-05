@@ -67,8 +67,9 @@ def boxes_to_crops(results, height, width):
 def localize(args):
     import easyocr
     from PIL import Image
+    (REAL / "images").mkdir(exist_ok=True)  # gitignored, so absent in a fresh clone
     images = sorted(p for p in (REAL / "images").iterdir() if p.suffix.lower() in IMAGE_TYPES)
-    assert images, f"no images in {REAL / 'images'}"
+    assert images, f"no images yet: put the generator outputs in {REAL / 'images'} (see data/real/README.md)"
     reader = easyocr.Reader(["en"], gpu=args.gpu, verbose=False)  # its progress bar crashes a cp1252 console
     (REAL / "crops").mkdir(exist_ok=True)
     rows = []
