@@ -6,7 +6,8 @@ data/real/prompts.csv. Then:
     localize  EasyOCR cuts every image into word crops -> data/real/crops/ + crops.csv.
               This is the served localizer, so the unit evaluated is the unit served.
     sheet     contact sheets of the crops, numbered by crop_id, for the raters.
-    predict   the frozen model (Top-3, unknown verdict, homogeneity check) and both
+    predict   the frozen model from models/font_recognizer.pt (Top-3, unknown verdict,
+              homogeneity check) and both
               baselines on every crop -> data/real/predictions.csv. Raters must not
               see this file: the panel labels blind.
     score     panel labels (data/real/labels.csv) -> consensus, Fleiss' kappa, and
@@ -119,58 +120,23 @@ def sheet(args, per_page=24, cell=(420, 150)):
 
 def predict(args):
     import torch
-    from encoder import FontEmbedder, Head
-    from homogeneity import CHOSEN, GRID_CUTS, calibrated, cut_distances
-    from open_set import calibrate, decide, embed
-    from train_head import prototypes
+    from PIL import Image
+    from bundle import Recognizer
 
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    ck = torch.load(ROOT / args.head, map_location="cpu")
-    head = Head(ck["d_in"], ck.get("dim", 256), ck.get("hidden", 512)).eval()
-    head.load_state_dict(ck["state_dict"])
-    fonts = ck["fonts"]
-    fi = {f: i for i, f in enumerate(fonts)}
-    rows_c, z = embed(head, ck["backbone"], "data/corpus")
-    y = torch.tensor([fi[r["font_id"]] for r in rows_c])
-    split = np.array([r["split"] for r in rows_c])
-    protos = prototypes(z[split == "train"], y[split == "train"], len(fonts))
-    tau = calibrate(decide(z[split == "validation"], protos)[0])
-    grid, h_score, h_cut = calibrated()
-    assert np.array_equal(grid, GRID_CUTS)
-
-    emb = FontEmbedder.load(ROOT / args.head).to(dev)
-    from PIL import Image
+    rec = Recognizer(ROOT / args.bundle, dev)
     crops = list(csv.DictReader((REAL / "crops.csv").open(encoding="utf-8")))
     load = lambda r: torch.from_numpy(np.array(Image.open(ROOT / r["crop_path"]).convert("L")))
-
-    def recognise(img):
-        with torch.no_grad(), torch.autocast(dev, dtype=torch.float16, enabled=dev == "cuda"):
-            zz = emb([img]).float().cpu()
-        sims = (zz @ protos.T)[0]
-        v, i = sims.topk(3)
-        return [fonts[int(k)] for k in i], [round(float(s), 4) for s in v]
-
-    def check(img):
-        d = cut_distances(emb, [img], dev, GRID_CUTS)
-        sc, arg = h_score(d, np.array([img.shape[:2]]))
-        return bool(sc[0] >= h_cut), float(GRID_CUTS[arg[0]])
-
     out = []
     for n, r in enumerate(crops):
-        img = load(r)
-        top, sims = recognise(img)
-        flagged, cut = check(img)
-        row = {"crop_id": r["crop_id"], "ours_top3": "|".join(top), "ours_sims": "|".join(map(str, sims)),
-               "ours_verdict": "known" if sims[0] >= tau else "unknown",
-               "homog_flag": flagged, "homog_cut": round(cut, 2) if flagged else "", "halves": ""}
-        if flagged:  # split once at the cut and match each half; a half still flagged is mixed typography
-            c = int(round(img.shape[1] * cut))
-            halves = []
-            for half in (img[:, :c], img[:, c:]):
-                h_top, h_sims = recognise(half)
-                still, _ = check(half)
-                halves.append("mixed" if still else (h_top[0] if h_sims[0] >= tau else "unknown"))
-            row["halves"] = "|".join(halves)
+        res = rec(load(r))
+        row = {"crop_id": r["crop_id"],
+               "ours_top3": "|".join(f["font_id"] for f, _ in res["topk"]),
+               "ours_sims": "|".join(f"{s:.4f}" for _, s in res["topk"]),
+               "ours_verdict": res["verdict"], "homog_flag": not res["homogeneous"],
+               "homog_cut": round(res["cut"], 2) if res["cut"] is not None else "",
+               "halves": "|".join(h["topk"][0][0]["font_id"] if h["verdict"] == "known" else h["verdict"]
+                                  for h in res["halves"]) if res["halves"] else ""}
         out.append(row)
         if n % 20 == 0:
             print(f"ours {n}/{len(crops)}", file=sys.stderr)
@@ -189,7 +155,7 @@ def predict(args):
         w = csv.DictWriter(f, fieldnames=list(out[0]))
         w.writeheader()
         w.writerows(out)
-    print(f"{len(out)} crops -> {REAL / 'predictions.csv'} (tau {tau:.4f}, homogeneity cutoff {h_cut:.3f}, {CHOSEN})")
+    print(f"{len(out)} crops -> {REAL / 'predictions.csv'} (tau {rec.tau:.4f}, homogeneity cutoff {rec.h_cut:.3f})")
 
 
 # ------------------------------------------------------------------- score ---
@@ -307,7 +273,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("step", nargs="?", choices=["localize", "sheet", "predict", "score"])
     ap.add_argument("--check", action="store_true")
-    ap.add_argument("--head", default="data/models/head_dinov2_mid_oe.pt")
+    ap.add_argument("--bundle", default="models/font_recognizer.pt", help="from src/model/bundle.py export")
     ap.add_argument("--gpu", action=argparse.BooleanOptionalAction, default=True, help="EasyOCR on the GPU")
     a = ap.parse_args()
     if a.check:
