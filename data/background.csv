@@ -1,0 +1,41 @@
+font_id,family,weight,family_class,popularity,gf_last_modified,split,ttf_path,sha256
+TitilliumWeb-400,Titillium Web,400,sans-serif,66,2025-09-10,train,data/fonts/TitilliumWeb-400.ttf,c5722c5d8e6d69a520af1f0de180017a14209bd36cab538f2a340d30540c63dd
+Heebo-400,Heebo,400,sans-serif,69,2025-09-10,train,data/fonts/Heebo-400.ttf,c3e828690d20e344b2a0c9bcd3d64b21d62d65d465c21dd6117dd33fb5fe2532
+FjallaOne-400,Fjalla One,400,sans-serif,75,2025-09-16,train,data/fonts/FjallaOne-400.ttf,ec886264b469ac0299bbfbf05b6f8310c446b1331bb263f7bc2d7479874692ad
+GoogleSansFlex-400,Google Sans Flex,400,sans-serif,76,2026-07-30,train,data/fonts/GoogleSansFlex-400.ttf,1a5608fc557dca87bbe97ccba8974a5ac99fc87346a8745fc83d5ea06486f99b
+LibreFranklin-400,Libre Franklin,400,sans-serif,77,2025-09-08,train,data/fonts/LibreFranklin-400.ttf,b03fb188d88811436d8b7d7b2b4964921a2c4416f0c042c7ecdb443dcd6e999d
+BarlowCondensed-400,Barlow Condensed,400,sans-serif,79,2025-09-08,train,data/fonts/BarlowCondensed-400.ttf,c82d65280835cb3cd1b499863cf68cae8c6193c45ffae9495d28d01f749a9ae2
+PublicSans-400,Public Sans,400,sans-serif,84,2025-09-16,train,data/fonts/PublicSans-400.ttf,d8a092f98db3ae7c7f01e73f8f23aaaec97f16c325765042ae5a052f4d8de546
+InterTight-400,Inter Tight,400,sans-serif,85,2025-09-16,train,data/fonts/InterTight-400.ttf,27350bc95b961b9b4e1a80d872f49e903fe727f290f6b2a079e67ceb1685fb1f
+Anton-400,Anton,400,sans-serif,86,2025-09-16,train,data/fonts/Anton-400.ttf,fd9301f2837c99df2be07cc7f0be66e9470f5354d8fcf1606027c67fcd637a53
+JosefinSans-400,Josefin Sans,400,sans-serif,88,2025-09-04,train,data/fonts/JosefinSans-400.ttf,51db65928e13442537cf58237592cb49aad1ac5e24345e11283d7ed5723e6793
+Sora-400,Sora,400,sans-serif,91,2025-09-08,train,data/fonts/Sora-400.ttf,1b547e90e4c49aa12e9a35ca8acc91732e188aa9fdbe08d2299ea4d4cae72145
+Lexend-400,Lexend,400,sans-serif,92,2025-09-08,train,data/fonts/Lexend-400.ttf,89d2152dafc3b2033dc61ca9c85695ab86dbe17f534732ae092c060023d7e4a3
+Cairo-400,Cairo,400,sans-serif,94,2025-09-16,train,data/fonts/Cairo-400.ttf,7ecb9b6a465072bce7b0e2a6d2d0355add8151fa9f8f342b516b57b26a2914c6
+Assistant-400,Assistant,400,sans-serif,97,2025-09-08,train,data/fonts/Assistant-400.ttf,7db29a71f35e1b3cd9168e69ecba50d2f9f1fddee3e4e9dd727166234c15d3cb
+SchibstedGrotesk-400,Schibsted Grotesk,400,sans-serif,98,2025-09-04,train,data/fonts/SchibstedGrotesk-400.ttf,357651a7214aa7f518688f3f0deefff8432890825336a75df64185fc3103c965
+RobotoFlex-400,Roboto Flex,400,sans-serif,100,2025-09-04,train,data/fonts/RobotoFlex-400.ttf,f1ad5ed3131510cc8fb647844b857ec29c2aa92f963b48e4f6725cc7e26d6d48
+Faustina-400,Faustina,400,serif,211,2025-09-04,train,data/fonts/Faustina-400.ttf,d52552f7a0320a648f454558a1f19185daf680cddc70193b531234b328e9ce4b
+Vollkorn-400,Vollkorn,400,serif,212,2025-09-11,train,data/fonts/Vollkorn-400.ttf,656470470dcf13b9c9a4b5d29603c73784329bfe104e7b2294c128909e161795
+Amiri-400,Amiri,400,serif,215,2025-08-26,train,data/fonts/Amiri-400.ttf,7f19c4a5dc77b0ef435b430d750759170def15d6e3801006e0704dadc7f220e3
+AndadaPro-400,Andada Pro,400,serif,229,2026-06-30,train,data/fonts/AndadaPro-400.ttf,fa536f870a73ae3eec3b85940ce9408a1cfc5d07c5dd1abda5a77f822b88e8b7
+Literata-400,Literata,400,serif,230,2025-09-11,train,data/fonts/Literata-400.ttf,1d6eafdc620333fcc3d573c115fc62ea78d0965d1f72a8f549fc9660fef556b3
+Cardo-400,Cardo,400,serif,237,2025-09-08,train,data/fonts/Cardo-400.ttf,2b86847db9b2737b09281cb404487b2d2c0c003d8db41b94abdac07d683d42ca
+DMSerifText-400,DM Serif Text,400,serif,241,2025-09-02,train,data/fonts/DMSerifText-400.ttf,3b61a706af30ea29818e0c4795e26e7935a296001e076aa62e15be738c2b6809
+Tinos-400,Tinos,400,serif,242,2026-05-19,train,data/fonts/Tinos-400.ttf,e30f146a85623eff54453d733e5e5102fee69f07584d8ea074175a9732028be6
+BreeSerif-400,Bree Serif,400,serif,243,2025-09-04,train,data/fonts/BreeSerif-400.ttf,2e9f0fccac3e40242c7a5fd13229c129af51e969930e627b06c556e8304bec89
+Playfair-400,Playfair,400,serif,249,2025-09-10,train,data/fonts/Playfair-400.ttf,1294a56f8da74c4390d648c0ac9cb2bda63ecf6ffcb73547685b934edf38584a
+Baskervville-400,Baskervville,400,serif,251,2025-09-11,train,data/fonts/Baskervville-400.ttf,c9aa0baaae5610231c3ba1ba89469411d77a9d98d8cd967e9ad204deab78d004
+Aleo-400,Aleo,400,serif,252,2025-09-16,train,data/fonts/Aleo-400.ttf,6fcdaf13e194e96a199431a1cb04ed43afc565b9cd958fb78848cbd9e4687553
+GoogleSansCode-400,Google Sans Code,400,monospace,271,2026-04-14,train,data/fonts/GoogleSansCode-400.ttf,3c84b7523b1a74cb9653e0b5d2b5b82fe60ba8bd6d1b92d236baa05d4a9f9081
+VT323-400,VT323,400,monospace,282,2025-09-16,train,data/fonts/VT323-400.ttf,954e44d25e0ccd643f4ef15e75d56d3d76590d3c2b1e42b71b13d5df740a51a6
+PatuaOne-400,Patua One,400,display,284,2025-09-04,train,data/fonts/PatuaOne-400.ttf,31778a9d3fddf0ea2511b451e852d43570786816ef88da0c1a150dd68f61b6ed
+FugazOne-400,Fugaz One,400,display,285,2025-09-16,train,data/fonts/FugazOne-400.ttf,2032aa829b5c8b8876a7420cce1d0da2741b5210cc83068d88d4388ec18ed3a5
+Audiowide-400,Audiowide,400,display,289,2025-09-16,train,data/fonts/Audiowide-400.ttf,c42a74135f7f527e69a16826220cece45ec376776cfacdfd6cfd750053215146
+PTMono-400,PT Mono,400,monospace,305,2025-09-08,train,data/fonts/PTMono-400.ttf,db7134f3be63a56f9648aa775cc8980dfd2a28d4eed38cfbf46b118b098eb270
+ShareTechMono-400,Share Tech Mono,400,monospace,306,2025-09-16,train,data/fonts/ShareTechMono-400.ttf,5f6b57538a1a35469a038dc3073003cebc4c101ad7b3c219e9555a3b3c0a81d2
+ChelseaMarket-400,Chelsea Market,400,display,308,2025-09-16,train,data/fonts/ChelseaMarket-400.ttf,33a94b5e99a94ea1167f277c4e1284f62235f978c6323d177d68a4d7640ba3f4
+Oxanium-400,Oxanium,400,display,311,2025-09-10,train,data/fonts/Oxanium-400.ttf,b19bd4918b692acbe4837e269a5a2854746d490578024ed92831f8f37abbf453
+PassionOne-400,Passion One,400,display,318,2025-09-10,train,data/fonts/PassionOne-400.ttf,ad041d576a4aade257cd9c1224e9712a8aac31915a88129b1e04323a17955a47
+Gabarito-400,Gabarito,400,display,355,2025-09-04,train,data/fonts/Gabarito-400.ttf,a936de73165607d73d690ca6861a7b1c79cf67b6e5bd590a7b4bdedd60662cd8
+Forum-400,Forum,400,display,358,2025-09-04,train,data/fonts/Forum-400.ttf,0ae21f320a7bae60712908271b15e8bd21f24347a903e246cae8ac5d75a476fc

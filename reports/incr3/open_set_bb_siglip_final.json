@@ -1,0 +1,342 @@
+{
+  "head": "data/models/head_bb_siglip.pt",
+  "backbone": "siglip",
+  "unknown_split": "test",
+  "recall_target": 0.95,
+  "tau": 0.6986073851585388,
+  "fpr_at_95": 0.9173913043478261,
+  "auroc": 0.6050983597267261,
+  "known": {
+    "n": 6905,
+    "top1": 0.25966690803765385,
+    "top3": 0.4658942795076032,
+    "accepted": 0.9503258508327299,
+    "top1_when_accepted": 0.2666869856750991,
+    "accepted_by_tier": {
+      "mild": 0.973170731707317,
+      "moderate": 0.9543467702768335,
+      "pristine": 0.9655172413793104,
+      "severe": 0.9098173515981736
+    }
+  },
+  "unknown": {
+    "n": 5750,
+    "fonts": [
+      "Bangers-400",
+      "Cormorant-400",
+      "CourierPrime-400",
+      "FrankRuhlLibre-400",
+      "Jost-400",
+      "Karla-400",
+      "Sanchez-400",
+      "SmoochSans-400",
+      "SpaceGrotesk-400",
+      "SpecialElite-400"
+    ],
+    "accepted_by_tier": {
+      "mild": 0.9161401493394601,
+      "moderate": 0.9286966686148451,
+      "pristine": 0.9271899886234357,
+      "severe": 0.8992248062015504
+    },
+    "accepted_by_family": {
+      "sans-serif": 0.8756521739130435,
+      "serif": 0.952463768115942,
+      "display": 0.931304347826087,
+      "monospace": 0.951304347826087
+    }
+  },
+  "per_unknown_font": {
+    "Bangers-400": {
+      "family": "display",
+      "accepted": 0.9947826086956522,
+      "mistaken_for": [
+        {
+          "font": "BebasNeue-400",
+          "family": "sans-serif",
+          "n": 184
+        },
+        {
+          "font": "LilitaOne-400",
+          "family": "display",
+          "n": 89
+        },
+        {
+          "font": "LuckiestGuy-400",
+          "family": "display",
+          "n": 76
+        }
+      ]
+    },
+    "Cormorant-400": {
+      "family": "serif",
+      "accepted": 0.9895652173913043,
+      "mistaken_for": [
+        {
+          "font": "CormorantGaramond-400",
+          "family": "serif",
+          "n": 268
+        },
+        {
+          "font": "BodoniModa-400",
+          "family": "serif",
+          "n": 80
+        },
+        {
+          "font": "EBGaramond-400",
+          "family": "serif",
+          "n": 68
+        }
+      ]
+    },
+    "CourierPrime-400": {
+      "family": "monospace",
+      "accepted": 0.951304347826087,
+      "mistaken_for": [
+        {
+          "font": "Arvo-400",
+          "family": "serif",
+          "n": 147
+        },
+        {
+          "font": "ZillaSlab-400",
+          "family": "serif",
+          "n": 90
+        },
+        {
+          "font": "DMMono-400",
+          "family": "monospace",
+          "n": 62
+        }
+      ]
+    },
+    "FrankRuhlLibre-400": {
+      "family": "serif",
+      "accepted": 0.9495652173913044,
+      "mistaken_for": [
+        {
+          "font": "Fraunces-400",
+          "family": "serif",
+          "n": 81
+        },
+        {
+          "font": "PTSerif-400",
+          "family": "serif",
+          "n": 60
+        },
+        {
+          "font": "Lora-400",
+          "family": "serif",
+          "n": 60
+        }
+      ]
+    },
+    "Jost-400": {
+      "family": "sans-serif",
+      "accepted": 0.92,
+      "mistaken_for": [
+        {
+          "font": "Outfit-400",
+          "family": "sans-serif",
+          "n": 47
+        },
+        {
+          "font": "GoogleSans-400",
+          "family": "sans-serif",
+          "n": 40
+        },
+        {
+          "font": "PlusJakartaSans-400",
+          "family": "sans-serif",
+          "n": 35
+        }
+      ]
+    },
+    "Karla-400": {
+      "family": "sans-serif",
+      "accepted": 0.92,
+      "mistaken_for": [
+        {
+          "font": "PTSans-400",
+          "family": "sans-serif",
+          "n": 41
+        },
+        {
+          "font": "Barlow-400",
+          "family": "sans-serif",
+          "n": 36
+        },
+        {
+          "font": "SourceCodePro-400",
+          "family": "monospace",
+          "n": 32
+        }
+      ]
+    },
+    "Sanchez-400": {
+      "family": "serif",
+      "accepted": 0.9182608695652174,
+      "mistaken_for": [
+        {
+          "font": "ZillaSlab-400",
+          "family": "serif",
+          "n": 108
+        },
+        {
+          "font": "Arvo-400",
+          "family": "serif",
+          "n": 91
+        },
+        {
+          "font": "RobotoSlab-400",
+          "family": "serif",
+          "n": 64
+        }
+      ]
+    },
+    "SmoochSans-400": {
+      "family": "sans-serif",
+      "accepted": 0.72,
+      "mistaken_for": [
+        {
+          "font": "Barlow-400",
+          "family": "sans-serif",
+          "n": 67
+        },
+        {
+          "font": "BebasNeue-400",
+          "family": "sans-serif",
+          "n": 50
+        },
+        {
+          "font": "Oswald-400",
+          "family": "sans-serif",
+          "n": 41
+        }
+      ]
+    },
+    "SpaceGrotesk-400": {
+      "family": "sans-serif",
+      "accepted": 0.9426086956521739,
+      "mistaken_for": [
+        {
+          "font": "PTSans-400",
+          "family": "sans-serif",
+          "n": 35
+        },
+        {
+          "font": "WorkSans-400",
+          "family": "sans-serif",
+          "n": 32
+        },
+        {
+          "font": "Baloo2-400",
+          "family": "display",
+          "n": 27
+        }
+      ]
+    },
+    "SpecialElite-400": {
+      "family": "display",
+      "accepted": 0.8678260869565217,
+      "mistaken_for": [
+        {
+          "font": "Arvo-400",
+          "family": "serif",
+          "n": 124
+        },
+        {
+          "font": "ZillaSlab-400",
+          "family": "serif",
+          "n": 113
+        },
+        {
+          "font": "RobotoSlab-400",
+          "family": "serif",
+          "n": 62
+        }
+      ]
+    }
+  },
+  "family_confusion": {
+    "labels": [
+      "sans-serif",
+      "serif",
+      "display",
+      "monospace"
+    ],
+    "counts": [
+      [
+        2223,
+        90,
+        248,
+        201
+      ],
+      [
+        99,
+        1875,
+        62,
+        32
+      ],
+      [
+        188,
+        59,
+        1122,
+        13
+      ],
+      [
+        244,
+        53,
+        23,
+        373
+      ]
+    ]
+  },
+  "severity_index": {
+    "swer": 0.07674730569124222,
+    "swer_random": 0.47855818271636963,
+    "pi": 0.16037194318904494
+  },
+  "conformal": {
+    "0.05": {
+      "alpha": 0.05,
+      "threshold": 0.4668099880218506,
+      "coverage": 0.9525050680567623,
+      "mean_set_size": 25.06776715899218,
+      "median_set_size": 23.0,
+      "coverage_by_tier": {
+        "mild": 0.9892156862745098,
+        "moderate": 0.9643201542912246,
+        "pristine": 0.9885714285714285,
+        "severe": 0.8737083811710677
+      },
+      "mean_set_size_by_tier": {
+        "mild": 22.395098039215686,
+        "moderate": 25.254580520732883,
+        "pristine": 23.384761904761906,
+        "severe": 28.989667049368542
+      },
+      "mean_set_size_when_accepted": 25.451093560145807
+    },
+    "0.1": {
+      "alpha": 0.1,
+      "threshold": 0.3848973512649536,
+      "coverage": 0.9067477555748624,
+      "mean_set_size": 19.041413263828556,
+      "median_set_size": 17.0,
+      "coverage_by_tier": {
+        "mild": 0.9754901960784313,
+        "moderate": 0.9132111861137898,
+        "pristine": 0.9676190476190476,
+        "severe": 0.7818599311136625
+      },
+      "mean_set_size_by_tier": {
+        "mild": 17.24607843137255,
+        "moderate": 19.516875602700097,
+        "pristine": 17.973333333333333,
+        "severe": 21.22158438576349
+      },
+      "mean_set_size_when_accepted": 19.685601458080196
+    }
+  }
+}

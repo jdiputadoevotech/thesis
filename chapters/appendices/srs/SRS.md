@@ -165,7 +165,7 @@ The backend finds text regions and prepares each crop for matching. Priority: **
 | REQ-4.2-2 | The system shall preprocess each crop (square-pad → 224² → normalize) inside the model forward pass. | High |
 | REQ-4.2-3 | The system shall show processing status/progress and detected-region boxes while inference runs. | Med |
 | REQ-4.2-4 | The system should return an informative error if no text region is found. | Med |
-| REQ-4.2-5 | The system shall check each crop for font homogeneity using the encoder's patch-level features; a flagged crop shall be split once at the detected boundary and each half matched independently. | High |
+| REQ-4.2-5 | The system shall check each crop for font homogeneity by comparing the font embeddings of its left and right parts across candidate cut positions; a flagged crop shall be split once at the detected boundary and each half matched independently. | High |
 
 ### 4.3 Font Matching and Top-K Results
 

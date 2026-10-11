@@ -1,0 +1,132 @@
+{
+  "split": "test",
+  "storia": {
+    "catalogue_families": 1677,
+    "palette_families_missing": [
+      "geistmono",
+      "googlesans",
+      "ubuntu"
+    ],
+    "known_own_catalogue": {
+      "n": 6645,
+      "top1": 0.07072987208427389,
+      "top3": 0.1294206170052671,
+      "top1_by_tier": {
+        "pristine": 0.21812749003984064,
+        "mild": 0.11713995943204868,
+        "moderate": 0.009605662285136502,
+        "severe": 0.0005913660555884093
+      }
+    },
+    "known_palette_only": {
+      "n": 6645,
+      "top1": 0.21158765989465764,
+      "top3": 0.3163280662151994,
+      "top1_by_tier": {
+        "pristine": 0.46215139442231074,
+        "mild": 0.35699797160243407,
+        "moderate": 0.09908998988877654,
+        "severe": 0.024837374334713187
+      }
+    },
+    "ours_same_crops": {
+      "n": 6645,
+      "top1": 0.5137697516930022,
+      "top3": 0.7345372460496614,
+      "top1_by_tier": {
+        "pristine": 0.6593625498007968,
+        "mild": 0.6561866125760649,
+        "moderate": 0.48988877654196156,
+        "severe": 0.2891780011827321
+      }
+    },
+    "unknown_own_catalogue": {
+      "n": 5750,
+      "top1": 0.08452173913043479,
+      "top3": 0.14278260869565218,
+      "top1_by_tier": {
+        "pristine": 0.24232081911262798,
+        "mild": 0.14129810453762207,
+        "moderate": 0.015780245470485097,
+        "severe": 0.0
+      }
+    }
+  },
+  "chen": {
+    "catalogue_families": 32,
+    "shared_palette_families": [
+      "bricolagegrotesque",
+      "crimsonpro",
+      "dmsans",
+      "instrumentserif",
+      "inter",
+      "jetbrainsmono",
+      "lora",
+      "merriweather",
+      "montserrat",
+      "newsreader",
+      "nunitosans",
+      "opensans",
+      "playfairdisplay",
+      "plusjakartasans",
+      "poppins",
+      "roboto",
+      "worksans"
+    ],
+    "known_own_catalogue": {
+      "n": 1466,
+      "top1": 0.11050477489768076,
+      "top3": 0.22783083219645292,
+      "top1_by_tier": {
+        "pristine": 0.09734513274336283,
+        "mild": 0.1336405529953917,
+        "moderate": 0.12672811059907835,
+        "severe": 0.07258064516129033
+      }
+    },
+    "known_shared_only": {
+      "n": 1466,
+      "top1": 0.14938608458390176,
+      "top3": 0.3417462482946794,
+      "top1_by_tier": {
+        "pristine": 0.1592920353982301,
+        "mild": 0.1774193548387097,
+        "moderate": 0.16129032258064516,
+        "severe": 0.0967741935483871
+      }
+    },
+    "storia_same_crops_shared_only": {
+      "n": 1466,
+      "top1": 0.2789904502046385,
+      "top3": 0.46521145975443384,
+      "top1_by_tier": {
+        "pristine": 0.5663716814159292,
+        "mild": 0.42626728110599077,
+        "moderate": 0.15898617511520738,
+        "severe": 0.07258064516129033
+      }
+    },
+    "ours_same_crops_shared_only": {
+      "n": 1466,
+      "top1": 0.577762619372442,
+      "top3": 0.8260572987721692,
+      "top1_by_tier": {
+        "pristine": 0.7212389380530974,
+        "mild": 0.6912442396313364,
+        "moderate": 0.5645161290322581,
+        "severe": 0.3736559139784946
+      }
+    }
+  },
+  "ours_palette": {
+    "n": 6905,
+    "top1": 0.5019551049963794,
+    "top3": 0.7220854453294714,
+    "top1_by_tier": {
+      "pristine": 0.6455938697318008,
+      "mild": 0.6439024390243903,
+      "moderate": 0.4764448761534726,
+      "severe": 0.2802511415525114
+    }
+  }
+}

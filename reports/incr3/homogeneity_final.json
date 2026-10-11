@@ -1,0 +1,30 @@
+{
+  "split": "test",
+  "variant": {
+    "lo": 0.35,
+    "hi": 0.65,
+    "min_aspect": 1.25,
+    "per_cut_z": true
+  },
+  "cutoff_from_validation": 2.2904961109161377,
+  "n_single": 3000,
+  "n_mixed": 2000,
+  "false_alarm": 0.05366666666666667,
+  "auroc_contiguous": 0.8190520102105935,
+  "detected": {
+    "word": 0.5263819095477387,
+    "char": 0.3852140077821012,
+    "interleave": 0.12702078521939955
+  },
+  "detected_contiguous": 0.4569240587109126,
+  "detected_contiguous_by_tier": {
+    "pristine": 0.4897959183673469,
+    "mild": 0.5959367945823928,
+    "moderate": 0.4492753623188406,
+    "severe": 0.2904040404040404
+  },
+  "detected_contiguous_same_family": 0.30669546436285094,
+  "detected_contiguous_cross_family": 0.519927536231884,
+  "boundary_error_median": 0.0791,
+  "boundary_within_10pct": 0.590782122905028
+}

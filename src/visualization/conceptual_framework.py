@@ -144,7 +144,7 @@ def create_figure():
              fc=COLORS["teal_bg"], ec=COLORS["teal"], tc=COLORS["teal"],
              fs=10, sub_fs=7.0, lw=1.8)
     draw_box(ax, 9.75, 6.55, 3.2, 1.55, "Same-font check",
-             "do the crop's patches\nagree on one style?\nif not: split once",
+             "do its left and right\nparts share one style?\nif not: split once",
              fc=COLORS["orange_bg"], ec=COLORS["orange"], tc=COLORS["orange"],
              fs=10, sub_fs=7.0, lw=1.8)
     draw_box(ax, 13.5, 6.55, 3.2, 1.55, "Metric head  $f_\\theta$",

@@ -25,8 +25,17 @@ chapters/appendices/srs/SRS.docx
 data/corpus/
 data/corpus_unknown/
 data/corpus_mixed/
+data/corpus_background/
+data/corpus_background_x3/
 
 # Increment 2 — cached backbone features (~140 MB/backbone) and trained weights,
 # regenerable from src/model/. reports/incr2/*.json (the metrics) is committed.
 data/features/
 data/models/
+
+# Real-generative evaluation set (src/model/real.py). Images and crops are large;
+# predictions.csv stays out of this public repo so raters cannot see it before labelling.
+data/real/images/
+data/real/crops/
+data/real/sheet_*.png
+data/real/predictions.csv
