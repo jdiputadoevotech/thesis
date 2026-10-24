@@ -11,7 +11,7 @@ These depend on no code. Their lead time, not the build, is the schedule risk.
 | ☐ | Recruit 3 expert raters | Typography/design professionals, screened per §4.2.3. 300 judgments total. Recruiting is the long pole. | 2026-09-16 |
 | ☐ | Collect real-generative images | Three generators: Bing Image Creator (DALL·E 3), Gemini, ChatGPT Image. Purposive quota: 4 family classes × mild→severe hallucination. Localize to N=100 word crops. **Risk: all three render text comparatively well, so the severe end of the severity quota will be hard to fill — see prompting note below.** | 2026-09-16 |
 | ☐ | Prompt recipes for severe hallucination | The quota needs failures, and modern generators mostly succeed on short focal text. Push toward failure with: long/rare/invented words, small or background text (signage, packaging, book spines), curved or textured surfaces, several text elements in one image, and explicitly display/ornamental type. Log the prompt with every crop. | 2026-09-16 |
-| ☐ | Build rater web form | Per-crop item + palette reference sheet + coherence question (§4.2.3). Appendix-reproducible, platform-neutral. | 2026-09-16 |
+| ☑ | Build rater web form | `src/rater/` (React + Vite frontend + `server.py` backend). Per-crop item + live 80-font `@font-face` palette reference sheet + coherence question (§4.2.3, Appendix B). Writes directly to `data/real/labels.csv`. | 2026-10-19 |
 | ☐ | Re-clone `font-classify` | Storia-AI baseline (§4.10.2); sandbox is absent from disk. | 2026-09-16 |
 
 ## Increment 1 — Synthetic data pipeline (§4.6.3)
