@@ -1,9 +1,10 @@
 """Build the final thesis paper as one Word file.
 
 Concatenates, in order: abstract, Ch1 introduction, Ch2 RRL, Ch3 technical
-background, Ch4 methodology, the SRS, the non-letter appendices (expert-panel
-rating form), and the bibliography — transmittal letters are excluded. Each part
-starts on a new page.
+background, Ch4 methodology, Ch5 results and discussion, Ch6 conclusions (skipped
+until it is drafted), the SRS, the non-letter appendices (expert-panel rating
+form), and the bibliography — transmittal letters are excluded. Each part starts
+on a new page.
 
 Output format (post-processed into the docx): Arial 12 for all text, 1.5 line
 spacing, A4, 1-inch margins except a 1.5-inch left margin, and no bookmark
@@ -15,6 +16,7 @@ Output: Final Paper.docx at the repo root.
 import os
 import re
 import subprocess
+import sys
 import zipfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -26,10 +28,14 @@ PARTS = [
     "chapters/02-review-of-related-literature/draft.md",
     "chapters/03-technical-background/draft.md",
     "chapters/04-methodology/draft.md",
+    "chapters/05-results-and-discussion/draft.md",
+    "chapters/06-summary-conclusions-recommendations/draft.md",
     "chapters/appendices/srs/SRS.md",
     "chapters/appendices/srs/Expert Panel Rating Form.md",
     "chapters/07-bibliography/draft.md",
 ]
+# ponytail: Ch6 has no draft yet, so the build skips it until it exists. Delete this set then.
+OPTIONAL = {"chapters/06-summary-conclusions-recommendations/draft.md"}
 
 PAGEBREAK = (
     '\n\n```{=openxml}\n'
@@ -43,6 +49,9 @@ def build_markdown():
     for rel in PARTS:
         path = os.path.join(ROOT, rel)
         if not os.path.exists(path):
+            if rel in OPTIONAL:
+                print(f"skipping {rel} (not drafted yet)", file=sys.stderr)
+                continue
             raise SystemExit(f"missing part: {rel}")
         text = open(path, encoding="utf-8").read()
         # image paths are relative to each part's folder; the build runs from
