@@ -4,8 +4,13 @@ The out-of-distribution test of the thesis (Section 4.3.1): text crops from real
 
 ## Steps
 
-1. **Collect.** Save each generated image in `images/`, and log it in `prompts.csv`, one row per image: file name, generator, prompt, date. Use the sampling quota in `plans/plans.md`: four font families × mild to severe hallucination, from more than one generator.
-2. **Localize.** `src/model/real.py localize` runs EasyOCR, the same localizer the app uses, and cuts every image into word crops. Output: `crops/` and `crops.csv`. Check the crops; delete rows for boxes that are not text, and keep a note of what was removed.
+0. **Plan.** `python src/data/generate_real.py plan` writes `plan.csv`: 84 images (60 SDXL, 24 made by hand in Bing, Gemini and ChatGPT), each with an opaque id (`r001`...), the family and severity it asks for, the text and the prompt. Prompts use fictional names only. Read them and commit `plan.csv` before generating anything; a new plan after images exist would no longer match their ids, so the script refuses.
+1. **Collect.** Every image is logged in `prompts.csv` (image, generator, prompt, date, plan_id, seed).
+   - *SDXL, free.* In a Colab or Kaggle GPU notebook: `git clone https://github.com/jdiputadoevotech/thesis && cd thesis`, then `pip install -q diffusers transformers accelerate safetensors`, then `python src/data/generate_real.py sdxl`. About 30 s per image on a T4. Download `data/real/images/` and `data/real/prompts.csv` into the same paths here. `--limit 5` for a trial run; `--offload` for GPUs under 12 GB.
+   - *Closed tools, by hand* (free tiers have daily limits). `python src/data/generate_real.py intake` lists what is missing, with the prompt to paste. Save each result under its id, e.g. `r012.png`, in `images/`, then run `intake` again to log it.
+
+   Images never go in git (`images/` is ignored). Check each tool's terms for research use.
+2. **Localize and select.** `src/model/real.py localize` cuts every image into word crops (on a Mac add `--no-gpu`). Then `python src/data/generate_real.py select` keeps whole images, cell by cell, until each family × severity cell holds about N/12 crops, taking turns between generators and reading only the plan. It rewrites `crops.csv` with the selection (the full list stays in `crops_all.csv`) and writes `selection.json`. Run `localize` and `select` together again if you add images. Then look at the crops and delete boxes that are not text; keep a note of what was removed and why.
 3. **Contact sheets.** `src/model/real.py sheet` writes `sheet_01.png` and so on. Each crop is labeled with its `crop_id`, for the raters.
 4. **Label (the panel).** Each rater labels every crop on their own, without seeing the model's output. The answers go in `labels.csv`, one row per rater per crop:
 
@@ -18,3 +23,9 @@ The out-of-distribution test of the thesis (Section 4.3.1): text crops from real
 
 5. **Predict.** `src/model/real.py predict` runs the frozen model and both baselines. Output: `predictions.csv`, which is not committed. Run it any time; just keep the file away from the raters until labelling is done.
 6. **Score.** `src/model/real.py score` gives the consensus labels (2 of 3), Fleiss' kappa, every model against the consensus, and the homogeneity check against the panel's coherence judgment. Output: `reports/real/real_eval.json`.
+
+## Reading the plan
+
+- Family and severity are what each prompt asks for; the generator may deliver something else. The panel's consensus labels measure what came out, so compare the "unknown" and "mixed" rates across the severity cells as a check that the severe prompts really produced worse text.
+- Crops from one image share a style and a generator. Resample images, not crops, when computing confidence intervals.
+- Crop ids (`r012_03`) carry no generator or cell, and the rater app does not show `plan.csv`.

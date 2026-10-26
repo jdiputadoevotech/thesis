@@ -1,0 +1,397 @@
+"""Real-generative image plan, generation and crop selection (Sections 4.3.1, 4.2.3).
+
+The out-of-distribution test needs text from real text-to-image outputs. This script
+plans the prompts, makes the open-weight share on a GPU, logs the images made by hand
+in closed tools, and picks the evaluation crops by quota after `real.py localize`.
+
+    plan     data/real/plan.csv: one row per image to make, with an opaque id (r001...),
+             the generator, the family x severity cell it targets, the text and the prompt
+    sdxl     make the sdxl rows on a CUDA GPU -> data/real/images/<id>.png (needs diffusers)
+    intake   log the hand-made images (bing, gemini, chatgpt) into prompts.csv and list
+             what is still missing, with the prompt to paste
+    select   after real.py localize: keep whole images, cell by cell, until each cell holds
+             its quota of crops -> crops.csv (the full pool stays in crops_all.csv)
+             and selection.json
+
+The family and severity in the plan are what the prompt asks for, not what the generator
+delivers; the experts' labels measure what came out. Selection reads only the plan, never
+a model output, so the quota cannot favor crops the model finds easy. Crops from one
+image share a style and a generator, so resample images, not crops, for confidence intervals.
+
+    python src/data/generate_real.py plan
+    python src/data/generate_real.py sdxl            # free Colab or Kaggle T4
+    python src/data/generate_real.py intake
+    python src/data/generate_real.py select
+    python src/data/generate_real.py --check
+"""
+
+import argparse
+import csv
+import hashlib
+import json
+import math
+import random
+import shutil
+import sys
+import tempfile
+from collections import Counter, defaultdict
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+REAL = ROOT / "data/real"
+IMAGES, PLAN, PROMPTS = REAL / "images", REAL / "plan.csv", REAL / "prompts.csv"
+CROPS, POOL, SELECTION = REAL / "crops.csv", REAL / "crops_all.csv", REAL / "selection.json"
+IMAGE_TYPES = {".png", ".jpg", ".jpeg", ".webp"}
+MIN_SIDE = 512  # a smaller image cannot hold readable text
+
+FAMILIES = ["serif", "sans-serif", "display", "monospace"]
+SEVERITIES = ["mild", "moderate", "severe"]
+MANUAL = ["bing", "gemini", "chatgpt"]
+GENERATORS = {  # plan name -> what prompts.csv records
+    "sdxl": "sdxl-base-1.0",
+    "bing": "bing-image-creator",
+    "gemini": "gemini",
+    "chatgpt": "chatgpt-image",
+}
+SDXL = "stabilityai/stable-diffusion-xl-base-1.0"
+NEGATIVE = "blurry, low resolution"  # nothing that suppresses garbled text: that is the signal
+PLAN_FIELDS = ["image_id", "generator", "plan_id", "family", "severity", "scene", "text",
+               "prompt", "seed", "width", "height"]
+PROMPT_FIELDS = ["image", "generator", "prompt", "date", "plan_id", "seed"]
+
+# Difficulty is what the prompt asks for: short common words on a plain ground (mild),
+# several words on a sign or box (moderate), long, rare or invented words on curved,
+# small or crowded surfaces (severe). Fictional names only, so no real brand or logo
+# appears and no tool refuses the prompt. 24 texts per severity covers 4 families x 5 prompts.
+TEXTS = {
+    "mild": [
+        "BAKERY", "Sunrise Coffee", "OPEN", "Fresh Bread", "Welcome Home", "Summer Sale",
+        "Good Morning", "Daily Special", "Happy Birthday", "Book Club", "Ice Cream", "Pizza Night",
+        "Garden Party", "Wild Flowers", "Night Market", "Blue Moon", "Hot Tea", "Pet Shop",
+        "City Bikes", "Fish Market", "Sweet Dreams", "Free Wifi", "Live Music", "Grand Opening",
+    ],
+    "moderate": [
+        "Midnight Orchid Perfumery", "Handcrafted Ceramics Studio", "Ridgeway Hardware and Supply",
+        "Quarterly Growth Report", "Lantern Street Night Bazaar", "Harborview Seafood Kitchen",
+        "Maple Hollow Farm Stand", "The Velvet Anchor Tavern", "Copperleaf Tea Merchants",
+        "Northwind Cycle Repair", "Silver Fern Yoga Studio", "Juniper and Sage Apothecary",
+        "Old Mill Bread Company", "Starlight Drive-In Cinema", "Granite Peak Climbing Gym",
+        "Bluebird Children's Library", "Saffron Road Spice House", "Driftwood Surf School",
+        "Marigold Lane Florist", "Ironbridge Coffee Roasters", "Cobalt Sky Observatory",
+        "Tidewater Boat Rentals", "Willow Creek Candle Works", "Evergreen Dental Care",
+    ],
+    "severe": [
+        "Quixotic Zephyr Brewing Company", "Glorbix Snaffle Trading Co.",
+        "Pharmaceutical Compounding Laboratory Est. 1987", "Cinnamon Marmalade Preservation Cooperative",
+        "Interdisciplinary Metallurgical Symposium 2026", "Frumious Bandersnatch Taxidermy",
+        "Mnemonic Cartography Society", "Extraordinarily Delicious Dumpling House",
+        "Thaddeus Wimbledon-Featherstonehaugh", "Ptarmigan Quetzal Cartographers",
+        "Archaeological Preservation and Heritage Trust", "Bioluminescent Fungi Cultivation Institute",
+        "Zymurgy and Fermentation Sciences Guild", "Rhododendron Conservatory Visitor Information",
+        "Sesquipedalian Linguistics Review", "Crepuscular Wanderings: A Field Guide",
+        "Unprecedented Clearance Event, All Departments", "Krakatoa Volcanology Research Station",
+        "Chrysanthemum Horticultural Exhibition", "Whimsical Contraptions Repair and Restoration",
+        "Phosphorescent Plankton Observation Deck", "Vermicelli Noodle Manufacturing Association",
+        "Marionette Theatre Costume Workshop", "Quarantine Station Historical Museum",
+    ],
+}
+SCENES = {
+    "mild": ["a clean graphic poster with a plain background", "a minimalist greeting card",
+             "a flat-lay product label on a white table", "a simple storefront window decal"],
+    "moderate": ["a shop sign above a doorway", "a product packaging box",
+                 "a printed menu board on a wall", "a banner stretched across a street"],
+    "severe": ["a curved ceramic mug", "a row of book spines on a shelf",
+               "a chalkboard menu with several lines of small writing", "a neon sign on a brick wall",
+               "a glass bottle label with small print", "an embroidered patch on denim",
+               "a vintage tin can label with several text blocks", "a stack of wooden crates"],
+}
+WIDE = {"a simple storefront window decal", "a shop sign above a doorway", "a banner stretched across a street",
+        "a row of book spines on a shelf", "a neon sign on a brick wall"}  # 1344x768; the rest 1024x1024
+STYLES = {
+    "serif": ["elegant high-contrast serif lettering", "classic old-style serif typeface",
+              "bookish transitional serif lettering"],
+    "sans-serif": ["clean modern sans-serif lettering", "bold geometric sans-serif typeface",
+                   "neutral grotesque sans-serif lettering"],
+    "display": ["bold condensed poster display lettering", "playful rounded display lettering",
+                "retro script display lettering", "heavy slab display lettering"],
+    "monospace": ["monospaced typewriter-style lettering", "code-editor monospace typeface",
+                  "terminal-style monospace lettering"],
+}
+
+
+# ------------------------------------------------------------------ csv helpers ---
+
+def read_csv(path):
+    with Path(path).open(encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def write_csv(path, fields, rows):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
+
+
+def ensure_prompts(path=PROMPTS):
+    """prompts.csv with the current header. The committed file holds only the old four-column one."""
+    path = Path(path)
+    rows = read_csv(path) if path.exists() and path.stat().st_size else []
+    if not rows:
+        write_csv(path, PROMPT_FIELDS, [])
+    else:
+        assert list(rows[0]) == PROMPT_FIELDS, f"{path.name} has rows under an old header; add the missing columns by hand"
+
+
+def append_prompts(rows, path=PROMPTS):
+    with Path(path).open("a", encoding="utf-8", newline="") as f:
+        csv.DictWriter(f, fieldnames=PROMPT_FIELDS).writerows(rows)
+
+
+def prompt_row(path, plan_row, day=None):
+    path = Path(path)
+    day = day or (date.fromtimestamp(path.stat().st_mtime) if path.exists() else date.today()).isoformat()
+    return {"image": path.name, "generator": GENERATORS[plan_row["generator"]], "prompt": plan_row["prompt"],
+            "date": day, "plan_id": plan_row["plan_id"], "seed": plan_row["seed"]}
+
+
+# ------------------------------------------------------------------------ plan ---
+
+def build_plan(per_cell=5, manual_per_cell=2, seed=2026, manual_tools=MANUAL, with_sdxl=True):
+    """One row per image to make. Every prompt gets an sdxl image; the first manual_per_cell
+    prompts of each cell also go to a closed tool, rotating through manual_tools, so those
+    prompts are paired across generators. Ids are opaque and shuffled: a rater who sees a
+    crop id learns neither the generator nor the cell."""
+    rng = random.Random(seed)
+    need = per_cell * len(FAMILIES)
+    texts = {}
+    for sev in SEVERITIES:
+        assert need <= len(TEXTS[sev]), f"--per-cell {per_cell} needs {need} {sev} texts, have {len(TEXTS[sev])}"
+        texts[sev] = rng.sample(TEXTS[sev], need)
+    prompts = []
+    for sev in SEVERITIES:
+        for fam in FAMILIES:
+            for i in range(per_cell):
+                text, scene, style = texts[sev].pop(), rng.choice(SCENES[sev]), rng.choice(STYLES[fam])
+                w, h = (1344, 768) if scene in WIDE else (1024, 1024)
+                prompts.append({"plan_id": f"p{len(prompts) + 1:03d}", "family": fam, "severity": sev,
+                                "scene": scene, "text": text, "seed": rng.randrange(2**31), "width": w,
+                                "height": h, "prompt": f'{scene.capitalize()}, showing the exact text "{text}" in {style}.',
+                                "_i": i})
+    images, tool = [], 0
+    for p in prompts:
+        if with_sdxl:
+            images.append({**p, "generator": "sdxl"})
+        if manual_tools and p["_i"] < manual_per_cell:
+            images.append({**p, "generator": manual_tools[tool % len(manual_tools)], "seed": ""})
+            tool += 1
+    rng.shuffle(images)
+    for n, r in enumerate(images, 1):
+        r["image_id"] = f"r{n:03d}"
+    return sorted(({k: r[k] for k in PLAN_FIELDS} for r in images), key=lambda r: r["image_id"])
+
+
+def plan(args):
+    assert not (IMAGES.exists() and any(IMAGES.iterdir())), \
+        "images already exist; a new plan would no longer match their ids. Move them away first."
+    rows = build_plan(args.per_cell, args.manual_per_cell, args.seed, [] if args.manual_per_cell == 0 else MANUAL,
+                      not args.no_sdxl)
+    write_csv(PLAN, PLAN_FIELDS, rows)
+    by_gen = Counter(r["generator"] for r in rows)
+    print(f"{len(rows)} images -> {PLAN.relative_to(ROOT)}: " + ", ".join(f"{g} {n}" for g, n in sorted(by_gen.items())))
+    print("Read the prompts, then commit plan.csv before running sdxl on Colab.")
+
+
+# ----------------------------------------------------------------------- sdxl ---
+
+def sdxl(args):
+    import torch
+    from diffusers import StableDiffusionXLPipeline
+    assert torch.cuda.is_available(), "sdxl needs a CUDA GPU; a free Colab or Kaggle T4 works"
+    IMAGES.mkdir(parents=True, exist_ok=True)
+    todo = [r for r in read_csv(PLAN) if r["generator"] == "sdxl" and not (IMAGES / f"{r['image_id']}.png").exists()]
+    todo = todo[:args.limit] if args.limit else todo
+    assert todo, "nothing to do: every sdxl image already exists"
+    pipe = StableDiffusionXLPipeline.from_pretrained(SDXL, torch_dtype=torch.float16, variant="fp16",
+                                                     use_safetensors=True)
+    pipe.enable_model_cpu_offload() if args.offload else pipe.to("cuda")
+    ensure_prompts()
+    for k, r in enumerate(todo, 1):
+        img = pipe(prompt=r["prompt"], negative_prompt=NEGATIVE, width=int(r["width"]), height=int(r["height"]),
+                   num_inference_steps=args.steps, guidance_scale=args.guidance,
+                   generator=torch.Generator("cuda").manual_seed(int(r["seed"]))).images[0]
+        path = IMAGES / f"{r['image_id']}.png"
+        img.save(path)
+        append_prompts([prompt_row(path, r)])  # logged as it goes, so a crash loses nothing
+        print(f"{k}/{len(todo)} {path.name}", file=sys.stderr)
+
+
+# --------------------------------------------------------------------- intake ---
+
+def image_size(path):
+    try:
+        from PIL import Image
+        with Image.open(path) as im:
+            return im.size
+    except ImportError:
+        return (0, 0)  # no Pillow: skip the size check
+
+
+def intake(args):
+    plan_rows = {r["image_id"]: r for r in read_csv(PLAN)}
+    ensure_prompts()
+    logged = {Path(r["image"]).stem for r in read_csv(PROMPTS)}
+    files = {p.stem: p for p in sorted(IMAGES.glob("*")) if p.suffix.lower() in IMAGE_TYPES} if IMAGES.exists() else {}
+    stray = sorted(set(files) - set(plan_rows))
+    assert not stray, f"not in plan.csv: {stray}. Save each hand-made image as its image_id, e.g. r012.png"
+    fresh = [files[i] for i in sorted(files) if i not in logged]
+    seen, dupes, small = {}, [], []
+    for p in fresh:
+        digest = hashlib.sha256(p.read_bytes()).hexdigest()
+        if digest in seen:
+            dupes.append((p.name, seen[digest]))
+        seen[digest] = p.name
+        w, h = image_size(p)
+        if w and min(w, h) < MIN_SIDE:
+            small.append(p.name)
+    append_prompts([prompt_row(p, plan_rows[p.stem]) for p in fresh])
+    print(f"logged {len(fresh)} new images -> {PROMPTS.relative_to(ROOT)}")
+    for what, items in (("identical images", dupes), (f"under {MIN_SIDE}px", small)):
+        if items:
+            print(f"warning, {what}: {items}")
+    for g in GENERATORS:
+        ids = [i for i, r in plan_rows.items() if r["generator"] == g]
+        print(f"{g:8s} {sum(i in files for i in ids):3d}/{len(ids)} made")
+    todo = [r for i, r in sorted(plan_rows.items()) if r["generator"] != "sdxl" and i not in files]
+    if todo:
+        print(f"\nstill to make by hand ({len(todo)}): save each as <id>.png in {IMAGES.relative_to(ROOT)}")
+        for r in todo:
+            print(f"  {r['image_id']}  {r['generator']:8s} {r['prompt']}")
+
+
+# --------------------------------------------------------------------- select ---
+
+def interleave(groups, start):
+    """One item from each group in turn, beginning at group number `start`."""
+    names = sorted(groups)
+    names = names[start % len(names):] + names[:start % len(names)]
+    queues, out = {n: list(groups[n]) for n in names}, []
+    while any(queues.values()):
+        out += [queues[n].pop(0) for n in names if queues[n]]
+    return out
+
+
+def choose_crops(crops, plan_rows, n=100, seed=2026):
+    """Keep whole images, cell by cell, until each family x severity cell holds its quota of
+    crops, taking turns between generators so none dominates (Section 4.3.1). Every box the
+    localizer emitted for a chosen image stays in the set. Reads only the plan."""
+    cells = [(f, s) for s in SEVERITIES for f in FAMILIES]
+    quota = math.ceil(n / len(cells))
+    by_image = defaultdict(list)
+    for c in crops:
+        by_image[Path(c["image"]).stem].append(c)
+    stray = sorted(set(by_image) - set(plan_rows))
+    assert not stray, f"crops from images that are not in plan.csv: {stray}"
+    rng, chosen, report = random.Random(seed), [], {}
+    for k, (fam, sev) in enumerate(cells):
+        groups = defaultdict(list)
+        for i in sorted(by_image):
+            if (plan_rows[i]["family"], plan_rows[i]["severity"]) == (fam, sev):
+                groups[plan_rows[i]["generator"]].append(i)
+        for g in groups.values():
+            rng.shuffle(g)
+        got, picked = 0, []
+        for i in interleave(groups, k):
+            if got >= quota:
+                break
+            picked.append(i)
+            got += len(by_image[i])
+            chosen += by_image[i]
+        report[f"{fam}|{sev}"] = {"quota": quota, "crops": got, "images": picked, "shortfall": max(0, quota - got)}
+    return sorted(chosen, key=lambda c: c["crop_id"]), report
+
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def select(args):
+    plan_rows = {r["image_id"]: r for r in read_csv(PLAN)}
+    ours = SELECTION.exists() and json.loads(SELECTION.read_text())["crops_sha256"] == sha(CROPS)
+    if not ours:  # crops.csv came straight from real.py localize: it is the full pool
+        shutil.copyfile(CROPS, POOL)
+    pool = read_csv(POOL)
+    chosen, report = choose_crops(pool, plan_rows, args.n, args.seed)
+    write_csv(CROPS, list(pool[0]), chosen)
+    gen = Counter(plan_rows[Path(c["image"]).stem]["generator"] for c in chosen)
+    SELECTION.write_text(json.dumps({"target": args.n, "seed": args.seed, "selected": len(chosen),
+                                     "by_generator": dict(gen), "cells": report,
+                                     "crops_sha256": sha(CROPS)}, indent=2) + "\n")
+    print(f"{len(chosen)} of {len(pool)} crops selected (target {args.n}) -> {CROPS.relative_to(ROOT)}; "
+          f"full pool kept in {POOL.name}")
+    for cell, r in report.items():
+        print(f"  {cell:20s} {r['crops']:3d}/{r['quota']} crops from {len(r['images'])} images"
+              + (f"  SHORT by {r['shortfall']}" if r["shortfall"] else ""))
+    print("by generator: " + ", ".join(f"{g} {n}" for g, n in sorted(gen.items())))
+    print("Next: check the crops, delete boxes that are not text (note what and why), then real.py sheet.")
+
+
+# ---------------------------------------------------------------------- check ---
+
+def check():
+    a = build_plan(seed=1)
+    assert a == build_plan(seed=1) and a != build_plan(seed=2), "the plan is not seeded"
+    sd = [r for r in a if r["generator"] == "sdxl"]
+    cells = Counter((r["family"], r["severity"]) for r in sd)
+    assert len(cells) == 12 and set(cells.values()) == {5}, cells
+    ids = [r["image_id"] for r in a]
+    assert ids == sorted(ids) and len(set(ids)) == len(ids) and ids[0] == "r001", "ids are not opaque and unique"
+    assert len({r["text"] for r in sd}) == len(sd), "a text repeats"
+    tools = Counter(r["generator"] for r in a if r["generator"] != "sdxl")
+    assert sum(tools.values()) == 24 and max(tools.values()) - min(tools.values()) <= 1, tools
+    assert {r["plan_id"] for r in a if r["generator"] != "sdxl"} <= {r["plan_id"] for r in sd}, "a manual prompt has no sdxl twin"
+    assert all(1000 <= int(r["width"]) <= 1344 for r in a)
+    # selection: quota met in every cell, deterministic, more than one generator
+    plan_rows = {r["image_id"]: r for r in a}
+    crops = [{"crop_id": f"{i}_{k:02d}", "image": f"{i}.png"} for i in plan_rows for k in range(3)]
+    chosen, rep = choose_crops(crops, plan_rows, n=36, seed=1)
+    assert all(v["crops"] >= v["quota"] for v in rep.values()), rep
+    assert chosen == choose_crops(crops, plan_rows, n=36, seed=1)[0], "selection is not seeded"
+    assert len(Counter(plan_rows[c["image"][:-4]]["generator"] for c in chosen)) > 1, "one generator dominates"
+    # prompts.csv: old four-column header is upgraded; rows round-trip
+    with tempfile.TemporaryDirectory() as t:
+        p = Path(t) / "prompts.csv"
+        p.write_text("image,generator,prompt,date\n")
+        ensure_prompts(p)
+        append_prompts([prompt_row(Path("r001.png"), a[0], "2026-01-01")], p)
+        row = read_csv(p)[0]
+        assert row["image"] == "r001.png" and row["generator"] == GENERATORS[a[0]["generator"]], row
+    print("ok: plan, selection and prompt log passed all checks")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("step", nargs="?", choices=["plan", "sdxl", "intake", "select"])
+    ap.add_argument("--check", action="store_true")
+    ap.add_argument("--seed", type=int, default=2026)
+    ap.add_argument("--per-cell", type=int, default=5, help="plan: prompts per family x severity cell")
+    ap.add_argument("--manual-per-cell", type=int, default=2, help="plan: prompts per cell also made by hand (0 = none)")
+    ap.add_argument("--no-sdxl", action="store_true", help="plan: leave the open-weight model out")
+    ap.add_argument("--n", type=int, default=100, help="select: evaluation crops to aim for (Section 4.3.1)")
+    ap.add_argument("--limit", type=int, help="sdxl: stop after this many images")
+    ap.add_argument("--steps", type=int, default=30, help="sdxl: denoising steps")
+    ap.add_argument("--guidance", type=float, default=7.5, help="sdxl: guidance scale")
+    ap.add_argument("--offload", action="store_true", help="sdxl: CPU offload for GPUs under 12 GB (slower)")
+    args = ap.parse_args()
+    if args.check:
+        return check()
+    if not args.step:
+        ap.error("give a step: plan, sdxl, intake or select")
+    {"plan": plan, "sdxl": sdxl, "intake": intake, "select": select}[args.step](args)
+
+
+if __name__ == "__main__":
+    main()
