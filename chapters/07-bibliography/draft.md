@@ -1,6 +1,6 @@
 # Bibliography
 
-*Formatted in APA 7th edition. Entries are grouped by source type (books, journal articles, conference proceedings articles, web articles) and alphabetized by the first author's surname within each group. Source of record: `literature/references.md` (38 rows). Apply a hanging indent (0.5 in) and double spacing when exported.*
+*Formatted in APA 7th edition. Entries are grouped by source type (books, journal articles, conference proceedings articles, web articles) and alphabetized by the first author's surname within each group. Source of record: `literature/references.md` (41 rows). Apply a hanging indent (0.5 in) and double spacing when exported.*
 
 ## Books
 
@@ -40,6 +40,8 @@ Darcet, T., Oquab, M., Mairal, J., & Bojanowski, P. (2024). Vision transformers 
 
 Dosovitskiy, A., Beyer, L., Kolesnikov, A., Weissenborn, D., Zhai, X., Unterthiner, T., Dehghani, M., Minderer, M., Heigold, G., Gelly, S., Uszkoreit, J., & Houlsby, N. (2021). An image is worth 16×16 words: Transformers for image recognition at scale. In *International Conference on Learning Representations (ICLR)*. https://arxiv.org/abs/2010.11929
 
+Hendrycks, D., Mazeika, M., & Dietterich, T. (2019). Deep anomaly detection with outlier exposure. In *International Conference on Learning Representations (ICLR)*. https://arxiv.org/abs/1812.04606
+
 Hofmann, C., Schmid, S., Lehner, B., Klotz, D., & Hochreiter, S. (2024). Energy-based Hopfield boosting for out-of-distribution detection. In *Advances in Neural Information Processing Systems* (Vol. 37). https://proceedings.neurips.cc/paper_files/paper/2024/hash/ee20461718669c6c9c5da478d46d60d9-Abstract-Conference.html
 
 Jiang, B., Yuan, Y., Bai, X., Hao, Z., Yin, A., Hu, Y., Liao, W., Ungar, L., & Taylor, C. J. (2025). ControlText: Unlocking controllable fonts in multilingual text rendering without font annotations. In *Findings of the Association for Computational Linguistics: EMNLP 2025*. https://arxiv.org/abs/2502.10999
@@ -64,6 +66,8 @@ Zhai, X., Mustafa, B., Kolesnikov, A., & Beyer, L. (2023). Sigmoid loss for lang
 
 ## Web Articles
 
+Chen, D., Lowe, M., & Zinn, Z. (2026). Parameter-efficient fine-tuning of DINOv2 for large-scale font classification. *arXiv*. https://arxiv.org/abs/2602.13889
+
 Ding, T., Fermanian, J.-B., & Salmon, J. (2025). Conformal prediction for long-tailed classification. *arXiv*. https://arxiv.org/abs/2507.06867
 
 Djurisic, A., Liu, R., & Nikolic, M. (2024). Logit scaling for out-of-distribution detection. *arXiv*. https://arxiv.org/abs/2409.01175
@@ -71,6 +75,8 @@ Djurisic, A., Liu, R., & Nikolic, M. (2024). Logit scaling for out-of-distributi
 Du, N., Xie, R., Chen, Z., Wang, Q., Jiang, Z., Zhang, K., Yang, J., & Tai, Y. (2025). TextCrafter: Investigating text insulation and attention mechanisms for complex visual text generation. *arXiv*. https://arxiv.org/abs/2503.23461
 
 Gillani, S. A., Baig, M. S. A., Khan, O. A., Shah, S. M., Mujeeb, U., & Ali, M. (2025). TextPixs: Glyph-conditioned diffusion with character-aware attention and OCR-guided supervision. *arXiv*. https://arxiv.org/abs/2507.06033
+
+Hermans, A., Beyer, L., & Leibe, B. (2017). In defense of the triplet loss for person re-identification. *arXiv*. https://arxiv.org/abs/1703.07737
 
 Li, Y., Chen, M., Wang, K., Ma, J., Bovik, A. C., & Zhang, Y. (2025). SAMScore: A content structural similarity metric for image translation evaluation. *arXiv*. https://arxiv.org/abs/2305.15367
 
