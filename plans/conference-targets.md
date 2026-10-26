@@ -2,7 +2,7 @@
 
 Researched 2026-10-26 from each conference's own site (links in the tables). Rows run by paper deadline; "days left" counts from that date. The paper isn't finished (the real-generative evaluation waits on the expert-panel labels, see `plans.md`), so deadlines from Jan 2027 on are the realistic ones.
 
-Q4 check (deadlines before Dec 31, 2026): HNICEM Oct 30, VISAPP/ICPRAM Oct 29, ICDIP and IPAS Nov 10, CVPR Nov 16, ICME Dec 30. All but ICME leave under three weeks, so Q4 is not feasible for a full paper; ICME is the only one with runway.
+Q4 check. The prof's Q4 = submit by Nov–Dec and present at that same conference. Scopus indexing is not required; free is. Only HNICEM 2026 (Dec 4–7, Tacloban, on-site) is held in that window, and its deadline is Oct 30. Submit in Q4 but present in 2027: VISAPP/ICPRAM Oct 29, ICDIP and IPAS Nov 10, CVPR Nov 16, ICME Dec 30. All but ICME leave under three weeks.
 
 The workshop slide is journal-shaped. Mapping used here: **first decision** = deadline → first reviews or decision; **post-review decision** = deadline → final accept/reject, after rebuttal where one exists; **frequency** = how often the event runs. CiteScore and percentile sit behind the Scopus login, so they are left for a lookup (list at the bottom). † = third-party source, or computed from submitted/accepted counts; the venue doesn't state it.
 
@@ -64,6 +64,23 @@ Indexing is per proceedings series and can lapse; "submitted for evaluation" on 
 
 - Scopus → Sources, Source type = Conference Proceedings ([how-to](https://www.elsevier.support/scopus/answer/how-do-i-use-the-scopus-sources-feature)).
 - Scopus → Advanced search: `CONF("document analysis and recognition") AND DOCTYPE(cp) AND PUBYEAR > 2022`. Papers from the last 2–3 editions means covered ([CONF field](https://www.elsevier.support/scopus/answer/how-can-i-best-use-the-advanced-search)).
+
+## Cost
+
+Submitting is free everywhere. Publishing and presenting need at least one paid author registration, in person for most. No conference here is free. Latest posted rates (2027 only where stated):
+
+| Conference | Author registration | Note |
+|---|---|---|
+| PCSC 2026 | ₱3,600 undergrad early, ₱4,200 regular; ₱5,000–5,800 authors/participants | Page doesn't say whether student authors get the undergrad rate. [fees](https://pcsc2026.uic.edu.ph/registration) |
+| HNICEM 2026 | not published | Site has PayPal buttons and a PDF form I couldn't read; ask the organizers. A 2011 form listed $200 local, $400 foreign student ([form](https://www.dlsu.edu.ph/wp-content/uploads/2019/03/hnicem11_confer_regform.pdf)), too old to rely on |
+| ICDIP 2027 | USD 510 student first author, early bird to Dec 20, 2026 (540 after); 560–590 non-student; abstract-only 320–350 | Student rate needs proof. [fees](https://www.icdip.org/reg.html) |
+| MVA 2025 | JPY 50,000–60,000 student | One registration covers up to 2 papers. [fees](https://mva-org.jp/mva2025/registration) |
+| VISAPP / ICPRAM 2027 | €620 member, €680 non-member early (€725 / €795 late) | No student rate for speakers; extra paper €340. [fees](https://visapp.scitevents.org/RegistrationFees.aspx) |
+| ICDAR 2026 | €850–1,100 | Student €500–600 does not satisfy the paper rule. [fees](https://icdar2026.org/index.php/registration/) |
+| ICME 2025 | USD 730–1,010 + 10% VAT; students pay the same | One registration covers 2 papers; the USD 200 rate is for low-income economies. [fees](https://2025.ieeeicme.org/registration/) |
+| IJCNN 2025 | USD 850–950 non-member + VAT; student registration excludes paper publication | INNS travel grant for first-author students who are INNS/student members (2025 deadline Apr 21). [grants](https://2025.ijcnn.org/travel-grants-program) |
+
+No free route verified. Ask the dept or USC's research office whether conference registration is funded, and check each CFP for student grants once posted (usually spring). USC's own University Research Conference (2026: Apr 23–24, call closed Jan 31) is the likely cheap place to present; its fee, eligibility and indexing are not stated.
 
 ## Flags
 
