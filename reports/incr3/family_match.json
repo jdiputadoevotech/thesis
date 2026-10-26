@@ -1,0 +1,80 @@
+{
+  "source": "open_set_dinov2_mid_oe_final.json",
+  "accepted": 4348,
+  "listed": 2710,
+  "same_family": 2018,
+  "share_same_family": 0.7446,
+  "coverage_of_accepted": 0.6233,
+  "per_font": {
+    "Bangers-400": {
+      "family": "display",
+      "accepted": 100,
+      "listed": 80,
+      "same_family": 31,
+      "share": 0.388
+    },
+    "Cormorant-400": {
+      "family": "serif",
+      "accepted": 570,
+      "listed": 543,
+      "same_family": 543,
+      "share": 1.0
+    },
+    "CourierPrime-400": {
+      "family": "monospace",
+      "accepted": 548,
+      "listed": 382,
+      "same_family": 87,
+      "share": 0.228
+    },
+    "FrankRuhlLibre-400": {
+      "family": "serif",
+      "accepted": 559,
+      "listed": 403,
+      "same_family": 403,
+      "share": 1.0
+    },
+    "Jost-400": {
+      "family": "sans-serif",
+      "accepted": 503,
+      "listed": 199,
+      "same_family": 199,
+      "share": 1.0
+    },
+    "Karla-400": {
+      "family": "sans-serif",
+      "accepted": 531,
+      "listed": 160,
+      "same_family": 160,
+      "share": 1.0
+    },
+    "Sanchez-400": {
+      "family": "serif",
+      "accepted": 545,
+      "listed": 429,
+      "same_family": 429,
+      "share": 1.0
+    },
+    "SmoochSans-400": {
+      "family": "sans-serif",
+      "accepted": 111,
+      "listed": 74,
+      "same_family": 18,
+      "share": 0.243
+    },
+    "SpaceGrotesk-400": {
+      "family": "sans-serif",
+      "accepted": 504,
+      "listed": 148,
+      "same_family": 148,
+      "share": 1.0
+    },
+    "SpecialElite-400": {
+      "family": "display",
+      "accepted": 377,
+      "listed": 292,
+      "same_family": 0,
+      "share": 0.0
+    }
+  }
+}

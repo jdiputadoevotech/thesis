@@ -98,6 +98,7 @@ Run once, on 2 Oct 2026, after every design choice above was frozen. They cover 
 **Notes on the test results:**
 - Test Top-1 by tier: pristine 65.9%, mild 65.6%, moderate 49.0%, severe 28.9% (77 shared fonts). The baselines collapse with deformation (Storia-AI 46.2% pristine → 2.5% severe).
 - Rejection depends heavily on which unknown fonts are held out. Of the 10 test fonts, the display faces Bangers (17% accepted) and Smooch Sans (19%) are mostly rejected. Cormorant (99%), Frank Ruhl Libre (97%), Courier Prime (95%) and Sanchez (95%) are almost always accepted. Unknown serif and monospace fonts are accepted 95–97% of the time, display fonts 41.5%.
+- Where wrongly accepted unknown fonts land (`src/model/family_match.py` → `family_match.json`; descriptive, computed from the frozen report, no design choice rests on it): of the 2,710 accepted crops covered by each font's three most frequent matches (62.3% of the 4,348 accepted crops), 2,018 (74.5%) went to a palette font of the unknown font's own structural family. Six fonts stay in family on every listed match (Cormorant → Cormorant Garamond on 484 of 575 crops; Frank Ruhl Libre, Sanchez, Jost, Karla, Space Grotesk). Four do not: Courier Prime (monospace) goes mostly to proportional slab serifs (23% in family), Special Elite (display) only to slab serifs (0%), Smooch Sans (sans-serif) partly to a serif and a monospace face (24%), Bangers (display) partly to Bebas Neue (39%). A same-family match is necessary, not sufficient, for a usable substitute; no human judgment of substitute quality exists.
 - The homogeneity check detects whole-word mixes (52.6%) better than mid-word ones (38.5%), and cross-family pairs (52.0%) better than same-family pairs (30.7%). Detection drops to 29.0% at severe deformation.
 - The false-alarm rate on test single-font crops came out at 5.4%, against the 5% the validation cutoff targeted.
 
@@ -138,3 +139,4 @@ Latency is the median per crop over 50 crops (GPU) and 20 crops (CPU), one crop 
 | `homogeneity_search.json` | First cut-search homogeneity check (finding 11) |
 | `rerender.json` | Re-render check: SSIM, MSE, DeepSSIM, DeepSSIM-Lite (finding 12) |
 | `baselines.json` | Storia-AI and Chen et al. against our head (finding 13) |
+| `family_match.json` | Same-family share of accepted unknown test crops (final-results notes; `src/model/family_match.py`) |
