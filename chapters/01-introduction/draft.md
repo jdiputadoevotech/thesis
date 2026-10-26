@@ -31,7 +31,7 @@ Specifically, the study aims to:
 1. Curate the localized open-set font palette, and build a synthetic data pipeline that renders pristine word crops and degrades them with a controlled operator (elastic warp, blur and noise, and kerning jitter) that reproduces documented generative deformation (Gillani et al., 2025; Kondo et al., 2024).
 2. Train a deformation-robust metric embedding on a frozen DINOv2 backbone (Oquab et al., 2024), so that geometric distance in the embedding encodes typographic similarity rather than deformation artifacts.
 3. Implement an open-set decision that rejects out-of-palette glyphs through a post-hoc rejection score and produces a calibrated Top-K shortlist over the palette (Lu et al., 2025).
-4. Verify each prediction with a re-render-and-compare typographic distance that is robust to geometric misalignment (Zhang et al., 2024), and analyze the system's errors by typographic family and by embedding-distance severity.
+4. Evaluate a re-render-and-compare typographic distance (classical SSIM and the misalignment-tolerant DeepSSIM of Zhang et al., 2024) as a post-hoc check on each prediction, and analyze the system's errors by typographic family and by embedding-distance severity.
 5. Evaluate the system under the Top-1 and Top-3 accuracy protocol against the Storia-AI and DINOv2-LoRA closed-set baselines (Chen et al., 2026; Jiang et al., 2025) and against a three-person human-proxy consensus panel on real generative crops.
 6. Deploy the trained model behind a web application, so the system can be tested interactively and in real time on uploaded generative-AI images.
 
