@@ -1,4 +1,4 @@
-# Chapter 5 — Summary, Conclusions, and Recommendations
+# Chapter 6 — Summary, Conclusions, and Recommendations
 
 - Summary of findings (answer each research question)
 - Conclusions
