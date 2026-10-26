@@ -183,7 +183,7 @@ covered in the Gap section.
 
 - AI draws text wrong **most of the time** — under **1 in 5** images have correct letters *(Liu, 2024)*
 - It **smears letters together** and invents shapes matching **no real font** — **"typographic hallucination"** *(Gillani, 2025; Kondo, 2024)*
-- Font-finder tools need **clean letters**, so they break *(Wang, 2015)*: a 3,474-font tool still fails on messy text *(Jiang, 2025)*, the best system drops to **40%** *(Chen, 2026)*, and AI assistants read the **word, not the shape** *(Li, 2025)*
+- Font-finder tools need **clean letters**, so they break *(Wang, 2015)*: a 3,474-font tool still fails on messy text *(Jiang, 2025)*, the best system is trained on clean renders only *(Chen, 2026)*, and AI assistants read the **word, not the shape** *(Li, 2025)*
 
 <!--
 This slide does double duty: the problem is real AND existing tools can't touch it.
@@ -193,7 +193,7 @@ glyphs between real fonts (Kondo); worst on display/script faces a designer pick
 effect (Zhuang 2025). Then the pivot: the classical paradigm and WhatTheFont-class
 tools assume a geometrically intact glyph to recover (Wang) — true for a scan, false
 for a hallucinated crop. Throwing more fonts at it doesn't help (Jiang's 3,474), the
-SOTA collapses 86%->40.2% off pristine input (Chen), and VLMs hit Stroop interference
+SOTA is trained on pristine renders only and may not generalize off them (Chen), and VLMs hit Stroop interference
 where reading the word overrides seeing its shape (Li). Optional visual: uncomment the
 degradation figure below.
 -->
@@ -227,8 +227,9 @@ BULLET 3 — "font-finder tools need clean letters, so they break (Wang, 2015)..
   intact, undamaged glyph (true for a scanned document, false for a hallucinated crop).
 - "a 3,474-font tool still fails (Jiang, 2025)" = throwing MORE fonts at the problem
   doesn't help; the issue is broken input, not a small catalog.
-- "the best system drops to 40% (Chen, 2026)" = state-of-the-art accuracy collapses
-  from ~86% on clean text to ~40% on deformed text. "SOTA" = state of the art, the
+- "the best system is trained on clean renders only (Chen, 2026)" = state-of-the-art
+  accuracy (99% Top-1) is measured on clean synthetic text only; the authors caution it
+  may not generalize to photographs or stylized graphics. "SOTA" = state of the art, the
   current best published system.
 - "AI assistants read the word, not the shape (Li, 2025)" = vision-language models
   (VLMs) suffer Stroop interference: they READ "HELLO" and report the meaning instead

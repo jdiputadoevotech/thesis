@@ -67,8 +67,9 @@
 
 - **Q: Chen et al. (2026) already do frozen-ViT font classification — how are you different?**
   A: They are the closest antecedent and our baseline, but explicitly **closed-set, trained on pristine
-  renders**; by their own report family accuracy collapses to 40.2% on non-synthetic input. We target
-  exactly that failure regime with open-set rejection.
+  renders**; by their own account the model is trained and evaluated only on synthetic renders and may
+  not generalize to photographs or stylized graphics. We target exactly that failure regime
+  with open-set rejection.
 
 ### On feasibility (expect this from a technical panelist)
 - **Q: Why frozen DINOv2 instead of fine-tuning?**
