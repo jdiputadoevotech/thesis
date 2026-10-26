@@ -2,6 +2,28 @@
 
 Status: ☐ todo · ◐ in progress · ☑ done
 
+## Critical path to the December defense (audit of 2026-10-26)
+
+What the audit found and what was already fixed is in `plans/revision-log.md`. Real-generative results, Ch6 and the web app are the open work.
+
+| Status | Task | Notes | Updated |
+|--------|------|-------|---------|
+| ☐ | Contact the 3 expert raters | Fill the letters (`chapters/appendices/srs/Transmittal Letter - *.md` still hold `<Position>`, `<Address>`, `<estimated time>`), add a consent and data-privacy paragraph to the rating form, check whether USC requires ethics clearance, then send. The panel is the long pole: Table 16, Ch5 §5.5.2 and Ch6 (RQ4) wait on it. | 2026-10-26 |
+| ☐ | Generate the real-generative images | `data/real/images/` and `prompts.csv` are empty. Prompt matrix by family × severity (quota in the row below), every prompt logged. Modern generators render text well, so add an open-weight model (SDXL on free Colab) to fill the severe tier; that adds a generator to Ch4 §4.3.1 (open decision 4 in `revision-log.md`). A script for it (`src/data/generate_real.py`) is not written yet. | 2026-10-26 |
+| ☐ | Host the rater app for remote raters | Localhost only today. A tunnel or small host with one link per rater (r1–r3); keep `predictions.csv` private; delete the stray test row in `data/real/labels.csv` first. | 2026-10-26 |
+| ☐ | Dry-run `real.py` end to end | localize → sheet → predict → score on a handful of images before the raters start. `predict` has never run on real crops. On the Mac pass `--no-gpu`. | 2026-10-26 |
+| ☐ | Increment 4 detail | Gate the homogeneity search behind a middle-cut probe on CPU (3 passes instead of 15; FINDINGS 11b: middle-only detects 46.4% against 43.5%) and re-measure detection with the gate. Build the image in GitHub Actions (x86), since SVC1 is aarch64. Triage by SRS priority: High first, Docker (Med) last. | 2026-10-26 |
+| ☐ | Draft Ch6 | RQs 1–3 and 5 can be answered from the synthetic results now; RQ4 after Table 16. `to_final_docx.py` picks the draft up automatically. | 2026-10-26 |
+| ☐ | Rewrite the abstract | Still says results are deferred. After Table 16. | 2026-10-26 |
+| ☐ | Strengthen Ch5 (cheap, on cached features) | (a) a control trained on pristine crops only; (b) AUROC of the model's own top-1 similarity as a correct-vs-wrong detector, against re-render SSIM 0.710; (c) bootstrap CIs on test metrics (resample crops; resample fonts for FPR@95); (d) a qualitative figure (tier examples with Top-3; Cormorant → Cormorant Garamond, Courier Prime → Arvo); (e) a threats-to-validity subsection. | 2026-10-26 |
+| ☐ | Ch4 housekeeping | Table 2 says Python 3.13, the venv runs 3.10.12; the 4.x subfolder drafts duplicate `draft.md` (pick one source of truth); SRS REQ-4.3-4 against §4.4. | 2026-10-26 |
+| ☐ | Paperwork | Line spacing (1.5 or double) against the department manual; AI-use disclosure rules (USC and IEEE); regenerate `Final Paper.docx` once Ch5 and Ch6 are final. | 2026-10-26 |
+| ☐ | Final defense: deck, script, Q&A | Only the proposal deck exists. The oral exam is 50% and individual: both members must be able to explain every Ch5 number and every Ch3 equation. | 2026-10-26 |
+| ☐ | Back up trained weights and features | `data/models/` (20 models) and `data/features/` live only on the RTX 3050 laptop; only `models/font_recognizer.pt` is in git. Copy them off and record checksums. | 2026-10-26 |
+| ☐ | Repo privacy | `07 - CABARRUBIAS & DIPUTADO/` (33 files: CVs, signed approval sheet, agreement letters, consultation logs) is tracked in a public repo. Decide: make the repo private, or untrack and purge history (force-push; needs both members). | 2026-10-26 |
+| ☐ | Letter to the advisers | Draft from `plans/revision-log.md`. | 2026-10-26 |
+| ☐ | Conference paper | Venues and costs in `plans/conference-targets.md`; real results will not exist before mid-November. | 2026-10-26 |
+
 ## Parallel track — start immediately, blocks Chapter 5
 
 These depend on no code. Their lead time, not the build, is the schedule risk.
@@ -12,7 +34,7 @@ These depend on no code. Their lead time, not the build, is the schedule risk.
 | ☐ | Collect real-generative images | Three generators: Bing Image Creator (DALL·E 3), Gemini, ChatGPT Image. Purposive quota: 4 family classes × mild→severe hallucination. Localize to N=100 word crops. **Risk: all three render text comparatively well, so the severe end of the severity quota will be hard to fill — see prompting note below.** | 2026-09-16 |
 | ☐ | Prompt recipes for severe hallucination | The quota needs failures, and modern generators mostly succeed on short focal text. Push toward failure with: long/rare/invented words, small or background text (signage, packaging, book spines), curved or textured surfaces, several text elements in one image, and explicitly display/ornamental type. Log the prompt with every crop. | 2026-09-16 |
 | ☑ | Build rater web form | `src/rater/` (React + Vite frontend + `server.py` backend). Per-crop item + live 80-font `@font-face` palette reference sheet + coherence question (§4.2.3, Appendix B). Writes directly to `data/real/labels.csv`. | 2026-10-19 |
-| ☐ | Re-clone `font-classify` | Storia-AI baseline (§4.10.2); sandbox is absent from disk. | 2026-09-16 |
+| ☑ | ~~Re-clone `font-classify`~~ not needed | `src/model/baselines.py` downloads both baselines from the Hugging Face Hub (`storia/font-classify-onnx`, `dchen0/font_classifier_v4`), so `real.py predict` runs without the sandbox. Read from the code on 2026-10-26; not yet run on real crops. | 2026-10-26 |
 
 ## Increment 1 — Synthetic data pipeline (§4.6.3)
 
