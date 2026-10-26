@@ -2,6 +2,8 @@
 
 Researched 2026-10-26 from each conference's own site (links in the tables). Rows run by paper deadline; "days left" counts from that date. The paper isn't finished (the real-generative evaluation waits on the expert-panel labels, see `plans.md`), so deadlines from Jan 2027 on are the realistic ones.
 
+Q4 check (deadlines before Dec 31, 2026): HNICEM Oct 30, VISAPP/ICPRAM Oct 29, ICDIP and IPAS Nov 10, CVPR Nov 16, ICME Dec 30. All but ICME leave under three weeks, so Q4 is not feasible for a full paper; ICME is the only one with runway.
+
 The workshop slide is journal-shaped. Mapping used here: **first decision** = deadline → first reviews or decision; **post-review decision** = deadline → final accept/reject, after rebuttal where one exists; **frequency** = how often the event runs. CiteScore and percentile sit behind the Scopus login, so they are left for a lookup (list at the bottom). † = third-party source, or computed from submitted/accepted counts; the venue doesn't state it.
 
 ## Shortlist
@@ -37,9 +39,31 @@ The workshop slide is journal-shaped. Mapping used here: **first decision** = de
 - **DocEng 2027:** unannounced. Document-engineering and typography home turf; 2026 closed abstracts Apr 21, manuscripts May 5.
 - **ACM MM 2027:** unannounced; MM 2026 closed Apr 1, 2026.
 - **WACV 2028:** unannounced; WACV 2027 closed Jun 26 (round 1) and Aug 28, 2026 (round 2).
-- **PCSC 2027 (local):** unannounced; PCSC 2026 closed Jan 31, 2026 and its page names no indexing.
 
-Already closed: WACV 2027 (Aug 28, 2026), ICASSP 2027 (Sep 16, 2026), ACCV 2026 (Jul 2026), HNICEM 2026 (Jul 15, 2026), DocEng 2026 (May 5, 2026), ICDAR 2026 (Feb 27, 2026).
+Already closed: WACV 2027 (Aug 28, 2026), ICASSP 2027 (Sep 16, 2026), ACCV 2026 (Jul 2026), DocEng 2026 (May 5, 2026), ICDAR 2026 (Feb 27, 2026).
+
+## Local and regional
+
+Added 2026-10-26. Same caveats: † = not stated by the venue; "est." = guessed from the previous edition, not announced.
+
+| Conference | Paper deadline | Days left | Decision | Acceptance | Published by | Note |
+|---|---|---|---|---|---|---|
+| HNICEM 2026 · Tacloban, Dec 4–7, 2026 | Oct 30, 2026, extended (the same page also shows Jul 31; confirm with organizers) | 4 | Oct 31 per page (looks stale) | not found | IEEE Xplore; Scopus "subject to evaluation" | Local, annual (18th ed.), city rotates (Cebu 2025, Baguio 2024). Tracks: IT (AI/ML), Communication and Control (signal and image processing). On-site only. [CFP](https://www.hnicem.org/cpf) |
+| ICDIP 2027 · Beijing, Apr 16–18, 2027 | Nov 10, 2026 | 15 | Dec 10 † | not found | SPIE; "Ei Compendex, Scopus, etc." | Full paper ≥ 8 pages; published only after registration and presentation. [CFP](https://easychair.org/cfp/ICDIP2027) |
+| IPAS 2027 · Castellón, Spain, Apr 6, 2027 | Nov 10, 2026 † | 15 | Dec 15 † | not found | IEEE | ICORE C. Official site is login-gated, [listing](https://www.myhuiban.com/conference/5711) only |
+| PCSC 2027 · national | unannounced; 2026 closed Jan 31, 2026 | n/a | n/a | not found | no indexing statement found | Annual, host rotates (Davao 2026, Baguio 2025, DLSU Laguna 2024), held Apr–May. [PCSC 2026](https://pcsc2026.uic.edu.ph/) |
+| MAPR 2027 · Vietnam | est. Apr 2027 (2026 closed Apr 30, 2026) | n/a | n/a | not found | IEEE Xplore | 6 pages, double-blind, August event. [MAPR 2026 CFP](https://mapr.uit.edu.vn/sites/default/files/uploads/mapr2026.call4papers-short.pdf) |
+| CVIDL 2027 · China | est. spring 2027 (2025 closed May 16, 2025) | n/a | n/a | not found | IEEE Xplore, EI, Scopus (2025 [listing](https://manuscriptlink.com/cfp/detail/event/BHPPLVWM73444200)) | Mass-market Asian IEEE series; check Scopus coverage first |
+| HNICEM 2027 | est. mid-2027 (2026 was Jul 1/15, then extended) | n/a | n/a | not found | IEEE Xplore | Nov–Dec event; the local fallback if the paper slips |
+
+## Scopus and conferences
+
+Yes, Scopus lists them. Per Elsevier it indexes conference *series* (serial titles with an ISSN) and one-off proceedings (ISBN only), and covers conferences that publish full-text papers ([content](https://www.elsevier.com/products/scopus/content)). CiteScore covers "journals, book series, conference proceedings and trade journals" ([CiteScore](https://www.elsevier.com/products/scopus/metrics/citescore)) and is defined for serial titles, so a series carries CiteScore and percentile while a one-off volume shows none (my reading of those two definitions).
+
+Indexing is per proceedings series and can lapse; "submitted for evaluation" on a CFP is not a guarantee. Check before committing:
+
+- Scopus → Sources, Source type = Conference Proceedings ([how-to](https://www.elsevier.support/scopus/answer/how-do-i-use-the-scopus-sources-feature)).
+- Scopus → Advanced search: `CONF("document analysis and recognition") AND DOCTYPE(cp) AND PUBYEAR > 2022`. Papers from the last 2–3 editions means covered ([CONF field](https://www.elsevier.support/scopus/answer/how-can-i-best-use-the-advanced-search)).
 
 ## Flags
 
