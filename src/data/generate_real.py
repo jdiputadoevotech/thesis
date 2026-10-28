@@ -422,13 +422,16 @@ def select(args):
     if not ours:  # crops.csv came straight from real.py localize: it is the full pool
         shutil.copyfile(CROPS, POOL)
     pool = read_csv(POOL)
-    chosen, report = choose_crops(pool, plan_rows, args.n, args.seed, args.max_per_image)
+    usable = [c for c in pool if int(c["y1"]) - int(c["y0"]) >= args.min_height]  # a rule on size, set before labeling
+    chosen, report = choose_crops(usable, plan_rows, args.n, args.seed, args.max_per_image)
     write_csv(CROPS, list(pool[0]), chosen)
     gen = Counter(plan_rows[Path(c["image"]).stem]["generator"] for c in chosen)
-    SELECTION.write_text(json.dumps({"target": args.n, "seed": args.seed, "max_per_image": args.max_per_image, "selected": len(chosen),
+    SELECTION.write_text(json.dumps({"target": args.n, "seed": args.seed, "max_per_image": args.max_per_image, "min_height": args.min_height,
+                                     "too_small": len(pool) - len(usable), "selected": len(chosen),
                                      "by_generator": dict(gen), "cells": report,
                                      "crops_sha256": sha(CROPS)}, indent=2) + "\n")
-    print(f"{len(chosen)} of {len(pool)} crops selected (target {args.n}) -> {CROPS.relative_to(ROOT)}; "
+    print(f"{len(pool) - len(usable)} of {len(pool)} boxes under {args.min_height} px high left out (too small to show a typeface)")
+    print(f"{len(chosen)} of {len(usable)} crops selected (target {args.n}) -> {CROPS.relative_to(ROOT)}; "
           f"full pool kept in {POOL.name}")
     for cell, r in report.items():
         print(f"  {cell:20s} {r['crops']:3d}/{r['quota']} crops from {len(r['images'])} images"
@@ -503,6 +506,7 @@ def main():
     ap.add_argument("--guidance", type=float, default=7.5, help="sdxl: guidance scale")
     ap.add_argument("--offload", action="store_true", help="sdxl: CPU offload for GPUs under 12 GB (slower)")
     ap.add_argument("--max-per-image", type=int, default=6, help="select: most crops kept from one image")
+    ap.add_argument("--min-height", type=int, default=24, help="select: smallest crop height in px (with margin) a rater can judge")
     ap.add_argument("--only", choices=API_TOOLS, help="api: one tool only")
     ap.add_argument("--openai-model", help="api: OpenAI image model id (list with the curl in data/real/README.md)")
     ap.add_argument("--gemini-model", help="api: Gemini image model id")

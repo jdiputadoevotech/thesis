@@ -1,0 +1,143 @@
+{
+  "target": 100,
+  "seed": 2026,
+  "max_per_image": 6,
+  "min_height": 24,
+  "too_small": 1030,
+  "selected": 135,
+  "by_generator": {
+    "sdxl": 62,
+    "gemini": 44,
+    "chatgpt": 29
+  },
+  "cells": {
+    "serif|mild": {
+      "quota": 9,
+      "crops": 13,
+      "images": [
+        "r033",
+        "r084",
+        "r010",
+        "r063"
+      ],
+      "shortfall": 0,
+      "capped": 12
+    },
+    "sans-serif|mild": {
+      "quota": 9,
+      "crops": 9,
+      "images": [
+        "r045",
+        "r003",
+        "r009"
+      ],
+      "shortfall": 0,
+      "capped": 10
+    },
+    "display|mild": {
+      "quota": 9,
+      "crops": 12,
+      "images": [
+        "r032",
+        "r050",
+        "r034"
+      ],
+      "shortfall": 0,
+      "capped": 17
+    },
+    "monospace|mild": {
+      "quota": 9,
+      "crops": 9,
+      "images": [
+        "r059",
+        "r017",
+        "r077"
+      ],
+      "shortfall": 0,
+      "capped": 0
+    },
+    "serif|moderate": {
+      "quota": 9,
+      "crops": 12,
+      "images": [
+        "r023",
+        "r067"
+      ],
+      "shortfall": 0,
+      "capped": 9
+    },
+    "sans-serif|moderate": {
+      "quota": 9,
+      "crops": 12,
+      "images": [
+        "r075",
+        "r012",
+        "r004"
+      ],
+      "shortfall": 0,
+      "capped": 22
+    },
+    "display|moderate": {
+      "quota": 9,
+      "crops": 10,
+      "images": [
+        "r062",
+        "r083",
+        "r025"
+      ],
+      "shortfall": 0,
+      "capped": 0
+    },
+    "monospace|moderate": {
+      "quota": 9,
+      "crops": 12,
+      "images": [
+        "r035",
+        "r028"
+      ],
+      "shortfall": 0,
+      "capped": 21
+    },
+    "serif|severe": {
+      "quota": 9,
+      "crops": 12,
+      "images": [
+        "r043",
+        "r011"
+      ],
+      "shortfall": 0,
+      "capped": 14
+    },
+    "sans-serif|severe": {
+      "quota": 9,
+      "crops": 12,
+      "images": [
+        "r026",
+        "r013"
+      ],
+      "shortfall": 0,
+      "capped": 32
+    },
+    "display|severe": {
+      "quota": 9,
+      "crops": 12,
+      "images": [
+        "r079",
+        "r073"
+      ],
+      "shortfall": 0,
+      "capped": 15
+    },
+    "monospace|severe": {
+      "quota": 9,
+      "crops": 10,
+      "images": [
+        "r081",
+        "r022"
+      ],
+      "shortfall": 0,
+      "capped": 23
+    }
+  },
+  "crops_sha256": "38b08d492c7c024d658f0c4bd1f7a408160ca9ee8f5b31bb3d803f2a0a12d724"
+}
