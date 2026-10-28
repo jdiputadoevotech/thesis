@@ -4,140 +4,150 @@
   "max_per_image": 6,
   "min_height": 24,
   "too_small": 1030,
-  "selected": 135,
+  "selected": 100,
   "by_generator": {
-    "sdxl": 62,
-    "gemini": 44,
-    "chatgpt": 29
+    "sdxl": 46,
+    "chatgpt": 26,
+    "gemini": 28
   },
   "cells": {
     "serif|mild": {
-      "quota": 9,
-      "crops": 13,
+      "quota": 8,
+      "crops": 8,
       "images": [
         "r033",
         "r084",
-        "r010",
         "r063"
       ],
       "shortfall": 0,
-      "capped": 12
+      "capped": 12,
+      "trimmed": 2
     },
     "sans-serif|mild": {
       "quota": 9,
       "crops": 9,
       "images": [
         "r045",
-        "r003",
+        "r014",
         "r009"
       ],
       "shortfall": 0,
-      "capped": 10
+      "capped": 8,
+      "trimmed": 0
     },
     "display|mild": {
-      "quota": 9,
-      "crops": 12,
+      "quota": 8,
+      "crops": 8,
       "images": [
-        "r032",
+        "r076",
         "r050",
         "r034"
       ],
       "shortfall": 0,
-      "capped": 17
+      "capped": 2,
+      "trimmed": 4
     },
     "monospace|mild": {
-      "quota": 9,
-      "crops": 9,
+      "quota": 8,
+      "crops": 8,
       "images": [
         "r059",
         "r017",
-        "r077"
+        "r005"
       ],
       "shortfall": 0,
-      "capped": 0
+      "capped": 26,
+      "trimmed": 2
     },
     "serif|moderate": {
-      "quota": 9,
-      "crops": 12,
+      "quota": 8,
+      "crops": 8,
       "images": [
         "r023",
-        "r067"
+        "r021"
       ],
       "shortfall": 0,
-      "capped": 9
+      "capped": 46,
+      "trimmed": 4
     },
     "sans-serif|moderate": {
       "quota": 9,
-      "crops": 12,
+      "crops": 9,
       "images": [
-        "r075",
-        "r012",
-        "r004"
+        "r055",
+        "r012"
       ],
       "shortfall": 0,
-      "capped": 22
+      "capped": 2,
+      "trimmed": 0
     },
     "display|moderate": {
-      "quota": 9,
-      "crops": 10,
+      "quota": 8,
+      "crops": 8,
       "images": [
         "r062",
         "r083",
         "r025"
       ],
       "shortfall": 0,
-      "capped": 0
+      "capped": 0,
+      "trimmed": 2
     },
     "monospace|moderate": {
-      "quota": 9,
-      "crops": 12,
+      "quota": 8,
+      "crops": 8,
       "images": [
         "r035",
-        "r028"
+        "r057"
       ],
       "shortfall": 0,
-      "capped": 21
+      "capped": 27,
+      "trimmed": 4
     },
     "serif|severe": {
       "quota": 9,
-      "crops": 12,
+      "crops": 9,
       "images": [
-        "r043",
+        "r019",
         "r011"
       ],
       "shortfall": 0,
-      "capped": 14
+      "capped": 35,
+      "trimmed": 3
     },
     "sans-serif|severe": {
       "quota": 9,
-      "crops": 12,
+      "crops": 9,
       "images": [
         "r026",
         "r013"
       ],
       "shortfall": 0,
-      "capped": 32
+      "capped": 32,
+      "trimmed": 3
     },
     "display|severe": {
-      "quota": 9,
-      "crops": 12,
+      "quota": 8,
+      "crops": 8,
       "images": [
         "r079",
         "r073"
       ],
       "shortfall": 0,
-      "capped": 15
+      "capped": 15,
+      "trimmed": 4
     },
     "monospace|severe": {
-      "quota": 9,
-      "crops": 10,
+      "quota": 8,
+      "crops": 8,
       "images": [
         "r081",
         "r022"
       ],
       "shortfall": 0,
-      "capped": 23
+      "capped": 23,
+      "trimmed": 2
     }
   },
-  "crops_sha256": "38b08d492c7c024d658f0c4bd1f7a408160ca9ee8f5b31bb3d803f2a0a12d724"
+  "crops_sha256": "87e44cadda56c3ef1b811ba2c9608d29e233aa7261a21da0db67d27544e6a351"
 }

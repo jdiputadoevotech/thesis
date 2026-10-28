@@ -393,6 +393,8 @@ def choose_crops(crops, plan_rows, n=100, seed=2026, cap=6):
         if capped[i]:
             by_image[i] = random.Random(f"{seed}-{i}").sample(sorted(cs, key=lambda c: c["crop_id"]), cap)
     rng, chosen, report = random.Random(seed), [], {}
+    extra = set(rng.sample(range(len(cells)), n % len(cells)))  # cells that take one more crop so the total is exactly n
+    target = [n // len(cells) + (k in extra) for k in range(len(cells))]
     for k, (fam, sev) in enumerate(cells):
         groups = defaultdict(list)
         for i in sorted(by_image):
@@ -406,9 +408,15 @@ def choose_crops(crops, plan_rows, n=100, seed=2026, cap=6):
                 break
             picked.append(i)
             got += len(by_image[i])
-            chosen += by_image[i]
-        report[f"{fam}|{sev}"] = {"quota": quota, "crops": got, "images": picked, "shortfall": max(0, quota - got),
-                                  "capped": sum(capped[i] for i in picked)}
+        keep = {i: list(by_image[i]) for i in picked}
+        while sum(map(len, keep.values())) > target[k]:  # trim to the cell's exact share: the fullest image gives one up
+            big = max(len(v) for v in keep.values())
+            i = rng.choice(sorted(i for i, v in keep.items() if len(v) == big))
+            keep[i].pop(rng.randrange(len(keep[i])))
+        kept = sum(map(len, keep.values()))
+        chosen += [c for v in keep.values() for c in v]
+        report[f"{fam}|{sev}"] = {"quota": target[k], "crops": kept, "images": picked, "shortfall": max(0, target[k] - kept),
+                                  "capped": sum(capped[i] for i in picked), "trimmed": got - kept}
     return sorted(chosen, key=lambda c: c["crop_id"]), report
 
 
@@ -436,7 +444,8 @@ def select(args):
     for cell, r in report.items():
         print(f"  {cell:20s} {r['crops']:3d}/{r['quota']} crops from {len(r['images'])} images"
               + (f"  SHORT by {r['shortfall']}" if r["shortfall"] else "")
-              + (f"  ({r['capped']} boxes over the per-image cap left out)" if r["capped"] else ""))
+              + (f"  ({r['capped']} boxes over the per-image cap left out)" if r["capped"] else "")
+              + (f"  ({r['trimmed']} trimmed to the exact share)" if r["trimmed"] else ""))
     print("by generator: " + ", ".join(f"{g} {n}" for g, n in sorted(gen.items())))
     print("Next: check the crops, delete boxes that are not text (note what and why), then real.py sheet.")
 
@@ -461,6 +470,7 @@ def check():
     crops = [{"crop_id": f"{i}_{k:02d}", "image": f"{i}.png"} for i in plan_rows for k in range(3)]
     chosen, rep = choose_crops(crops, plan_rows, n=36, seed=1)
     assert all(v["crops"] >= v["quota"] for v in rep.values()), rep
+    assert len(choose_crops(crops, plan_rows, n=100, seed=1)[0]) == 100, "the selection is not exactly n crops"
     assert chosen == choose_crops(crops, plan_rows, n=36, seed=1)[0], "selection is not seeded"
     busy = a[0]["image_id"]
     more = crops + [{"crop_id": f"{busy}_{k:02d}", "image": f"{busy}.png"} for k in range(3, 23)]

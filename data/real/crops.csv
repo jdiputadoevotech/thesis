@@ -1,24 +1,12 @@
 crop_id,image,x0,y0,x1,y1,ocr_text,ocr_conf,crop_path
-r003_04,r003.png,751,117,1181,233,MAIAXEK,0.474,data/real/crops/r003_04.png
-r003_05,r003.png,276,274,310,300,Jtlanpe,0.001,data/real/crops/r003_05.png
-r003_08,r003.png,265,353,353,423,25,1.0,data/real/crops/r003_08.png
-r003_09,r003.png,334,380,378,406,Fe i,0.552,data/real/crops/r003_09.png
-r003_10,r003.png,602,394,662,418,S 8AV,0.311,data/real/crops/r003_10.png
-r003_17,r003.png,550,459,703,514,HIM V ETN,0.259,data/real/crops/r003_17.png
-r004_00,r004.png,314,172,702,262,Handcrafted,0.993,data/real/crops/r004_00.png
-r004_06,r004.png,253,497,326,531,Pottery,1.0,data/real/crops/r004_06.png
-r004_07,r004.png,318,500,374,526,Wheel,1.0,data/real/crops/r004_07.png
-r004_10,r004.png,253,526,364,560,Handbuilding,0.697,data/real/crops/r004_10.png
-r004_16,r004.png,318,555,388,590,& Firing,0.852,data/real/crops/r004_16.png
-r004_22,r004.png,515,585,575,615,Friday,1.0,data/real/crops/r004_22.png
+r005_15,r005.png,918,36,952,70,Y,0.107,data/real/crops/r005_15.png
+r005_18,r005.png,348,250,440,310,Wii,0.993,data/real/crops/r005_18.png
+r005_37,r005.png,392,812,460,848,Fee,0.278,data/real/crops/r005_37.png
+r005_43,r005.png,1,867,25,929,"""",0.845,data/real/crops/r005_43.png
 r009_00,r009.png,184,330,1323,654,BAKERY,0.906,data/real/crops/r009_00.png
-r010_00,r010.png,400,318,639,394,HA P PPY,0.921,data/real/crops/r010_00.png
-r010_01,r010.png,372,382,695,463,B / R TH D ^ Y,0.707,data/real/crops/r010_01.png
-r010_02,r010.png,366,454,648,516,B R I H A Y,0.448,data/real/crops/r010_02.png
 r011_00,r011.png,191,111,576,207,VERMIGELLI,0.992,data/real/crops/r011_00.png
 r011_01,r011.png,561,105,846,211,NOODLE,0.846,data/real/crops/r011_01.png
 r011_03,r011.png,260,257,767,377,ASSOCIATION,0.992,data/real/crops/r011_03.png
-r011_09,r011.png,509,774,820,916,NOODLE,0.999,data/real/crops/r011_09.png
 r011_10,r011.png,165,814,778,988,MANUFACTURING,0.953,data/real/crops/r011_10.png
 r011_11,r011.png,213,892,733,1024,ASSSCIATION,0.982,data/real/crops/r011_11.png
 r012_00,r012.png,182,325,575,520,Cobalt,1.0,data/real/crops/r012_00.png
@@ -28,63 +16,61 @@ r013_27,r013.png,707,860,761,890,Repai:,0.725,data/real/crops/r013_27.png
 r013_32,r013.png,500,109,552,140,Rsrair,0.326,data/real/crops/r013_32.png
 r013_34,r013.png,651,242,752,291,~WHIMSICAL,0.762,data/real/crops/r013_34.png
 r013_35,r013.png,638,264,763,314,CONTRAPTIONS,0.942,data/real/crops/r013_35.png
-r013_38,r013.png,293,827,486,892,CONTRAPTIONS,1.0,data/real/crops/r013_38.png
 r013_40,r013.png,384,864,474,903,Resloration,0.701,data/real/crops/r013_40.png
+r014_00,r014.png,562,146,702,242,BA,1.0,data/real/crops/r014_00.png
+r014_02,r014.png,1027,173,1127,211,CLEEAE,0.998,data/real/crops/r014_02.png
+r014_06,r014.png,1031,340,1120,378,ELESVOLE,0.228,data/real/crops/r014_06.png
+r014_07,r014.png,340,360,429,400,ST CER,0.434,data/real/crops/r014_07.png
+r014_11,r014.png,954,366,1217,475,BAKR EY,0.441,data/real/crops/r014_11.png
+r014_17,r014.png,340,335,387,367,oup 8.,0.089,data/real/crops/r014_17.png
 r017_00,r017.png,247,441,507,564,Free,0.662,data/real/crops/r017_00.png
 r017_01,r017.png,526,436,786,560,Wifi,1.0,data/real/crops/r017_01.png
+r019_10,r019.png,354,756,402,782,Enui€,0.204,data/real/crops/r019_10.png
+r019_29,r019.png,220,798,288,822,ITEICCEfFe,0.232,data/real/crops/r019_29.png
+r019_40,r019.png,582,828,700,862,DoCdr,0.33,data/real/crops/r019_40.png
+r019_42,r019.png,190,848,408,888,DANETIN,0.666,data/real/crops/r019_42.png
+r021_09,r021.png,680,652,792,738,AP,0.98,data/real/crops/r021_09.png
+r021_27,r021.png,857,769,939,847,TD,0.971,data/real/crops/r021_27.png
+r021_42,r021.png,211,838,262,862,geiontt,0.403,data/real/crops/r021_42.png
+r021_72,r021.png,728,945,773,971,J1m/9,0.1,data/real/crops/r021_72.png
 r022_00,r022.png,132,318,931,456,Pho sphore scent,0.807,data/real/crops/r022_00.png
 r022_01,r022.png,260,443,778,571,Piankton,0.999,data/real/crops/r022_01.png
 r022_02,r022.png,186,574,839,701,Observatton,1.0,data/real/crops/r022_02.png
 r022_03,r022.png,382,702,654,814,Ceek,0.909,data/real/crops/r022_03.png
 r023_02,r023.png,329,377,593,467,Drive-In,0.729,data/real/crops/r023_02.png
-r023_07,r023.png,178,576,262,626,InrteSan,0.02,data/real/crops/r023_07.png
 r023_09,r023.png,182,758,224,794,hu,0.136,data/real/crops/r023_09.png
-r023_10,r023.png,173,250,263,328,Sarbh,0.253,data/real/crops/r023_10.png
 r023_11,r023.png,201,761,263,812,krat,0.117,data/real/crops/r023_11.png
 r023_12,r023.png,176,777,258,836,kqnWk,0.174,data/real/crops/r023_12.png
 r025_00,r025.png,184,211,775,427,SAFFFRON,0.558,data/real/crops/r025_00.png
 r025_01,r025.png,765,218,1180,400,ROUSE,0.81,data/real/crops/r025_01.png
 r025_02,r025.png,454,348,993,428,FHiS: SC SPPICSE,0.192,data/real/crops/r025_02.png
 r026_02,r026.png,173,243,641,321,FEATHERSTONE,0.821,data/real/crops/r026_02.png
-r026_03,r026.png,629,245,853,321,HAUGH,1.0,data/real/crops/r026_03.png
-r026_04,r026.png,345,403,702,489,THADDEUS,1.0,data/real/crops/r026_04.png
 r026_06,r026.png,168,556,638,634,FEATHERSTONE,1.0,data/real/crops/r026_06.png
 r026_08,r026.png,342,716,701,806,THADDEUS,0.681,data/real/crops/r026_08.png
 r026_11,r026.png,627,869,851,945,HAUGH,0.999,data/real/crops/r026_11.png
-r028_00,r028.png,145,65,811,219,MAAPLL L/ov,0.181,data/real/crops/r028_00.png
-r028_01,r028.png,811,64,1149,214,FA RM,0.988,data/real/crops/r028_01.png
-r028_02,r028.png,1296,120,1334,146,Hlh,0.237,data/real/crops/r028_02.png
-r028_03,r028.png,246,194,344,228,1 2,0.525,data/real/crops/r028_03.png
-r028_05,r028.png,448,200,496,226,12,0.58,data/real/crops/r028_05.png
-r028_06,r028.png,1083,197,1117,227,1,0.447,data/real/crops/r028_06.png
-r032_05,r032.png,618,0,742,81,ntan,0.129,data/real/crops/r032_05.png
-r032_10,r032.png,495,324,640,458,PEIT,0.939,data/real/crops/r032_10.png
-r032_12,r032.png,595,390,790,563,Shoip,0.442,data/real/crops/r032_12.png
-r032_14,r032.png,53,448,149,537,Milu,0.159,data/real/crops/r032_14.png
-r032_21,r032.png,832,571,919,662,WLaL,0.245,data/real/crops/r032_21.png
-r032_22,r032.png,491,657,884,954,86;,0.179,data/real/crops/r032_22.png
 r033_00,r033.png,367,107,1190,510,LIVE,0.999,data/real/crops/r033_00.png
 r033_01,r033.png,275,469,1319,861,MUSIC,0.999,data/real/crops/r033_01.png
 r034_00,r034.png,259,321,757,671,05,0.11,data/real/crops/r034_00.png
 r034_01,r034.png,444,612,564,646,HEIRLOM,0.999,data/real/crops/r034_01.png
 r034_02,r034.png,393,637,463,667,SEED,0.999,data/real/crops/r034_02.png
-r034_03,r034.png,459,637,617,667,COLLECTION,0.988,data/real/crops/r034_03.png
-r035_02,r035.png,469,255,557,311,YOGA,0.985,data/real/crops/r035_02.png
 r035_03,r035.png,546,258,665,320,STUDIO,0.753,data/real/crops/r035_03.png
-r035_08,r035.png,494,420,600,460,DROP-IN:,0.987,data/real/crops/r035_08.png
 r035_09,r035.png,592,418,646,464,S20,0.585,data/real/crops/r035_09.png
 r035_11,r035.png,366,458,434,496,FLOW,0.997,data/real/crops/r035_11.png
 r035_22,r035.png,282,580,424,620,MEDITATION,1.0,data/real/crops/r035_22.png
-r043_00,r043.png,294,386,575,484,Zymuurgy,0.953,data/real/crops/r043_00.png
-r043_01,r043.png,555,389,643,467,and,0.993,data/real/crops/r043_01.png
-r043_05,r043.png,532,512,675,599,Guild,0.984,data/real/crops/r043_05.png
-r043_08,r043.png,472,616,538,650,Ficlree,0.158,data/real/crops/r043_08.png
-r043_09,r043.png,532,612,626,646,(S1ulatg1,0.236,data/real/crops/r043_09.png
-r043_13,r043.png,252,644,334,693,Isxtzct(s,0.135,data/real/crops/r043_13.png
 r045_00,r045.png,138,228,634,486,Fish,1.0,data/real/crops/r045_00.png
 r045_01,r045.png,625,248,1231,490,Market,0.982,data/real/crops/r045_01.png
 r050_00,r050.png,79,97,973,555,Blue,0.981,data/real/crops/r050_00.png
 r050_01,r050.png,28,442,1024,894,Moon,0.998,data/real/crops/r050_01.png
+r055_00,r055.png,279,133,539,173,IRONBIIGEFFE,0.994,data/real/crops/r055_00.png
+r055_01,r055.png,540,132,722,178,(OF FFEE $,0.941,data/real/crops/r055_01.png
+r055_02,r055.png,358,174,386,200,R,0.939,data/real/crops/r055_02.png
+r055_04,r055.png,489,171,533,201,Ro,0.999,data/real/crops/r055_04.png
+r055_34,r055.png,255,680,307,710,Oaa,0.001,data/real/crops/r055_34.png
+r055_35,r055.png,267,752,312,787,Veel,0.187,data/real/crops/r055_35.png
+r057_41,r057.png,537,721,654,745,Jinne mitaukrolstiehing,0.0,data/real/crops/r057_41.png
+r057_43,r057.png,339,734,396,760,A Euwyk &,0.11,data/real/crops/r057_43.png
+r057_48,r057.png,687,785,747,815,NR XTE &,0.062,data/real/crops/r057_48.png
+r057_61,r057.png,771,794,818,826,76 0 F,0.056,data/real/crops/r057_61.png
 r059_00,r059.png,162,436,454,556,Grand,1.0,data/real/crops/r059_00.png
 r059_01,r059.png,465,427,873,581,Opening,1.0,data/real/crops/r059_01.png
 r062_00,r062.png,127,208,829,514,Marigold,1.0,data/real/crops/r062_00.png
@@ -92,45 +78,24 @@ r062_01,r062.png,168,533,780,818,Plorist,0.67,data/real/crops/r062_01.png
 r062_02,r062.png,231,376,708,672,Lane,1.0,data/real/crops/r062_02.png
 r063_03,r063.png,58,273,165,327,SuNRSIe,0.278,data/real/crops/r063_03.png
 r063_09,r063.png,403,346,528,392,COFFCE E,0.926,data/real/crops/r063_09.png
-r063_11,r063.png,78,424,142,460,GAMRF,0.443,data/real/crops/r063_11.png
-r063_16,r063.png,1127,500,1182,524,MLXXIU WI,0.02,data/real/crops/r063_16.png
 r063_19,r063.png,397,517,505,573,91ls,0.176,data/real/crops/r063_19.png
 r063_22,r063.png,1152,540,1198,574,Hics,0.263,data/real/crops/r063_22.png
-r067_00,r067.png,640,198,742,294,LA,0.414,data/real/crops/r067_00.png
-r067_01,r067.png,340,728,454,768,Yo)/HE,0.041,data/real/crops/r067_01.png
-r067_02,r067.png,334,57,731,236,RRQ THH,0.542,data/real/crops/r067_02.png
-r067_04,r067.png,163,140,425,435,4,0.165,data/real/crops/r067_04.png
-r067_06,r067.png,141,326,331,556,8,0.966,data/real/crops/r067_06.png
-r067_07,r067.png,1147,412,1294,593,7,0.508,data/real/crops/r067_07.png
-r073_04,r073.png,370,618,420,652,AL,1.0,data/real/crops/r073_04.png
 r073_05,r073.png,411,600,665,676,UPPDITRANES,0.532,data/real/crops/r073_05.png
 r073_07,r073.png,135,849,286,909,RETHED -,0.762,data/real/crops/r073_07.png
 r073_10,r073.png,549,851,637,907,PAli,0.085,data/real/crops/r073_10.png
-r073_11,r073.png,629,847,878,909,LERLARMEPCE,0.605,data/real/crops/r073_11.png
 r073_14,r073.png,655,889,831,945,HL FLCND-,0.594,data/real/crops/r073_14.png
-r075_05,r075.png,208,258,405,345,HANDRRFTETI,0.452,data/real/crops/r075_05.png
-r075_06,r075.png,376,296,478,355,SETNvo,0.081,data/real/crops/r075_06.png
-r075_07,r075.png,228,326,289,352,Mhakabl,0.007,data/real/crops/r075_07.png
-r077_00,r077.png,364,78,614,174,FESH,0.998,data/real/crops/r077_00.png
-r077_01,r077.png,638,78,994,170,BREAD,0.997,data/real/crops/r077_01.png
-r077_15,r077.png,1036,442,1086,480,5,0.904,data/real/crops/r077_15.png
-r077_16,r077.png,1102,448,1136,474,R,0.192,data/real/crops/r077_16.png
-r077_23,r077.png,1038,586,1092,610,5464,0.016,data/real/crops/r077_23.png
+r076_01,r076.png,336,444,691,616,PARY,0.995,data/real/crops/r076_01.png
+r076_02,r076.png,422,628,454,654,IN,0.384,data/real/crops/r076_02.png
+r076_04,r076.png,509,625,615,655,GARCF FE,0.568,data/real/crops/r076_04.png
 r079_00,r079.png,257,300,774,443,Unprediedted,0.4,data/real/crops/r079_00.png
-r079_01,r079.png,313,395,716,502,Glearadce,0.468,data/real/crops/r079_01.png
-r079_02,r079.png,391,473,638,580,Eveg},0.322,data/real/crops/r079_02.png
 r079_03,r079.png,301,565,395,641,AUU,0.16,data/real/crops/r079_03.png
 r079_04,r079.png,375,563,735,653,DepacUuuedts,0.474,data/real/crops/r079_04.png
 r079_08,r079.png,604,711,640,747,4834,0.165,data/real/crops/r079_08.png
 r081_08,r081.png,0,220,230,270,TEFMLINALLLAGTTIEB;,0.141,data/real/crops/r081_08.png
 r081_16,r081.png,33,389,228,449,"""vEmIVIC",0.099,data/real/crops/r081_16.png
-r081_17,r081.png,336,396,558,456,YIETTNHHESTFH,0.114,data/real/crops/r081_17.png
-r081_18,r081.png,625,404,902,471,Mionoosat K EVEV,0.24,data/real/crops/r081_18.png
 r081_25,r081.png,54,739,222,799,S9UIDRHFfE?,0.118,data/real/crops/r081_25.png
 r081_29,r081.png,406,894,504,932,C ARAQigs,0.279,data/real/crops/r081_29.png
 r083_00,r083.png,313,334,676,533,SPICE,1.0,data/real/crops/r083_00.png
 r083_01,r083.png,639,343,1029,529,HOUSE,1.0,data/real/crops/r083_01.png
-r083_02,r083.png,221,177,791,424,SAFFRON,0.999,data/real/crops/r083_02.png
-r083_03,r083.png,748,192,1102,399,ROAD,1.0,data/real/crops/r083_03.png
 r084_00,r084.png,151,249,661,466,Sweet,1.0,data/real/crops/r084_00.png
 r084_01,r084.png,629,270,1170,484,Dreams,0.998,data/real/crops/r084_01.png
