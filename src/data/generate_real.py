@@ -8,8 +8,8 @@ in closed tools, and picks the evaluation crops by quota after `real.py localize
              the generator, the family x severity cell it targets, the text and the prompt
     sdxl     make the sdxl rows on a CUDA GPU -> data/real/images/<id>.png (needs diffusers)
     api      make the chatgpt and gemini rows through their APIs (keys in the shell, never in
-             a file) -> data/real/images/<id>.<ext>; bing has no API and stays by hand
-    intake   log the hand-made images into prompts.csv and list what is still missing,
+             a file) -> data/real/images/<id>.<ext>
+    intake   log images made by hand (a prompt an API refused) and list what is still missing,
              with the prompt to paste
     select   after real.py localize: keep whole images, cell by cell, until each cell holds
              its quota of crops -> crops.csv (the full pool stays in crops_all.csv)
@@ -52,10 +52,9 @@ MIN_SIDE = 512  # a smaller image cannot hold readable text
 
 FAMILIES = ["serif", "sans-serif", "display", "monospace"]
 SEVERITIES = ["mild", "moderate", "severe"]
-MANUAL = ["bing", "gemini", "chatgpt"]
+MANUAL = ["gemini", "chatgpt"]  # bing was dropped: no public API, and the paper does not need a third closed tool
 GENERATORS = {  # plan name -> what prompts.csv records
     "sdxl": "sdxl-base-1.0",
-    "bing": "bing-image-creator",
     "gemini": "gemini",
     "chatgpt": "chatgpt-image",
 }
@@ -236,7 +235,7 @@ def sdxl(args):
 
 # ------------------------------------------------------------------------- api ---
 
-API_TOOLS = ["chatgpt", "gemini"]  # the closed tools with a public image API; bing has none
+API_TOOLS = ["chatgpt", "gemini"]  # the closed tools, both through a public image API
 EXT = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}
 
 

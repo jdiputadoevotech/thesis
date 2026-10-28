@@ -4,10 +4,10 @@ The out-of-distribution test of the thesis (Section 4.3.1): text crops from real
 
 ## Steps
 
-0. **Plan.** `python src/data/generate_real.py plan` writes `plan.csv`: 84 images (60 SDXL, 24 made by hand in Bing, Gemini and ChatGPT), each with an opaque id (`r001`...), the family and severity it asks for, the text and the prompt. Prompts use fictional names only. Read them and commit `plan.csv` before generating anything; a new plan after images exist would no longer match their ids, so the script refuses.
+0. **Plan.** `python src/data/generate_real.py plan` writes `plan.csv`: 84 images (60 SDXL, 12 ChatGPT, 12 Gemini), each with an opaque id (`r001`...), the family and severity it asks for, the text and the prompt. Prompts use fictional names only. Read them and commit `plan.csv` before generating anything; a new plan after images exist would no longer match their ids, so the script refuses.
 1. **Collect.** Every image is logged in `prompts.csv` (image, generator, prompt, date, plan_id, seed).
    - *SDXL, free.* In a Colab or Kaggle GPU notebook: `git clone https://github.com/jdiputadoevotech/thesis && cd thesis`, then `pip install -q diffusers transformers accelerate safetensors`, then `python src/data/generate_real.py sdxl`. About 30 s per image on a T4. Download `data/real/images/` and `data/real/prompts.csv` into the same paths here. `--limit 5` for a trial run; `--offload` for GPUs under 12 GB.
-   - *ChatGPT and Gemini, by API* (16 images; a few cents to well under a few dollars in all). Put the keys in the shell for this session only, never in a file or the chat: `export OPENAI_API_KEY=...` and `export GEMINI_API_KEY=...`. List the image models each key can use, pick the current ChatGPT-image and Gemini-image ones, and try one image each:
+   - *ChatGPT and Gemini, by API* (24 images; a few dollars at most). Put the keys in the shell for this session only, never in a file or the chat: `export OPENAI_API_KEY=...` and `export GEMINI_API_KEY=...`. List the image models each key can use, pick the current ChatGPT-image and Gemini-image ones, and try one image each:
 
      ```sh
      curl -s https://api.openai.com/v1/models -H "Authorization: Bearer $OPENAI_API_KEY" | grep -o '"id": *"[^"]*image[^"]*"'
@@ -16,8 +16,8 @@ The out-of-distribution test of the thesis (Section 4.3.1): text crops from real
      python src/data/generate_real.py api --only gemini --gemini-model <id> --limit 1
      ```
 
-     Look at both images, then drop `--limit 1` (and `--only`, with both model flags) for the rest. One request per prompt, first output kept; the model id is logged in `prompts.csv`. A refused or blocked prompt is listed at the end: make that one by hand. OpenAI may ask you to verify the organization before it serves its image models.
-   - *Bing Image Creator, by hand* (8 images; no public API; free tier has a daily limit). `python src/data/generate_real.py intake` lists what is missing, with the prompt to paste. Save each result under its id, e.g. `r023.png`, in `images/`, then run `intake` again to log it. Keep the first result; do not retry for a better one.
+     Look at both images, then drop `--limit 1` (and `--only`, with both model flags) for the other 22. One request per prompt, first output kept; the model id is logged in `prompts.csv`. A refused or blocked prompt is listed at the end: make that one by hand. OpenAI may ask you to verify the organization before it serves its image models.
+   - *By hand, only if an API refuses a prompt.* `python src/data/generate_real.py intake` lists what is missing, with the prompt to paste. Save each result under its id, e.g. `r023.png`, in `images/`, then run `intake` again to log it. Keep the first result; do not retry for a better one.
 
    Images never go in git (`images/` is ignored). Check each tool's terms for research use.
 2. **Localize and select.** `src/model/real.py localize` cuts every image into word crops (on a Mac add `--no-gpu`). Then `python src/data/generate_real.py select` keeps whole images, cell by cell, until each family × severity cell holds about N/12 crops, taking turns between generators and reading only the plan. It rewrites `crops.csv` with the selection (the full list stays in `crops_all.csv`) and writes `selection.json`. Run `localize` and `select` together again if you add images. Then look at the crops and delete boxes that are not text; keep a note of what was removed and why.
