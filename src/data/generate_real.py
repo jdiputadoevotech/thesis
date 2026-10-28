@@ -7,8 +7,10 @@ in closed tools, and picks the evaluation crops by quota after `real.py localize
     plan     data/real/plan.csv: one row per image to make, with an opaque id (r001...),
              the generator, the family x severity cell it targets, the text and the prompt
     sdxl     make the sdxl rows on a CUDA GPU -> data/real/images/<id>.png (needs diffusers)
-    intake   log the hand-made images (bing, gemini, chatgpt) into prompts.csv and list
-             what is still missing, with the prompt to paste
+    api      make the chatgpt and gemini rows through their APIs (keys in the shell, never in
+             a file) -> data/real/images/<id>.<ext>; bing has no API and stays by hand
+    intake   log the hand-made images into prompts.csv and list what is still missing,
+             with the prompt to paste
     select   after real.py localize: keep whole images, cell by cell, until each cell holds
              its quota of crops -> crops.csv (the full pool stays in crops_all.csv)
              and selection.json
@@ -20,16 +22,19 @@ image share a style and a generator, so resample images, not crops, for confiden
 
     python src/data/generate_real.py plan
     python src/data/generate_real.py sdxl            # free Colab or Kaggle T4
+    python src/data/generate_real.py api --openai-model <id> --gemini-model <id> --limit 1
     python src/data/generate_real.py intake
     python src/data/generate_real.py select
     python src/data/generate_real.py --check
 """
 
 import argparse
+import base64
 import csv
 import hashlib
 import json
 import math
+import os
 import random
 import shutil
 import sys
@@ -151,10 +156,10 @@ def append_prompts(rows, path=PROMPTS):
         csv.DictWriter(f, fieldnames=PROMPT_FIELDS).writerows(rows)
 
 
-def prompt_row(path, plan_row, day=None):
+def prompt_row(path, plan_row, day=None, label=None):
     path = Path(path)
     day = day or (date.fromtimestamp(path.stat().st_mtime) if path.exists() else date.today()).isoformat()
-    return {"image": path.name, "generator": GENERATORS[plan_row["generator"]], "prompt": plan_row["prompt"],
+    return {"image": path.name, "generator": label or GENERATORS[plan_row["generator"]], "prompt": plan_row["prompt"],
             "date": day, "plan_id": plan_row["plan_id"], "seed": plan_row["seed"]}
 
 
@@ -227,6 +232,90 @@ def sdxl(args):
         img.save(path)
         append_prompts([prompt_row(path, r)])  # logged as it goes, so a crash loses nothing
         print(f"{k}/{len(todo)} {path.name}", file=sys.stderr)
+
+
+# ------------------------------------------------------------------------- api ---
+
+API_TOOLS = ["chatgpt", "gemini"]  # the closed tools with a public image API; bing has none
+EXT = {"image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp"}
+
+
+def http_json(url, headers, body, tries=3):
+    import time
+    import urllib.error
+    import urllib.request
+    req = urllib.request.Request(url, json.dumps(body).encode(), {"Content-Type": "application/json", **headers})
+    for k in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=180) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            if e.code in (429, 500, 503) and k < tries - 1:
+                time.sleep(30)  # rate limit or busy: wait and retry the same prompt
+                continue
+            raise RuntimeError(f"HTTP {e.code}: {e.read().decode(errors='replace')[:300]}")
+
+
+def parse_openai(d):
+    return base64.b64decode(d["data"][0]["b64_json"]), ".png"
+
+
+def parse_gemini(d):
+    for part in ((d.get("candidates") or [{}])[0].get("content") or {}).get("parts", []):
+        blob = part.get("inlineData") or part.get("inline_data")
+        if blob:
+            return base64.b64decode(blob["data"]), EXT.get(blob.get("mimeType") or blob.get("mime_type"), ".png")
+    raise RuntimeError("no image in the reply (refused or blocked): " + json.dumps(d)[:200])
+
+
+def openai_image(row, key, model, quality):
+    wide = int(row["width"]) > int(row["height"])
+    return parse_openai(http_json("https://api.openai.com/v1/images/generations", {"Authorization": f"Bearer {key}"},
+                                  {"model": model, "prompt": row["prompt"], "quality": quality, "n": 1,
+                                   "size": "1536x1024" if wide else "1024x1024"}))
+
+
+def gemini_image(row, key, model):
+    wide = int(row["width"]) > int(row["height"])
+    return parse_gemini(http_json(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                                  {"x-goog-api-key": key},
+                                  {"contents": [{"parts": [{"text": row["prompt"]}]}],
+                                   "generationConfig": {"responseModalities": ["IMAGE"],
+                                                        "imageConfig": {"aspectRatio": "16:9" if wide else "1:1"}}}))
+
+
+def api(args):
+    """One request per prompt, first output kept: no retries for a better image, no prompt edits."""
+    keys = {"chatgpt": os.environ.get("OPENAI_API_KEY"),
+            "gemini": os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")}
+    models = {"chatgpt": args.openai_model, "gemini": args.gemini_model}
+    tools = [args.only] if args.only else API_TOOLS
+    for t in tools:
+        assert keys[t], f"set {'OPENAI_API_KEY' if t == 'chatgpt' else 'GEMINI_API_KEY'} in the shell first (never in a file)"
+        assert models[t], f"give --{'openai' if t == 'chatgpt' else 'gemini'}-model (see data/real/README.md)"
+    have = {p.stem for p in IMAGES.glob("*")} if IMAGES.exists() else set()
+    todo = [r for r in read_csv(PLAN) if r["generator"] in tools and r["image_id"] not in have][:args.limit]
+    assert todo, "nothing to do: every api image already exists"
+    IMAGES.mkdir(parents=True, exist_ok=True)
+    ensure_prompts()
+    failed = []
+    for k, r in enumerate(todo, 1):
+        t = r["generator"]
+        try:
+            data, ext = (openai_image(r, keys[t], models[t], args.quality) if t == "chatgpt"
+                         else gemini_image(r, keys[t], models[t]))
+        except (RuntimeError, OSError) as e:
+            if str(e).startswith(("HTTP 401", "HTTP 403")):
+                sys.exit(f"stopped: {e}")  # a bad key or an unverified account fails every call
+            failed.append(r["image_id"])
+            print(f"{k}/{len(todo)} {r['image_id']} FAILED: {e}", file=sys.stderr)
+            continue
+        path = IMAGES / f"{r['image_id']}{ext}"
+        path.write_bytes(data)
+        append_prompts([prompt_row(path, r, label=models[t] + (f" quality={args.quality}" if t == "chatgpt" else ""))])
+        print(f"{k}/{len(todo)} {path.name} ({t})", file=sys.stderr)
+    if failed:
+        print(f"\nfailed {failed}: run api again to retry, or make them by hand (intake lists them)")
 
 
 # --------------------------------------------------------------------- intake ---
@@ -369,28 +458,42 @@ def check():
         append_prompts([prompt_row(Path("r001.png"), a[0], "2026-01-01")], p)
         row = read_csv(p)[0]
         assert row["image"] == "r001.png" and row["generator"] == GENERATORS[a[0]["generator"]], row
-    print("ok: plan, selection and prompt log passed all checks")
+    # api replies: both shapes parse, a reply with no image is an error, not a blank file
+    png = b"\x89PNG-test"
+    b64 = base64.b64encode(png).decode()
+    assert parse_openai({"data": [{"b64_json": b64}]}) == (png, ".png")
+    assert parse_gemini({"candidates": [{"content": {"parts": [{"text": "hi"}, {"inlineData": {"mimeType": "image/jpeg", "data": b64}}]}}]}) == (png, ".jpg")
+    try:
+        parse_gemini({"candidates": [{"finishReason": "SAFETY"}]})
+        raise AssertionError("a reply without an image was accepted")
+    except RuntimeError:
+        pass
+    print("ok: plan, selection, prompt log and api parsers passed all checks")
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("step", nargs="?", choices=["plan", "sdxl", "intake", "select"])
+    ap.add_argument("step", nargs="?", choices=["plan", "sdxl", "api", "intake", "select"])
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--seed", type=int, default=2026)
     ap.add_argument("--per-cell", type=int, default=5, help="plan: prompts per family x severity cell")
     ap.add_argument("--manual-per-cell", type=int, default=2, help="plan: prompts per cell also made by hand (0 = none)")
     ap.add_argument("--no-sdxl", action="store_true", help="plan: leave the open-weight model out")
     ap.add_argument("--n", type=int, default=100, help="select: evaluation crops to aim for (Section 4.3.1)")
-    ap.add_argument("--limit", type=int, help="sdxl: stop after this many images")
+    ap.add_argument("--limit", type=int, help="sdxl, api: stop after this many images")
     ap.add_argument("--steps", type=int, default=30, help="sdxl: denoising steps")
     ap.add_argument("--guidance", type=float, default=7.5, help="sdxl: guidance scale")
     ap.add_argument("--offload", action="store_true", help="sdxl: CPU offload for GPUs under 12 GB (slower)")
+    ap.add_argument("--only", choices=API_TOOLS, help="api: one tool only")
+    ap.add_argument("--openai-model", help="api: OpenAI image model id (list with the curl in data/real/README.md)")
+    ap.add_argument("--gemini-model", help="api: Gemini image model id")
+    ap.add_argument("--quality", default="medium", help="api: OpenAI quality (low, medium, high)")
     args = ap.parse_args()
     if args.check:
         return check()
     if not args.step:
-        ap.error("give a step: plan, sdxl, intake or select")
-    {"plan": plan, "sdxl": sdxl, "intake": intake, "select": select}[args.step](args)
+        ap.error("give a step: plan, sdxl, api, intake or select")
+    {"plan": plan, "sdxl": sdxl, "api": api, "intake": intake, "select": select}[args.step](args)
 
 
 if __name__ == "__main__":
