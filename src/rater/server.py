@@ -532,7 +532,14 @@ class Store:
         real = self.real_crops()
         palette = list(csv.DictReader(PALETTE_CSV.open(encoding="utf-8")))
         n, items = 85, {}  # ids continue past the plan's r084, so they never collide with a localized crop
-        for orig in rng.sample(real, n_dup):
+        def readable(r):  # a repeat of an unreadable crop tests nothing
+            try:
+                return int(r["y1"]) - int(r["y0"]) >= 32 and len(r["ocr_text"].strip()) >= 4
+            except KeyError:
+                return True
+
+        ok = {r["crop_id"] for r in csv.DictReader(self.crops_csv.open(encoding="utf-8")) if readable(r)}
+        for orig in rng.sample([c for c in real if c["crop_id"] in ok], n_dup):
             cid = f"r{n:03d}_00"
             n += 1
             dest = self.dir / "crops" / f"{cid}.png"

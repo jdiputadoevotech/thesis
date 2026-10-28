@@ -59,6 +59,13 @@ Prepared 2026-10-26, after a full audit of the repo. The proposal defense was on
 - **R7.** `chapters/06-.../notes.md` was headed "Chapter 5".
 - **R8.** `to_final_docx.py` stopped at Ch4, so Results and Discussion never reached the Word file. Ch5 is included; Ch6 is skipped with a notice until drafted. Test-built to a scratch file (pandoc and the layout pass ran clean); the tracked `Final Paper.docx` was not regenerated.
 
+## Rater app: identity and chain of custody (2026-10-28, `1c7aa12`)
+
+- **Before.** The rater was a plain `rater=r1` value in the browser (a dropdown), checked only against {r1, r2, r3}; anyone with the link could save as, or read, another rater; no time stamps or log.
+- **After.** One secret link per rater (server decides identity, ignores any client-sent rater), consent and attestation bound to the exact text, a hash-chained audit log with time per item, locked answers with a receipt (SHA-256 of the answer set) confirmed from the rater's mailbox, and hidden controls (8 repeats, 6 clean reference renders) kept out of the scoring. `server.py verify` checks all of it.
+- **Why.** Ch4 §4.2.3 relies on three independent, blind experts. The old app could not show that the answers were theirs, and it broke blinding (a rater could read another's labels).
+- **Effect.** Words in Ch4 §4.2.3 and Appendix B should describe the protocol and state the limit: outside help cannot be excluded, impersonation and tampering are made detectable. No result changes. Needs the advisers' view on the consent wording (RA 10173).
+
 ## Open decisions for the advisers
 
 1. **Objective 4 wording** (R4): approve or propose alternative wording.

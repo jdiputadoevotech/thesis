@@ -23,6 +23,7 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ConsentScreen, Notice, ReceiptScreen } from "./Gate.jsx";
 import { Badge } from "./components/ui/badge.jsx";
 import { Button } from "./components/ui/button.jsx";
 import {
@@ -36,12 +37,6 @@ import { Input } from "./components/ui/input.jsx";
 import { Progress, Separator, TabsList, TabsTrigger } from "./components/ui/progress.jsx";
 import { cn } from "./lib/utils.js";
 import { FALLBACK_PALETTE } from "./paletteData.js";
-
-const RATERS = [
-  { id: "r1", label: "Rater 1 (r1)" },
-  { id: "r2", label: "Rater 2 (r2)" },
-  { id: "r3", label: "Rater 3 (r3)" },
-];
 
 const COHERENCE_OPTIONS = [
   {
@@ -88,28 +83,14 @@ const CLASS_BADGE_VARIANT = {
   monospace: "emerald",
 };
 
-function storageKey(rater) {
-  return `thesis_expert_panel_labels_${rater}`;
-}
-
-function buildFallbackDatasetCrops() {
-  return Array.from({ length: 100 }, (_, i) => ({
-    index: i + 1,
-    crop_id: `crop_${String(Math.floor(i / 4) + 1).padStart(2, "0")}_${String(i % 4).padStart(2, "0")}`,
-    image: `gen_${String(Math.floor(i / 4) + 1).padStart(2, "0")}.png`,
-    ocr_text: "sample",
-    crop_url: `/api/crop-image/crop_${String(Math.floor(i / 4) + 1).padStart(2, "0")}_${String(i % 4).padStart(2, "0")}.png`,
-  }));
-}
-
 export default function App() {
-  const [rater, setRater] = useState("r1");
+  // who the server says this is: undefined while loading, null without a valid personal link
+  const [me, setMe] = useState(undefined);
+  const rater = me?.rater ?? "";
   const [palette, setPalette] = useState(FALLBACK_PALETTE);
-  const [crops, setCrops] = useState(buildFallbackDatasetCrops);
-  const [cropMode, setCropMode] = useState("dataset");
-  const [sourceLabel, setSourceLabel] = useState(
-    "Synthetic Dataset Pipeline (render_corpus.py + render_mixed.py)",
-  );
+  const [crops, setCrops] = useState([]);
+  const [cropMode, setCropMode] = useState("real");
+  const [sourceLabel, setSourceLabel] = useState("Real Generative Crops");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [labelsByCrop, setLabelsByCrop] = useState({});
   const [selectedFont, setSelectedFont] = useState("");
@@ -138,6 +119,7 @@ export default function App() {
   const [comboOpen, setComboOpen] = useState(false);
   const [comboQuery, setComboQuery] = useState("");
   const comboRef = useRef(null);
+  const shownAt = useRef(Date.now()); // when the current item appeared, for the time-on-item record
 
   // Right-pane Palette Browser state
   const [browserClass, setBrowserClass] = useState("all");
@@ -158,6 +140,13 @@ export default function App() {
     document.head.appendChild(style);
   }, [palette]);
 
+  useEffect(() => {
+    fetch("/api/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setMe)
+      .catch(() => setMe(null));
+  }, []);
+
   // Load palette & crops from backend
   useEffect(() => {
     let active = true;
@@ -168,54 +157,46 @@ export default function App() {
       })
       .catch(() => {});
 
-    fetch("/api/crops")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (active && data?.crops?.length) {
-          setCrops(data.crops);
-          setCropMode(data.mode || "dataset");
-          if (data.source_label) setSourceLabel(data.source_label);
-        }
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  // Load current rater's labels (blind protocol: isolated per rater)
-  useEffect(() => {
-    let active = true;
-    let localCache = {};
-    try {
-      const raw = localStorage.getItem(storageKey(rater));
-      if (raw) localCache = JSON.parse(raw);
-    } catch {
-      localCache = {};
+    if (me?.consented) {
+      fetch("/api/crops")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (active && data?.crops?.length) {
+            setCrops(data.crops);
+            setCropMode(data.mode || "real");
+            if (data.source_label) setSourceLabel(data.source_label);
+          }
+        })
+        .catch(() => {});
     }
-    setLabelsByCrop(localCache);
+    return () => {
+      active = false;
+    };
+  }, [me?.consented]);
 
-    fetch(`/api/labels?rater=${encodeURIComponent(rater)}`)
+  // The server holds the only copy of the answers, and returns only this rater's (blind protocol)
+  useEffect(() => {
+    if (!me?.consented) return;
+    let active = true;
+    fetch("/api/labels")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!active || !data?.labels) return;
-        const merged = { ...localCache, ...data.labels };
-        setLabelsByCrop(merged);
-        try {
-          localStorage.setItem(storageKey(rater), JSON.stringify(merged));
-        } catch {
-          // Ignore storage quota errors
-        }
+        if (active && data?.labels) setLabelsByCrop(data.labels);
       })
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, [rater]);
+  }, [me?.consented]);
 
   const currentCrop = crops[currentIndex] || crops[0];
 
-  // Sync Q1 & Q2 selections when switching crop or rater
+  const shownId = currentCrop?.crop_id;
+  useEffect(() => {
+    if (shownId) shownAt.current = Date.now();
+  }, [shownId]);
+
+  // Sync Q1 & Q2 selections when switching crop
   useEffect(() => {
     if (!currentCrop) return;
     setCropDimensions(null);
@@ -242,17 +223,10 @@ export default function App() {
       if (!cropId || !fontVal || !coherenceVal) return false;
       const entry = {
         crop_id: cropId,
-        rater,
         font: fontVal,
         coherence: coherenceVal,
+        ms: Date.now() - shownAt.current,
       };
-      const updated = { ...labelsByCrop, [cropId]: entry };
-      setLabelsByCrop(updated);
-      try {
-        localStorage.setItem(storageKey(rater), JSON.stringify(updated));
-      } catch {
-        // Ignore storage errors
-      }
       setSaveState("saving");
       try {
         const res = await fetch("/api/labels", {
@@ -260,20 +234,25 @@ export default function App() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ entries: [entry] }),
         });
-        setSaveState(res.ok ? "saved" : "offline-saved");
+        if (res.ok) {
+          setLabelsByCrop((prev) => ({ ...prev, [cropId]: { ...entry, rater } }));
+          setSaveState("saved");
+          return true;
+        }
       } catch {
-        setSaveState("offline-saved");
+        // fall through: the answer is not counted until the server has it
       }
-      return true;
+      setSaveState("error");
+      return false;
     },
-    [labelsByCrop, rater],
+    [rater],
   );
 
   const canSaveCurrent = Boolean(currentCrop && selectedFont && selectedCoherence);
 
   const handleSaveAndNext = useCallback(async () => {
     if (!canSaveCurrent) return;
-    await persistEntry(currentCrop.crop_id, selectedFont, selectedCoherence);
+    if (!(await persistEntry(currentCrop.crop_id, selectedFont, selectedCoherence))) return;
     if (currentIndex < crops.length - 1) {
       setCurrentIndex((idx) => idx + 1);
     }
@@ -289,7 +268,7 @@ export default function App() {
 
   const handlePrev = useCallback(async () => {
     if (canSaveCurrent) {
-      await persistEntry(currentCrop.crop_id, selectedFont, selectedCoherence);
+      if (!(await persistEntry(currentCrop.crop_id, selectedFont, selectedCoherence))) return;
     }
     setCurrentIndex((idx) => Math.max(0, idx - 1));
   }, [canSaveCurrent, currentCrop, persistEntry, selectedCoherence, selectedFont]);
@@ -418,12 +397,36 @@ export default function App() {
     URL.revokeObjectURL(url);
   }, [crops, labelsByCrop, rater]);
 
+  const handleFinish = useCallback(async () => {
+    if (!window.confirm("Submit your answers? They will be locked and cannot be changed.")) return;
+    const res = await fetch("/api/finish", { method: "POST" }).catch(() => null);
+    const data = await res?.json().catch(() => null);
+    if (res?.ok && data?.receipt) setMe((m) => ({ ...m, receipt: data.receipt }));
+    else window.alert(data?.error || "Could not submit. Check your connection and try again.");
+  }, []);
+
   const isSavedCurrent = Boolean(
     currentCrop &&
       labelsByCrop[currentCrop.crop_id] &&
       labelsByCrop[currentCrop.crop_id].font === selectedFont &&
       labelsByCrop[currentCrop.crop_id].coherence === selectedCoherence,
   );
+
+  if (me === undefined) return <Notice title="Loading..." />;
+  if (me === null) {
+    return (
+      <Notice title="Open your personal link">
+        <p>
+          This form opens only from the personal link in your invitation email. Open that link
+          again, in this browser. If it does not work, ask the researchers for a new one.
+        </p>
+      </Notice>
+    );
+  }
+  if (!me.consented)
+    return <ConsentScreen me={me} onAgreed={() => setMe({ ...me, consented: true })} />;
+  if (me.receipt) return <ReceiptScreen receipt={me.receipt} />;
+  if (!crops.length) return <Notice title="Loading items..." />;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50/80 text-slate-900">
@@ -463,18 +466,7 @@ export default function App() {
             <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1">
               <UserCheck className="h-3.5 w-3.5 text-slate-500" />
               <span className="text-xs font-medium text-slate-600">Rater:</span>
-              <select
-                aria-label="Active Rater ID"
-                value={rater}
-                onChange={(e) => setRater(e.target.value)}
-                className="bg-transparent text-xs font-semibold text-slate-900 focus:outline-none cursor-pointer"
-              >
-                {RATERS.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
+              <span className="text-xs font-semibold text-slate-900">{rater}</span>
             </div>
 
             <div className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-1.5 shadow-2xs">
@@ -518,6 +510,12 @@ export default function App() {
               </select>
             </div>
 
+            {ratedCount === crops.length && (
+              <Button size="sm" onClick={handleFinish}>
+                <Check className="h-3.5 w-3.5" />
+                Finish and submit
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -1145,10 +1143,12 @@ export default function App() {
                 <div className="flex items-center gap-3">
                   <span className="text-xs text-slate-500 hidden sm:inline">
                     {saveState === "saving"
-                      ? "Saving to data/real/labels.csv..."
-                      : isSavedCurrent
-                        ? "Saved to labels.csv"
-                        : "Select Q1 & Q2 then press Enter"}
+                      ? "Saving..."
+                      : saveState === "error"
+                        ? "Not saved: check your connection and press Save again"
+                        : isSavedCurrent
+                          ? "Saved"
+                          : "Select Q1 & Q2 then press Enter"}
                   </span>
                   <Button
                     variant="default"
