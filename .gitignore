@@ -44,3 +44,9 @@ data/real/sheet_*.png
 data/real/predictions.csv
 # Full localizer output; crops.csv holds the selected subset (src/data/generate_real.py select).
 data/real/crops_all.csv
+
+# rater identity: secrets and private data (only the audit head and the receipts are published)
+data/real/raters.private.json
+data/real/controls.private.json
+data/real/audit.jsonl
+data/real/labels_controls.csv
