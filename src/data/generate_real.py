@@ -260,11 +260,14 @@ def parse_openai(d):
 
 
 def parse_gemini(d):
-    for part in ((d.get("candidates") or [{}])[0].get("content") or {}).get("parts", []):
-        blob = part.get("inlineData") or part.get("inline_data")
-        if blob:
-            return base64.b64decode(blob["data"]), EXT.get(blob.get("mimeType") or blob.get("mime_type"), ".png")
-    raise RuntimeError("no image in the reply (refused or blocked): " + json.dumps(d)[:200])
+    """The last image part that is not a "thought": thinking models send interim drafts first."""
+    parts = ((d.get("candidates") or [{}])[0].get("content") or {}).get("parts", [])
+    blobs = [part.get("inlineData") or part.get("inline_data") for part in parts if not part.get("thought")]
+    blobs = [b for b in blobs if b]
+    if not blobs:
+        raise RuntimeError("no image in the reply (refused or blocked): " + json.dumps(d)[:200])
+    b = blobs[-1]
+    return base64.b64decode(b["data"]), EXT.get(b.get("mimeType") or b.get("mime_type"), ".png")
 
 
 def openai_image(row, key, model, quality):
@@ -462,6 +465,8 @@ def check():
     b64 = base64.b64encode(png).decode()
     assert parse_openai({"data": [{"b64_json": b64}]}) == (png, ".png")
     assert parse_gemini({"candidates": [{"content": {"parts": [{"text": "hi"}, {"inlineData": {"mimeType": "image/jpeg", "data": b64}}]}}]}) == (png, ".jpg")
+    draft = {"thought": True, "inlineData": {"mimeType": "image/png", "data": base64.b64encode(b"draft").decode()}}
+    assert parse_gemini({"candidates": [{"content": {"parts": [draft, {"inlineData": {"mimeType": "image/png", "data": b64}}]}}]}) == (png, ".png"), "kept an interim thought image"
     try:
         parse_gemini({"candidates": [{"finishReason": "SAFETY"}]})
         raise AssertionError("a reply without an image was accepted")
