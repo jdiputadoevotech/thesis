@@ -375,10 +375,11 @@ def interleave(groups, start):
     return out
 
 
-def choose_crops(crops, plan_rows, n=100, seed=2026):
+def choose_crops(crops, plan_rows, n=100, seed=2026, cap=6):
     """Keep whole images, cell by cell, until each family x severity cell holds its quota of
-    crops, taking turns between generators so none dominates (Section 4.3.1). Every box the
-    localizer emitted for a chosen image stays in the set. Reads only the plan."""
+    crops, taking turns between generators so none dominates (Section 4.3.1). At most `cap`
+    boxes stay per image (a fixed-seed sample), so a sign that repeats its text, or an image
+    with many boxes, cannot fill a cell alone. Reads only the plan."""
     cells = [(f, s) for s in SEVERITIES for f in FAMILIES]
     quota = math.ceil(n / len(cells))
     by_image = defaultdict(list)
@@ -386,6 +387,11 @@ def choose_crops(crops, plan_rows, n=100, seed=2026):
         by_image[Path(c["image"]).stem].append(c)
     stray = sorted(set(by_image) - set(plan_rows))
     assert not stray, f"crops from images that are not in plan.csv: {stray}"
+    capped = {}
+    for i, cs in by_image.items():
+        capped[i] = max(0, len(cs) - cap)
+        if capped[i]:
+            by_image[i] = random.Random(f"{seed}-{i}").sample(sorted(cs, key=lambda c: c["crop_id"]), cap)
     rng, chosen, report = random.Random(seed), [], {}
     for k, (fam, sev) in enumerate(cells):
         groups = defaultdict(list)
@@ -401,7 +407,8 @@ def choose_crops(crops, plan_rows, n=100, seed=2026):
             picked.append(i)
             got += len(by_image[i])
             chosen += by_image[i]
-        report[f"{fam}|{sev}"] = {"quota": quota, "crops": got, "images": picked, "shortfall": max(0, quota - got)}
+        report[f"{fam}|{sev}"] = {"quota": quota, "crops": got, "images": picked, "shortfall": max(0, quota - got),
+                                  "capped": sum(capped[i] for i in picked)}
     return sorted(chosen, key=lambda c: c["crop_id"]), report
 
 
@@ -415,17 +422,18 @@ def select(args):
     if not ours:  # crops.csv came straight from real.py localize: it is the full pool
         shutil.copyfile(CROPS, POOL)
     pool = read_csv(POOL)
-    chosen, report = choose_crops(pool, plan_rows, args.n, args.seed)
+    chosen, report = choose_crops(pool, plan_rows, args.n, args.seed, args.max_per_image)
     write_csv(CROPS, list(pool[0]), chosen)
     gen = Counter(plan_rows[Path(c["image"]).stem]["generator"] for c in chosen)
-    SELECTION.write_text(json.dumps({"target": args.n, "seed": args.seed, "selected": len(chosen),
+    SELECTION.write_text(json.dumps({"target": args.n, "seed": args.seed, "max_per_image": args.max_per_image, "selected": len(chosen),
                                      "by_generator": dict(gen), "cells": report,
                                      "crops_sha256": sha(CROPS)}, indent=2) + "\n")
     print(f"{len(chosen)} of {len(pool)} crops selected (target {args.n}) -> {CROPS.relative_to(ROOT)}; "
           f"full pool kept in {POOL.name}")
     for cell, r in report.items():
         print(f"  {cell:20s} {r['crops']:3d}/{r['quota']} crops from {len(r['images'])} images"
-              + (f"  SHORT by {r['shortfall']}" if r["shortfall"] else ""))
+              + (f"  SHORT by {r['shortfall']}" if r["shortfall"] else "")
+              + (f"  ({r['capped']} boxes over the per-image cap left out)" if r["capped"] else ""))
     print("by generator: " + ", ".join(f"{g} {n}" for g, n in sorted(gen.items())))
     print("Next: check the crops, delete boxes that are not text (note what and why), then real.py sheet.")
 
@@ -451,6 +459,12 @@ def check():
     chosen, rep = choose_crops(crops, plan_rows, n=36, seed=1)
     assert all(v["crops"] >= v["quota"] for v in rep.values()), rep
     assert chosen == choose_crops(crops, plan_rows, n=36, seed=1)[0], "selection is not seeded"
+    busy = a[0]["image_id"]
+    more = crops + [{"crop_id": f"{busy}_{k:02d}", "image": f"{busy}.png"} for k in range(3, 23)]
+    chosen2, rep2 = choose_crops(more, plan_rows, n=1200, seed=1, cap=6)  # a big quota picks every image
+    assert sum(c["image"] == f"{busy}.png" for c in chosen2) == 6, "the per-image cap did not hold"
+    assert chosen2 == choose_crops(more, plan_rows, n=1200, seed=1, cap=6)[0], "the cap is not seeded"
+    assert any(v["capped"] for v in rep2.values()), "the cap left nothing out"
     assert len(Counter(plan_rows[c["image"][:-4]]["generator"] for c in chosen)) > 1, "one generator dominates"
     # prompts.csv: old four-column header is upgraded; rows round-trip
     with tempfile.TemporaryDirectory() as t:
@@ -488,6 +502,7 @@ def main():
     ap.add_argument("--steps", type=int, default=30, help="sdxl: denoising steps")
     ap.add_argument("--guidance", type=float, default=7.5, help="sdxl: guidance scale")
     ap.add_argument("--offload", action="store_true", help="sdxl: CPU offload for GPUs under 12 GB (slower)")
+    ap.add_argument("--max-per-image", type=int, default=6, help="select: most crops kept from one image")
     ap.add_argument("--only", choices=API_TOOLS, help="api: one tool only")
     ap.add_argument("--openai-model", help="api: OpenAI image model id (list with the curl in data/real/README.md)")
     ap.add_argument("--gemini-model", help="api: Gemini image model id")
