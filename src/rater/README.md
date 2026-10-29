@@ -31,6 +31,19 @@ Nobody can prove who is at the keyboard; this makes impersonation and later edit
 
 Limits: outside help cannot be excluded; the log shows timing and devices, not who was in the room. Hashing addresses is a privacy choice: check the Data Privacy Act (RA 10173) requirements for the consent wording with the adviser.
 
+## Deployment (Coolify, VPS)
+
+`Dockerfile` builds the frontend and the Python server; it holds no data. `data/real/` (the 100 crops, the 14 control images, `crops.csv`, `raters.private.json`, `controls.private.json`, then `labels*.csv` and `audit.jsonl` as raters work) lives in a Docker volume mounted at `/app/data/real`. To set up again: run `tokens` and `controls` on the Mac, copy those files plus `crops.csv` and the crop PNGs into the volume, create a Coolify application from this repo (build pack Dockerfile, base directory `/`, Dockerfile `/src/rater/Dockerfile`, port 8000, the volume above) and deploy. Pushing does not redeploy; trigger it in Coolify.
+
+```bash
+# audit chain and per-rater checks, on the server
+docker exec $(docker ps -q --filter name=<app uuid>) python src/rater/server.py verify
+# back up the answers (run it every day while raters work, and once more when all three have finished)
+rsync -a -e "ssh -i ~/.ssh/<key>" root@<vps>:/var/lib/docker/volumes/<app uuid>-rater-real/_data/ ~/thesis-rater-backup/
+```
+
+A dry run with a friend must use a second instance with its own links and volume, not these links: any answer made through the real links enters the audit log and the labels.
+
 ## Commands
 
 ```bash
