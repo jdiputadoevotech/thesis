@@ -74,9 +74,9 @@ These depend on no code. Their lead time, not the build, is the schedule risk.
 
 | Status | Plan / experiment | Notes | Updated |
 |--------|-------------------|-------|---------|
-| ☐ | FastAPI `/predict` | Pydantic contract, weights loaded once at startup, stateless. | 2026-09-16 |
-| ☐ | EasyOCR localizer wrapper | Word-granularity boxes; adjacent same-verdict words merged in the UI. | 2026-09-16 |
-| ☐ | React + Vite frontend | Upload → per-region Top-K cards with live font previews, or unknown / mixed-typography verdict. | 2026-09-16 |
+| ☑ | FastAPI `/predict` | `src/app/server.py`: typed contract, weights and localizer loaded once, stateless; 415/400/413/no-text cases and determinism pass `--check`. Capped at 12 regions (largest first) and 2048 px. CPU latency on the M2: 30 s for 10 regions with the two-typeface check, 10 s without, so REQ-5.1-1 still needs the probe gate (Increment 4 detail) or a GPU. | 2026-10-29 |
+| ◐ | EasyOCR localizer wrapper | Word-granularity boxes done (the same `boxes_to_crops` the evaluation uses). Merging adjacent same-verdict words in the UI is not built. | 2026-10-29 |
+| ☑ | React + Vite frontend | `src/app/src`: boxes over the image, a card per region with live previews in the real Google Font, unknown folded away, mixed split in two. Checked headless against real SDXL and ChatGPT images. | 2026-10-29 |
 | ☐ | Docker image | Single host, no external deps at inference beyond bundled weights and fonts. | 2026-09-16 |
 
 ## Environment issues
