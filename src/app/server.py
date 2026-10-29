@@ -41,7 +41,7 @@ DIST_DIR = Path(__file__).resolve().parent / "dist"
 TYPES = {"image/png", "image/jpeg", "image/webp"}
 MAX_BYTES = 10 * 2**20
 MAX_SIDE = 2048     # longer images are scaled down before OCR; boxes come back in the scaled frame
-MAX_REGIONS = 12    # the largest regions are kept: each costs about a second on CPU (homogeneity check included)
+MAX_REGIONS = 12    # the largest regions are kept: each costs about 3 s on CPU with the homogeneity check, 1 s without
 
 PALETTE = {r["font_id"]: r for r in csv.DictReader((ROOT / "data/palette.csv").open(encoding="utf-8"))}
 LOCK = threading.Lock()  # one inference at a time: single-user demo, and the localizer is not thread-safe

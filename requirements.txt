@@ -22,3 +22,9 @@ matplotlib==3.11.0
 onnxruntime==1.30.0
 pyyaml==6.0.3
 easyocr==1.7.2
+
+# Increment 4: the web application (src/app/).
+fastapi==0.115.14
+uvicorn==0.34.3
+python-multipart==0.0.32  # file upload
+httpx==0.28.1             # FastAPI's TestClient, used by src/app/server.py --check
