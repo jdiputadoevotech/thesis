@@ -93,6 +93,8 @@ export default function App() {
   const [sourceLabel, setSourceLabel] = useState("Real Generative Crops");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [labelsByCrop, setLabelsByCrop] = useState({});
+  const [labelsLoaded, setLabelsLoaded] = useState(false);
+  const resumed = useRef(false);
   const [selectedFont, setSelectedFont] = useState("");
   const [selectedCoherence, setSelectedCoherence] = useState("");
   const [saveState, setSaveState] = useState("idle");
@@ -181,13 +183,24 @@ export default function App() {
     fetch("/api/labels")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (active && data?.labels) setLabelsByCrop(data.labels);
+        if (active && data?.labels) {
+          setLabelsByCrop(data.labels);
+          setLabelsLoaded(true);
+        }
       })
       .catch(() => {});
     return () => {
       active = false;
     };
   }, [me?.consented]);
+
+  // Coming back after a break: start at the first item without an answer, once
+  useEffect(() => {
+    if (resumed.current || !labelsLoaded || !crops.length) return;
+    resumed.current = true;
+    const first = crops.findIndex((c) => !labelsByCrop[c.crop_id]);
+    if (first > 0) setCurrentIndex(first);
+  }, [crops, labelsLoaded, labelsByCrop]);
 
   const currentCrop = crops[currentIndex] || crops[0];
 
